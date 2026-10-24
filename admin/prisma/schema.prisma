@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  ADMIN
+  MANAGER
+  EDITOR
+  CLIENT
+}
+
+enum ProjectType {
+  ARTIST
+  GALLERY
+  DIGITAL_LITERARY_MUSEUM
+  POETRY_BOOK
+}
+
+enum ProjectStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  ARCHIVED
+}
+
+model Role {
+  id    String   @id @default(cuid())
+  name  RoleName @unique
+  users User[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  roleId       String
+  role         Role     @relation(fields: [roleId], references: [id])
+  projects     Project[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Template {
+  id          String    @id @default(cuid())
+  name        String
+  category    String
+  description String?
+  version     String
+  isActive    Boolean   @default(true)
+  projects    Project[]
+  createdAt   DateTime  @default(now())
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  title         String
+  slug          String        @unique
+  projectType   ProjectType
+  status        ProjectStatus @default(DRAFT)
+  templateId    String
+  template      Template      @relation(fields: [templateId], references: [id])
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  artistProfile ArtistProfile?
+  contactInfo   ContactInfo?
+  artworks      Artwork[]
+  exhibitions   Exhibition[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ArtistProfile {
+  id              String   @id @default(cuid())
+  projectId       String   @unique
+  project         Project  @relation(fields: [projectId], references: [id])
+  name            String
+  nickname        String?
+  introduction    String?
+  profileImageUrl String?
+  email           String?
+  phone           String?
+  snsLinksJson    Json?
+  location        String?
+  createdAt       DateTime @default(now())
+}
+
+model ContactInfo {
+  id                 String   @id @default(cuid())
+  projectId          String   @unique
+  project            Project  @relation(fields: [projectId], references: [id])
+  email              String?
+  phone              String?
+  address            String?
+  instagram          String?
+  inquiryFormEnabled Boolean  @default(true)
+  createdAt          DateTime @default(now())
+}
+
+model Artwork {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  year        String?
+  category    String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+}
+
+model Exhibition {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  location    String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+}
