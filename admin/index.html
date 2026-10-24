@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>명도재 아트웹 관리자 v8.4</title>
-  <link rel="stylesheet" href="./style.css?v=8.4.1">
+  <title>명도재 아트웹 관리자 v8.5</title>
+  <link rel="stylesheet" href="./style.css?v=8.5.0">
 </head>
 <body>
   <div class="app-shell">
@@ -167,11 +167,17 @@
             <div id="news-comic-block" class="panel-inner">
               <div class="panel-head small-head">
                 <div>
-                  <h4>뉴스 만화 자동 구성</h4>
-                  <p>기사 내용을 요약해 3열 × 4행 또는 2열 × 4행 뉴스 만화 시안으로 구성합니다. 말풍선 텍스트와 컷 설명을 자동 배치합니다.</p>
+                  <h4>뉴스 만화 그림 제작</h4>
+                  <p>기사로 컷별 시나리오를 만들고 나노바나나 이미지 생성 서버를 연결하면 실제 8컷 일러스트를 생성합니다. 한국어 말풍선은 웹페이지에서 별도로 정확하게 표시합니다.</p>
                 </div>
               </div>
+              <div class="nano-config">
+                <label for="nano-endpoint">나노바나나 보안 중계 서버 주소 (HTTPS)</label>
+                <input id="nano-endpoint" type="url" placeholder="https://your-worker.example.workers.dev">
+                <small class="field-help">API 키는 이 화면에 입력하지 않습니다. 서버에 비밀키를 설정한 후 중계 주소만 넣어 주세요.</small>
+              </div>
               <div class="inline-actions">
+                <button type="button" id="generate-nano-comic" class="primary">🎨 나노바나나 8컷 그림 생성</button>
                 <button type="button" id="generate-news-comic" class="primary">뉴스 만화 생성</button>
                 <button type="button" id="remove-news-comic" class="danger">만화 삭제</button>
               </div>
@@ -285,6 +291,6 @@
       </section>
     </main>
   </div>
-  <script src="./app.js?v=8.4.1"></script>
+  <script src="./app.js?v=8.5.0"></script>
 </body>
 </html>
