@@ -66,6 +66,53 @@
     history.replaceState(null, '', '#' + name);
   }
 
+  function configureTypeSpecificEditor(){
+    const type=$('template').value;
+    const isNews=['news','culture_paper','culture_news_studio'].includes(type);
+    const isArt=type==='exhibition';
+    const isBook=type==='book_launch';
+    const isPoetry=['literary','book_launch','poem_house'].includes(type);
+    const isStudio=type==='culture_news_studio';
+    // All fields remain in the DOM so previously saved information is not lost when switching types.
+    const fields={
+      biography:!isNews,contact:true,subtitle:true,summary:true,
+      'main-text':!isStudio,
+      'manuscript-file':isPoetry||isNews
+    };
+    for(const [id,visible] of Object.entries(fields)){
+      const input=$(id);if(!input)continue;
+      const label=document.querySelector('label[for="'+id+'"]');
+      if(label)label.hidden=!visible;
+      input.hidden=!visible;
+      if(id==='manuscript-file'){
+        const panel=input.closest('.panel-inner');
+        if(panel)panel.hidden=!visible;
+      }
+    }
+    $('settings-block').hidden=!(isNews||isArt);
+    const music=$('music-mode'),comic=$('comic-panels');
+    const musicLabel=music.closest('label'),comicLabel=comic.closest('label');
+    if(musicLabel)musicLabel.hidden=!isArt;
+    if(comicLabel)comicLabel.hidden=!isNews;
+    const note=$('settings-block').querySelector('.field-help');
+    if(note)note.hidden=!isArt;
+    const gallery=$('artwork-upload-grid').closest('.panel-inner');
+    gallery.hidden=isStudio;
+    const panelLabel=isArt?'작품 사진·그림':isNews?'기사 만화·취재 이미지':isBook?'시집 표지·삽화':'시화·삽화 이미지';
+    $('gallery-heading').textContent=panelLabel+' · 최대 '+currentMeta().limit+'장';
+    $('gallery-help').textContent='이미지는 자동 축소·압축됩니다. 필요한 사진만 등록하세요.';
+    $('main-text-label').textContent=currentMeta().mainLabel;
+    $('summary').placeholder=isArt?'전시 개요와 관람 포인트':isNews?'오늘의 주요 문화예술 소식 요약':isBook?'시집 소개와 출간 취지':'시인의 작품 세계와 문학 소개';
+    $('title').placeholder=isArt?'전시 제목을 입력하세요':isNews?'신문·기사 제목을 입력하세요':isBook?'시집 제목을 입력하세요':'시·문학관 제목을 입력하세요';
+    const typeLabel=document.getElementById('type-workflow-title');
+    if(typeLabel)typeLabel.textContent=isStudio?'① 기사 4건 입력 → ② 만화 구성 → ③ 저장':isNews?'① 기사 입력 → ② 8컷 만화 → ③ 저장':isArt?'① 작가 소개 → ② 작품 등록 → ③ 음악 감상':isBook?'① 시집 소개 → ② 대표 시와 시화 → ③ 저장':'① 시 원문 입력 → ② 시화 생성 → ③ 저장';
+    const pv=$('preview-site');
+    pv.dataset.layout=isArt?'gallery':isNews?'newspaper':isBook?'book':'poetry';
+    $('preview-review-wrap').hidden=!isArt;
+    $('preview-poem-art-wrap').hidden=!isPoetry||!poemArt;
+    $('preview-news-comic-wrap').hidden=!isNews||!newsComic;
+  }
+
   function applyTemplateMode(){
     const meta = currentMeta();
     $('template-guide').textContent = meta.guide;
@@ -79,6 +126,7 @@
     $('culture-studio-block').hidden = $('template').value !== 'culture_news_studio';
     $('preview-type').textContent = meta.preview;
     renderUploadCards();
+    configureTypeSpecificEditor();
     renderPreview();
   }
 
@@ -473,6 +521,7 @@
 
   function buildHtmlDocument(data){
     const meta=templateMeta[data.template] || templateMeta.news;
+    const pageTheme=meta.kind==='art'?'gallery':meta.kind==='news'?'newspaper':data.template==='book_launch'?'book':'poetry';
     const artworks=(data.artworks || []).filter(a=>a && a.dataUrl);
     const biography=data.biography || '작가 약력을 준비하고 있습니다.';
     const contact=data.contact || '문의 정보를 준비하고 있습니다.';
@@ -482,7 +531,7 @@
     const cultureHtml=data.template==='culture_news_studio' ? '<section class="block"><h2>오늘의 문화예술 기사 4선</h2>'+ (data.cultureArticles||[]).map((a,i)=>a.title||a.article||a.column ? '<section class="block"><h3>'+esc((i+1)+'. '+(a.title||'문화예술 소식'))+'</h3><article>'+esc(a.article||'원고 작성 중')+'</article><p><small>출처: '+esc(a.source||'출처 확인 필요')+'</small></p><h4>문화칼럼</h4><article>'+esc(a.column||'칼럼 작성 중')+'</article></section>' : '').join('')+'</section>' : '';
     const comicHtml=(meta.showNewsComic && data.newsComic) ? `<section class="block"><h2>기사로 보는 만화 시안</h2><div class="comic-grid ${data.newsComic.panelCount===8?'two':''}">${data.newsComic.panels.map(panel=>`<div class="comic-card"><h4>${panel.index}컷</h4><div class="scene-box">${esc(panel.scene)}</div><div class="bubble-box">${esc(panel.bubble)}</div><small>${esc(panel.caption)}</small></div>`).join('')}</div></section>` : '';
     const artworksHtml=artworks.map((a,i)=>`<figure class="art-card"><img src="${esc(a.dataUrl)}" alt="작품 ${i+1}"><figcaption>${esc(a.caption || '')}</figcaption><div class="music-label">${esc(moodTitle((a.analysis && a.analysis.mood) || 'lyrical'))} · ${esc(((a.analysis && a.analysis.label) || moodLabel('lyrical')))}</div><button class="music-generate" type="button" data-mood="${esc((a.analysis && a.analysis.mood) || data.musicMode || 'lyrical')}" data-work="${i}">♫ 음악 생성·듣기</button><audio controls preload="none" data-mood="${esc((a.analysis && a.analysis.mood) || data.musicMode || 'lyrical')}" data-work="${i}"></audio></figure>`).join('');
-    return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(data.title)}</title><meta name="description" content="${esc((data.summary || '').slice(0,150))}"><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:#faf8f3;color:#223143;line-height:1.75}header,footer{background:#1f3042;color:#fff;padding:20px 6%}header{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}nav{display:flex;gap:14px;flex-wrap:wrap}nav a{color:#fff;text-decoration:none}nav a:hover{text-decoration:underline}main{max-width:1180px;margin:auto;padding:48px 6%}h1{font-size:clamp(30px,5vw,56px)}article{white-space:pre-wrap;background:#fff;border-radius:16px;padding:20px;border:1px solid #ece7de}.hero{padding:22px 0 30px}.block{margin:28px 0}.art-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.art-card,.comic-card{background:#fff;border:1px solid #e8e1d3;border-radius:18px;padding:14px}.art-card img{width:100%;max-height:360px;object-fit:contain;border-radius:14px;display:block;background:#f8f5ef}.art-card figcaption{white-space:pre-wrap;margin-top:10px}.music-label{margin-top:10px;font-size:13px;color:#475569}.art-card audio{display:block;width:100%;margin-top:8px}.music-generate{margin-top:10px;border:0;border-radius:10px;padding:10px 14px;background:#24384e;color:#fff;cursor:pointer}.comic-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.comic-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.scene-box{min-height:86px;padding:12px;border-radius:12px;background:#e8eef6}.bubble-box{margin-top:10px;padding:12px;border-radius:18px;background:#fff;border:1px solid #dbe3ee;position:relative}.bubble-box:before{content:'';position:absolute;left:16px;top:-8px;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid #fff}@media(max-width:980px){.art-grid,.comic-grid{grid-template-columns:1fr 1fr}}@media(max-width:640px){.art-grid,.comic-grid{grid-template-columns:1fr}}</style></head><body><header><strong>明道 · 명도재 아트웹</strong><nav><a href="#intro">작품 소개</a><a href="#bio">작가 약력</a><a href="#contact">문의</a></nav></header><main><section class="hero"><small>${esc(meta.label)}</small><h1>${esc(data.title)}</h1><p>${esc(data.subtitle || '')}</p><p><strong>${esc(data.owner)}</strong></p></section><section id="intro" class="block"><h2>소개</h2><article>${esc(data.summary || '')}</article></section>${link}<section class="block"><h2>${esc(meta.kind==='art'?'전시 소개':'본문')}</h2><article>${esc(data.mainText || '')}</article></section>${cultureHtml}${comicHtml}<section class="block"><h2>${esc(meta.kind==='art'?'작품':'그림 · 작품')}</h2><div class="art-grid">${artworksHtml || '<p>등록된 작품이 없습니다.</p>'}</div></section>${reviewHtml}${poemArtHtml}<section id="bio" class="block"><h2>작가 약력</h2><article>${esc(biography)}</article></section><section id="contact" class="block"><h2>문의</h2><article>${esc(contact)}</article></section></main><footer>명도재 문화예술 홈페이지 제작소 · 시안</footer>${musicRuntime()}</body></html>`;
+    return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(data.title)}</title><meta name="description" content="${esc((data.summary || '').slice(0,150))}"><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:#faf8f3;color:#223143;line-height:1.75}header,footer{background:#1f3042;color:#fff;padding:20px 6%}header{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}nav{display:flex;gap:14px;flex-wrap:wrap}nav a{color:#fff;text-decoration:none}nav a:hover{text-decoration:underline}main{max-width:1180px;margin:auto;padding:48px 6%}body.newspaper{background:#f7f4ed;color:#252525}body.newspaper h1{font-family:Georgia,serif;border-bottom:4px double #262626;padding-bottom:18px}body.newspaper header{background:#272727}body.gallery{background:#f7f4ee}body.gallery .art-grid{grid-template-columns:repeat(2,minmax(0,1fr))}body.gallery .art-card img{max-height:520px}body.poetry{background:#f6f3eb}body.poetry .hero{max-width:770px;margin:auto;text-align:center}body.poetry article{font-family:serif;font-size:1.1rem;line-height:2.1}body.book{background:#f4f0e8}body.book .hero{border-left:6px solid #9a745c;padding-left:24px}h1{font-size:clamp(30px,5vw,56px)}article{white-space:pre-wrap;background:#fff;border-radius:16px;padding:20px;border:1px solid #ece7de}.hero{padding:22px 0 30px}.block{margin:28px 0}.art-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.art-card,.comic-card{background:#fff;border:1px solid #e8e1d3;border-radius:18px;padding:14px}.art-card img{width:100%;max-height:360px;object-fit:contain;border-radius:14px;display:block;background:#f8f5ef}.art-card figcaption{white-space:pre-wrap;margin-top:10px}.music-label{margin-top:10px;font-size:13px;color:#475569}.art-card audio{display:block;width:100%;margin-top:8px}.music-generate{margin-top:10px;border:0;border-radius:10px;padding:10px 14px;background:#24384e;color:#fff;cursor:pointer}.comic-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.comic-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.scene-box{min-height:86px;padding:12px;border-radius:12px;background:#e8eef6}.bubble-box{margin-top:10px;padding:12px;border-radius:18px;background:#fff;border:1px solid #dbe3ee;position:relative}.bubble-box:before{content:'';position:absolute;left:16px;top:-8px;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid #fff}@media(max-width:980px){.art-grid,.comic-grid{grid-template-columns:1fr 1fr}}@media(max-width:640px){.art-grid,.comic-grid{grid-template-columns:1fr}}</style></head><body class="${pageTheme}"><header><strong>明道 · 명도재 아트웹</strong><nav><a href="#intro">작품 소개</a><a href="#bio">작가 약력</a><a href="#contact">문의</a></nav></header><main><section class="hero"><small>${esc(meta.label)}</small><h1>${esc(data.title)}</h1><p>${esc(data.subtitle || '')}</p><p><strong>${esc(data.owner)}</strong></p></section><section id="intro" class="block"><h2>소개</h2><article>${esc(data.summary || '')}</article></section>${link}<section class="block"><h2>${esc(meta.kind==='art'?'전시 소개':'본문')}</h2><article>${esc(data.mainText || '')}</article></section>${cultureHtml}${comicHtml}<section class="block"><h2>${esc(meta.kind==='art'?'작품':'그림 · 작품')}</h2><div class="art-grid">${artworksHtml || '<p>등록된 작품이 없습니다.</p>'}</div></section>${reviewHtml}${poemArtHtml}<section id="bio" class="block"><h2>작가 약력</h2><article>${esc(biography)}</article></section><section id="contact" class="block"><h2>문의</h2><article>${esc(contact)}</article></section></main><footer>명도재 문화예술 홈페이지 제작소 · 시안</footer>${musicRuntime()}</body></html>`;
   }
 
   function musicRuntime(){
