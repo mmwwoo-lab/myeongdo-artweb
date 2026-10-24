@@ -60,3 +60,5 @@ body{background:var(--md-paper)}
 @media(max-width:360px){.service-tiles{grid-template-columns:1fr}.premium-hero h2{font-size:27px}}
 
 .redirect-config{margin-top:12px;padding:12px 14px;background:#eef4f5;border:1px solid #cedee1;border-radius:12px}.redirect-label{display:flex!important;align-items:center;gap:9px;font-weight:700}.redirect-label input{width:18px;height:18px;flex:none}.redirect-config p{margin:6px 0 0;overflow-wrap:anywhere}
+
+.agency-nav-link{display:block;text-decoration:none;border:1px solid #c6a57270;border-radius:12px;background:#b6946030;color:#f2ddb8;padding:12px 14px;font-size:14px;font-weight:750}.agency-nav-link:hover{background:#c8a57350;color:#fff}
