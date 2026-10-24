@@ -20,6 +20,7 @@
 
   const templateMeta = {
     news:{label:'만화로 보는 뉴스', limit:3, kind:'news', preview:'NEWS', guide:'뉴스형 구성: 기사 글쓰기, 만화 이미지 3장, 3열 4행 뉴스 만화 구성', mainLabel:'기사 본문 · 취재 내용', mainPlaceholder:'기사 내용, 취재 요약, 말풍선 설명, 만화 해설 등을 작성하세요.', showReview:false, showPoemArt:false, showNewsComic:true},
+    culture_paper:{label:'명도재 이명우의 대구문화예술신문', limit:8, kind:'news', preview:'DAEGU CULTURE NEWSPAPER', guide:'문화예술신문 구성: 기사 본문 · 2열×4행 8컷 만화 · 칼럼 · 관련 사이트', mainLabel:'문화예술 기사 · 신문 본문', mainPlaceholder:'대구문화예술 소식 기사 본문, 취재 내용, 출처를 입력하세요.', showReview:false, showPoemArt:false, showNewsComic:true},
     literary:{label:'명도재 이명우 · 문학관', limit:3, kind:'text', preview:'LITERARY ARCHIVE', guide:'문학관 구성: 글쓰기 중심, 그림/작품 3장, 자동 시화 지원', mainLabel:'시 · 산문 · 문학 글쓰기', mainPlaceholder:'시, 산문, 작가 소개, 문학 평론을 작성하세요.', showReview:false, showPoemArt:true, showNewsComic:false},
     book_launch:{label:'시집 출간 기념관', limit:3, kind:'text', preview:'BOOK LAUNCH', guide:'시집 소개형 구성: 시집 소개, 대표 시, 이미지 3장, 자동 시화 지원', mainLabel:'시집 소개 · 추천사 · 시 원문', mainPlaceholder:'시집 소개, 목차, 추천사, 대표 시 원문을 작성하세요.', showReview:false, showPoemArt:true, showNewsComic:false},
     poem_house:{label:'시가 머무는 집', limit:3, kind:'text', preview:'POEM HOUSE', guide:'시와 문학 글 중심 구성, 그림/작품 3장, 자동 시화 지원', mainLabel:'시와 글쓰기', mainPlaceholder:'시, 해설, 감상문, 시집 안내문을 작성하세요.', showReview:false, showPoemArt:true, showNewsComic:false},
@@ -30,7 +31,7 @@
   let manuscript = null;
   let poemArt = null;
   let newsComic = null;
-  let artworks = emptyArtworks(6);
+  let artworks = emptyArtworks(8);
 
   const headings = {dashboard:'운영 대시보드',projects:'저장된 홈페이지 관리',create:'홈페이지 만들기',guide:'사용 안내'};
 
@@ -79,7 +80,7 @@
     renderPreview();
   }
 
-  function ensureArtworkCount(){ while(artworks.length < 6) artworks.push({dataUrl:'',name:'',caption:'',analysis:null}); }
+  function ensureArtworkCount(){ while(artworks.length < 8) artworks.push({dataUrl:'',name:'',caption:'',analysis:null}); }
 
   async function fileToDataUrl(file){
     return await new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=()=>reject(reader.error); reader.readAsDataURL(file); });
@@ -426,7 +427,7 @@
     $('music-mode').value=project.musicMode || 'auto';
     $('comic-panels').value=String(project.comicPanels || 12);
     manuscript=project.manuscript || null; poemArt=project.poemArt || null; newsComic=project.newsComic || null;
-    artworks=emptyArtworks(6); (project.artworks || []).slice(0,6).forEach((a,idx)=>{ artworks[idx]={...artworks[idx], ...(a||{})}; });
+    artworks=emptyArtworks(8); (project.artworks || []).slice(0,6).forEach((a,idx)=>{ artworks[idx]={...artworks[idx], ...(a||{})}; });
     $('form-title').textContent='홈페이지 수정 · ' + (project.title || '');
     $('built-preview-box').hidden=true;
     applyTemplateMode(); renderManuscript(); renderPoemArt(); renderNewsComic(); view('create');
@@ -533,7 +534,7 @@
   document.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click',()=>view(btn.dataset.view)));
   window.addEventListener('hashchange',()=>{ const name=location.hash.slice(1); if(headings[name]) view(name); });
   $('new-project-btn').addEventListener('click',()=>{ clearForm(); view('create'); });
-  $('template').addEventListener('change',applyTemplateMode);
+  $('template').addEventListener('change',()=>{if($('template').value==='culture_paper'){$('comic-panels').value='8';if(!$('title').value.trim())$('title').value='명도재 이명우의 대구문화예술신문';if(!$('owner').value.trim())$('owner').value='명도재 이명우';if(!$('summary').value.trim())$('summary').value='10월 23일자 발행! 대구국제아트페어, 앤디 워홀전, 고야 판화전, 학생동아리 한마당 소식을 기사·8컷 만화·칼럼으로 만나보세요.';if(!$('link-url').value.trim())$('link-url').value='https://myeongdo-daegu-culture.korea8014lee.chatgpt.site';if(!$('link-title').value.trim())$('link-title').value='대구문화예술신문 읽기';}applyTemplateMode();});
   $('clear-form').addEventListener('click',clearForm);
   $('status-filter').addEventListener('change',renderProjectLists);
   $('export-json').addEventListener('click',exportJson);
