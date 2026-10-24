@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>명도재 아트웹 | AI 제작회사 업무관리</title><meta name="description" content="명도재 AI 홈페이지 제작회사 업무 접수, 부서 배정, 기획, 콘텐츠 제작, 작품 검수 및 웹 개발 업무관리">
+<style>
+:root{font-family:"Malgun Gothic",system-ui,sans-serif;color:#253746;background:#f4f2ec}*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}button{cursor:pointer}.wrap{max-width:1260px;margin:auto;padding:24px}header{background:#182e3b;color:#fff;padding:22px 0}.bar{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.logo{font-family:Georgia,serif;font-size:25px;color:#e3c187}.muted{color:#667889;font-size:13px}header .muted{color:#cbd8db}a{color:inherit}header a{color:#f5d9a1}.hero{background:linear-gradient(125deg,#1d3948,#35555b);padding:29px;border-radius:18px;color:white;margin:22px 0}.hero h1{font-size:clamp(23px,3vw,38px);margin:5px 0}.hero p{margin:8px 0;color:#d5e3e5}.eyebrow{font-size:12px;letter-spacing:.17em;color:#dfbd86}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{border:1px solid #e5e0d5;background:#fff;border-radius:16px;padding:20px;min-width:0}.panel h2{font-size:20px;margin:0 0 11px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}input,select,textarea{display:block;width:100%;padding:11px;border-radius:9px;border:1px solid #cbd2d4;background:#fff;color:#253746}textarea{resize:vertical;min-height:100px}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.row>*{flex:1}.btn{border:0;border-radius:9px;padding:11px 15px;background:#243e4e;color:#fff;font-weight:700}.secondary{background:#f0eee7;color:#314354;border:1px solid #dbd7c9}.danger{background:#fff2ee;color:#a44431}.departments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.dept{border:1px solid #ded9cd;padding:13px;border-radius:12px;background:#fcfbf8}.dept strong{display:block;font-size:14px}.dept small{color:#687889}.project{border:1px solid #dcd5c7;border-radius:11px;padding:13px;margin:8px 0;display:flex;align-items:center;gap:12px;justify-content:space-between}.project button{flex:none}.stage{border:1px solid #ddd6c8;border-radius:13px;margin-bottom:12px;overflow:hidden}.stage-head{padding:12px;background:#f3f2eb;display:flex;align-items:center;justify-content:space-between;gap:10px}.stage-head strong{font-size:14px}.stage-body{padding:14px}.stage select{max-width:160px}.stage textarea{min-height:115px}.stage a{font-size:13px;color:#356181}.hint{font-size:12px;color:#667889}.tags{display:flex;gap:7px;flex-wrap:wrap}.tag{border:1px solid #cfc3ad;color:#836642;border-radius:50px;padding:3px 10px;font-size:11px}.summary{font-weight:bold;color:#2b5e4a}.notice{border-left:4px solid #b99661;padding:8px 12px;background:#fcf8ef;font-size:13px}.search{color:#284d68;text-decoration:none;font-weight:650;display:inline-block;margin:6px 6px 0 0}.search:hover{text-decoration:underline}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #99c6d0;outline-offset:2px}footer{padding:28px 0;text-align:center;color:#788390;font-size:12px}@media(max-width:800px){.layout{grid-template-columns:1fr}.departments{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:14px}}@media(max-width:470px){.departments{grid-template-columns:1fr}.stage-head{flex-wrap:wrap}.stage select{max-width:100%}}
+</style></head>
+<body><header><div class="wrap bar"><div><div class="logo">明道 · 명도재 AI 제작회사</div><div class="muted">AI HOMEPAGE PRODUCTION COMPANY · 업무 운영실</div></div><a href="./index.html#dashboard">아트웹 관리자 돌아가기 ↗</a></div></header>
+<main class="wrap"><section class="hero"><div class="eyebrow">PROJECT COMMAND CENTER</div><h1>한 번의 업무 지시, 부서별 제작과 검수</h1><p>접수 → 조사·기획 → 원고·웹구성 → 이미지·음악·문학 → 평론 → 개발·검수</p><div class="tags"><span class="tag">9개 업무부서</span><span class="tag">프로젝트별 업무지시</span><span class="tag">단계별 결과물 관리</span></div></section>
+<div class="layout"><section class="panel"><h2>① 새 업무 지시</h2><form id="task-form"><label for="project-title">프로젝트 이름 *</label><input id="project-title" required maxlength="100" placeholder="예: 대구문화예술신문 10월호"><label for="project-type">홈페이지 유형</label><select id="project-type"><option value="news">만화 뉴스·신문</option><option value="exhibition">미술 전시 홈페이지</option><option value="poetry">시화·문학관</option><option value="music">음악·앨범 홍보</option><option value="general">종합 홍보 홈페이지</option></select><label for="instruction">대표 업무 지시 *</label><textarea id="instruction" required maxlength="6000" placeholder="무엇을 조사하고, 제작하고, 어떤 고객에게 공개할지 작성하세요."></textarea><div class="row"><button class="btn" type="submit">업무 접수 · 부서 배정</button><button class="btn secondary" type="button" id="backup">업무 내역 JSON 백업</button></div></form><p class="hint">업무자료는 현재 브라우저에 저장됩니다. 서로 다른 기기 간 자동 동기화는 지원되지 않습니다.</p></section>
+<section class="panel"><h2>② 운영 현황</h2><div id="overview" class="notice">등록된 프로젝트가 없습니다.</div><h3>프로젝트 목록</h3><div id="projects"></div></section>
+<section class="panel full"><h2>9개 부서 업무 분장</h2><div id="departments" class="departments"></div></section>
+<section class="panel full" id="workspace" hidden><div class="bar"><h2 id="active-title">프로젝트</h2><button class="btn secondary" id="copy-brief" type="button">업무지시서 복사</button></div><p class="hint" id="active-summary"></p><div id="stages"></div><div class="row"><button class="btn" type="button" id="save">진행 내용 저장</button><button class="btn secondary" type="button" id="export-report">업무보고서 다운로드</button><button class="btn danger" type="button" id="remove">프로젝트 삭제</button></div></section>
+<section class="panel full"><h2>운영 원칙</h2><div class="notice">이 페이지는 부서별 역할과 인수인계를 관리하는 작업실입니다. 인터넷 자동 검색, AI 그림 생성, 음악 생성, 자동 배포는 외부 서비스 연동이 필요하며 이 화면만으로 자동 실행되지는 않습니다. 조사 자료의 출처와 저작권, 최종 승인 여부를 반드시 확인하세요.</div></section></div></main><footer>명도재 아트웹 · AI 홈페이지 제작 운영실</footer>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const KEY='myeongdo_agency_jobs_v1';
+const departments=[
+['경영·업무총괄실','요구사항 접수 · 일정 · 최종 승인','프로젝트 지시서'],
+['자료조사·기획부','검색 · 자료 출처 · 사실 확인 · 제작 기획','조사보고서·기획안'],
+['콘텐츠·웹기획부','사이트 메뉴 · 디자인 방향 · 텍스트 원고','사이트맵·원고'],
+['AI 미술제작부','원고 기반 그림 · 8컷 뉴스 만화 · 삽화','그림·만화·이미지 링크'],
+['AI 음악제작부','그림·콘셉트 기반 음악 프롬프트 · 음원','음악 프롬프트·음원 링크'],
+['문학창작부','시 · 가사 · 창작문 제작','시·가사 원문'],
+['시화디자인부','시와 그림 결합 · 캘리그래피','시화 이미지 링크'],
+['문학평론·편집부','시평 · 미술평론 · 맞춤법 · 출처·권리 검토','평론·교정본'],
+['웹개발·품질관리부','페이지 구현 · 테스트 · 배포 · 결과 보고','홈페이지 URL·검수 결과']];
+const stageNames=departments.map(x=>x[0]);
+const eligible={news:[0,1,2,3,7,8],exhibition:[0,1,2,3,4,7,8],poetry:[0,1,2,3,5,6,7,8],music:[0,1,2,3,4,5,7,8],general:[0,1,2,3,4,5,6,7,8]};
+const esc=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+let jobs;try{jobs=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(jobs))jobs=[];}catch{jobs=[];}
+let current=null;
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(jobs));return true}catch{alert('저장 공간이 부족합니다. 업무보고서를 다운로드하여 백업하세요.');return false;}}
+function selected(){return jobs.find(x=>x.id===current)}
+function download(name,text,mime){const a=document.createElement('a');const u=URL.createObjectURL(new Blob([text],{type:mime}));a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);}
+function report(job){return ['명도재 AI 제작회사 — 업무보고서','프로젝트: '+job.title,'분류: '+job.type,'업무지시:\n'+job.brief,'',...job.steps.map(s=>'■ '+stageNames[s.i]+' ['+s.status+']\n'+s.output+'\n')].join('\n');}
+function render(){
+$('departments').innerHTML=departments.map((d,i)=>'<div class="dept"><span class="tag">'+String(i+1).padStart(2,'0')+'</span><strong>'+esc(d[0])+'</strong><small>'+esc(d[1])+'</small><p class="hint">인계: '+esc(d[2])+'</p></div>').join('');
+$('overview').textContent='전체 '+jobs.length+'건 · 진행 중 '+jobs.filter(j=>j.steps.some(s=>s.status==='진행 중')).length+'건 · 전체 완료 '+jobs.filter(j=>j.steps.length&&j.steps.every(s=>s.status==='완료')).length+'건';
+$('projects').innerHTML=jobs.length?jobs.slice().reverse().map(j=>'<div class="project"><div><strong>'+esc(j.title)+'</strong><div class="hint">'+j.steps.filter(s=>s.status==='완료').length+'/'+j.steps.length+'개 부서 완료</div></div><button class="btn secondary" data-open="'+esc(j.id)+'">업무 보기</button></div>').join(''):'<p class="muted">아직 접수된 업무가 없습니다.</p>';
+document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{saveFields();current=b.dataset.open;render()}));
+const job=selected();$('workspace').hidden=!job;if(!job)return;
+$('active-title').textContent='③ '+job.title;
+$('active-summary').textContent=job.brief;
+$('stages').innerHTML=job.steps.map((s,n)=>{let q=departments[s.i];let encoded=encodeURIComponent(job.title+' '+q[1]);return '<div class="stage"><div class="stage-head"><strong>'+esc(q[0])+' — '+esc(q[2])+'</strong><select data-status="'+n+'"><option'+(s.status==='대기'?' selected':'')+'>대기</option><option'+(s.status==='진행 중'?' selected':'')+'>진행 중</option><option'+(s.status==='검수 요청'?' selected':'')+'>검수 요청</option><option'+(s.status==='완료'?' selected':'')+'>완료</option></select></div><div class="stage-body"><p class="hint">담당 업무: '+esc(q[1])+'</p><label for="output-'+n+'">결과물 / 검토 의견 / 파일·자료 링크</label><textarea id="output-'+n+'" data-output="'+n+'" placeholder="완료한 업무 결과물과 출처 URL을 기록하세요.">'+esc(s.output)+'</textarea>'+(s.i===1?'<a class="search" href="https://www.google.com/search?q='+encoded+'" target="_blank" rel="noopener noreferrer">자료 조사 검색 열기 ↗</a>':'')+(s.i===8?'<a class="search" href="./index.html#create">홈페이지 제작 편집기 열기 ↗</a>':'')+'</div></div>'}).join('');
+}
+function saveFields(){let job=selected();if(!job)return;job.steps.forEach((s,n)=>{const o=document.querySelector('[data-output="'+n+'"]'),t=document.querySelector('[data-status="'+n+'"]');if(o)s.output=o.value;if(t)s.status=t.value;});persist();}
+$('task-form').addEventListener('submit',e=>{e.preventDefault();saveFields();let type=$('project-type').value;let item={id:'job-'+Date.now(),title:$('project-title').value.trim(),type,brief:$('instruction').value.trim(),steps:eligible[type].map(i=>({i,status:'대기',output:''}))};jobs.push(item);current=item.id;persist();$('task-form').reset();render();$('workspace').scrollIntoView({behavior:'smooth',block:'start'});});
+$('save').addEventListener('click',()=>{saveFields();render();alert('업무 진행 내용이 저장되었습니다.');});
+$('backup').addEventListener('click',()=>{saveFields();download('myeongdo-agency-backup.json',JSON.stringify(jobs,null,2),'application/json;charset=utf-8');});
+$('export-report').addEventListener('click',()=>{saveFields();let j=selected();if(j)download('myeongdo-report-'+j.id+'.txt',report(j),'text/plain;charset=utf-8');});
+$('copy-brief').addEventListener('click',async()=>{saveFields();let j=selected();if(!j)return;let text='업무명: '+j.title+'\n업무지시: '+j.brief+'\n'+j.steps.map(s=>departments[s.i][0]+' 담당: '+departments[s.i][1]).join('\n');try{await navigator.clipboard.writeText(text);alert('업무지시서를 복사했습니다.');}catch{alert('복사할 수 없습니다. 보고서를 다운로드해 주세요.');}});
+$('remove').addEventListener('click',()=>{let j=selected();if(!j||!confirm(j.title+' 프로젝트를 삭제할까요?'))return;jobs=jobs.filter(x=>x.id!==current);current=null;persist();render();});
+window.addEventListener('beforeunload',saveFields);
+render();
+})();
+</script></body></html>
