@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#1b2838" />
   <meta name="description" content="명도재 문화예술 홈페이지 제작소 관리자 시제품" />
   <title>관리자 데모 | 명도재 아트웹 스튜디오</title>
-  <link rel="stylesheet" href="./style.css?v=4.0.0" />
-  <script src="./app.js?v=4.0.0" defer></script>
+  <link rel="stylesheet" href="./style.css?v=5.0.0" />
+  <script src="./app.js?v=5.0.0" defer></script>
 </head>
 <body>
   <div class="app">
@@ -43,14 +43,14 @@
             <label for="type">템플릿 유형</label><select id="type"><option value="전시관">미술 전시관</option><option value="문학관">디지털 문학관</option><option value="작가관">작가 포트폴리오</option><option value="출판관">시집·도서 홍보관</option></select>
             <label for="subtitle">한 줄 소개</label><input id="subtitle" maxlength="130" placeholder="예술의 기록을 디지털 공간으로" />
             <label for="description">소개 문구</label><textarea id="description" maxlength="1600" rows="5" placeholder="전시와 작품에 대한 소개를 입력하세요."></textarea>
-            <label for="image-url">대표 작품 이미지 주소 (선택, HTTPS)</label><input id="image-url" type="url" placeholder="https://example.com/artwork.jpg" /><small class="preview-notice">이미지는 인터넷에서 접근 가능한 HTTPS 주소만 사용합니다. 저작권과 공개 권한을 확인하세요.</small><label for="status">진행 상태</label><select id="status"><option>기획</option><option>제작 중</option><option>검수</option><option>완료</option></select>
+            <label for="artwork-file">작품 사진 파일 선택 (JPG·PNG·WebP, 400KB 이내)</label><input id="artwork-file" type="file" accept="image/jpeg,image/png,image/webp" /><button type="button" class="subtle" id="remove-artwork">선택한 작품사진 삭제</button><label for="manuscript-file">원고 텍스트 파일 불러오기 (TXT·MD, 100KB 이내)</label><input id="manuscript-file" type="file" accept=".txt,.md,text/plain,text/markdown" /><small class="preview-notice">선택한 원고는 소개 문구에 입력됩니다. 업로드 파일은 외부 서버로 전송되지 않습니다.</small><label for="image-url">대표 작품 이미지 주소 (선택, HTTPS)</label><input id="image-url" type="url" placeholder="https://example.com/artwork.jpg" /><small class="preview-notice">이미지는 인터넷에서 접근 가능한 HTTPS 주소만 사용합니다. 저작권과 공개 권한을 확인하세요.</small><label for="status">진행 상태</label><select id="status"><option>기획</option><option>제작 중</option><option>검수</option><option>완료</option></select>
             <div class="form-actions"><button type="submit" class="primary">이 홈페이지 저장하기</button><button type="button" class="subtle" id="clear-form">새로 입력</button><button type="button" class="primary" id="build-site">홈페이지 미리보기</button><button type="button" class="subtle" id="download-site">홈페이지 파일 다운로드</button></div><p class="preview-notice" id="form-feedback" role="status" aria-live="polite">입력한 글은 오른쪽 미리보기에 즉시 표시됩니다. 홈페이지 파일을 내려받을 수 있습니다.</p>
           </form>
           <div class="panel preview-panel"><div class="panel-title"><div><h2>실시간 홈페이지 미리보기</h2><p>입력하는 대로 시안이 바뀝니다.</p></div></div><div class="preview-site" id="preview-site"><div class="preview-top"><span class="preview-logo">明道</span><span>작품 소개　·　작가 약력　·　문의</span></div><div class="preview-hero"><small id="preview-type">ART EXHIBITION</small><h2 id="preview-title">나만의 온라인 미술관</h2><p id="preview-subtitle">문화예술 홈페이지를 만드는 첫걸음</p></div><div class="preview-body"><h3 id="preview-artist">작가·단체명</h3><p id="preview-description">작품의 이야기가 이곳에 담깁니다.</p><div id="preview-image" hidden></div><div class="preview-art"><span>작품 이미지 자리</span><span>작품 이미지 자리</span><span>작품 이미지 자리</span></div><small class="preview-notice">시연용 화면 · 실제 공개 사이트는 아닙니다</small></div><div id="built-preview-box" class="panel" hidden><h2>생성된 홈페이지 미리보기</h2><p>시안 확인용이며 인터넷에 공개되지 않습니다.</p><iframe id="built-preview" title="생성된 홈페이지 화면" sandbox="" style="width:100%;height:540px;border:1px solid #ddd;border-radius:10px;background:white"></iframe></div></div>
         </div>
       </section>
       <section class="view" id="view-guide"><div class="panel prose"><h2>관리자 시제품 사용 안내</h2><ol><li>‘홈페이지 만들기’에서 제목과 작가 이름을 입력합니다.</li><li>전시관·문학관·작가관·출판관 템플릿을 선택합니다.</li><li>오른쪽 미리보기에서 내용을 확인합니다.</li><li>저장한 프로젝트는 ‘프로젝트 관리’에서 수정·삭제할 수 있습니다.</li><li>‘시연 데이터 내보내기’로 예제 데이터를 JSON 파일로 백업할 수 있습니다. ‘홈페이지 HTML 다운로드’로 입력 내용을 단일 HTML 시안으로 내려받을 수 있습니다.</li></ol><h3>정식 운영에 필요한 추가 개발</h3><p>관리자 로그인, 실제 고객별 접근권한, 서버 데이터베이스, 미디어 업로드, 발행 URL 생성, 변경 이력, 비용·계약 관리, 보안 및 개인정보보호를 추가해야 합니다.</p><p><b>중요:</b> GitHub Pages의 공개 폴더는 누구나 열 수 있습니다. 이 URL을 비공개 관리 시스템이라고 생각하면 안 됩니다.</p></div></section>
-      <footer>© 2026 명도재 문화예술 홈페이지 제작소 · 관리자 시제품 v4.0</footer>
+      <footer>© 2026 명도재 문화예술 홈페이지 제작소 · 관리자 시제품 v5.0</footer>
     </main>
   </div>
 </body>
