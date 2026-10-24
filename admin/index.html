@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>명도재 아트웹 관리자 v8.1</title>
-  <link rel="stylesheet" href="./style.css?v=8.1.0">
+  <title>명도재 아트웹 관리자 v8.2</title>
+  <link rel="stylesheet" href="./style.css?v=8.2.0">
 </head>
 <body>
   <div class="app-shell">
@@ -13,7 +13,7 @@
         <div class="seal">明道</div>
         <div>
           <h1>명도재 아트웹 관리자</h1>
-          <p>v8.1 · 대구문화예술신문 추가</p>
+          <p>v8.2 · 대구문화예술 뉴스 신문 만들기</p>
         </div>
       </div>
       <nav class="nav">
@@ -91,6 +91,7 @@
             <select id="template">
               <option value="news">만화로 보는 뉴스</option>
               <option value="culture_paper">명도재 이명우의 대구문화예술신문</option>
+              <option value="culture_news_studio">명도재 이명우의 대구문화예술 뉴스 신문 만들기</option>
               <option value="literary">명도재 이명우 · 문학관</option>
               <option value="book_launch">시집 출간 기념관</option>
               <option value="poem_house">시가 머무는 집</option>
@@ -134,6 +135,11 @@
               <small class="field-help">작품 음악은 이미지 색감과 설명을 함께 참고해 30초 이내의 창작 서양 클래식풍 기악곡으로 구성합니다.</small>
             </div>
 
+<div id="culture-studio-block" class="panel-inner" hidden>
+  <h4>문화예술신문 편집실 · 기사 4건</h4>
+  <p class="field-help">문화부 기자(기사), 만화가(8컷 시안), 칼럼니스트(논평)의 편집 흐름입니다. 실제 뉴스 사실 확인과 이미지 생성은 별도 취재·제작이 필요합니다.</p>
+  <div class="panel-inner"><h4>기사 1</h4><label for="culture-title-0">기사 제목</label><input id="culture-title-0" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-0">기사 원고</label><textarea id="culture-article-0" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-0">출처·원문 링크·보도일</label><textarea id="culture-source-0" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-0">문화칼럼</label><textarea id="culture-column-0" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div><div class="panel-inner"><h4>기사 2</h4><label for="culture-title-1">기사 제목</label><input id="culture-title-1" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-1">기사 원고</label><textarea id="culture-article-1" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-1">출처·원문 링크·보도일</label><textarea id="culture-source-1" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-1">문화칼럼</label><textarea id="culture-column-1" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div><div class="panel-inner"><h4>기사 3</h4><label for="culture-title-2">기사 제목</label><input id="culture-title-2" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-2">기사 원고</label><textarea id="culture-article-2" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-2">출처·원문 링크·보도일</label><textarea id="culture-source-2" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-2">문화칼럼</label><textarea id="culture-column-2" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div><div class="panel-inner"><h4>기사 4</h4><label for="culture-title-3">기사 제목</label><input id="culture-title-3" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-3">기사 원고</label><textarea id="culture-article-3" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-3">출처·원문 링크·보도일</label><textarea id="culture-source-3" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-3">문화칼럼</label><textarea id="culture-column-3" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div>
+</div>
             <div id="review-block" class="panel-inner">
               <label for="overall-review">전체 작품 평론</label>
               <textarea id="overall-review" rows="6" maxlength="12000" placeholder="전시 전체에 대한 평론을 입력하거나 자동 생성하세요."></textarea>
@@ -278,6 +284,6 @@
       </section>
     </main>
   </div>
-  <script src="./app.js?v=8.1.0"></script>
+  <script src="./app.js?v=8.2.0"></script>
 </body>
 </html>
