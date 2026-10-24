@@ -397,19 +397,61 @@
   }
 
   // Self-contained 30-second generative classical-style piece. Music is based on captions, not image vision.
-  function musicWidgetHtml(data){
-    const moodText=((data.artworks||[]).map(a=>a?.caption||'').join(' ')+' '+(data.summary||'')+' '+(data.title||''));
-    const mood=/봄|꽃|햇살|밝|노랑/.test(moodText)?'spring':/밤|달|겨울|고요|눈|그리움/.test(moodText)?'nocturne':/바다|물|강|푸른|파랑/.test(moodText)?'water':'pastoral';
-    const labels={spring:'봄의 미뉴에트',nocturne:'달빛 녹턴',water:'물결의 소나티나',pastoral:'숲의 작은 왈츠'};
-    return '<section class="block" id="art-music"><h2>작품과 함께 듣는 30초 음악</h2><p>'+esc(labels[mood])+' · 클래식풍 창작 기악곡 (30초)</p><button id="music-play" type="button" style="padding:12px 20px;border:0;border-radius:10px;background:#1f3042;color:white;cursor:pointer">▶ 30초 음악 듣기</button> <button id="music-stop" type="button" style="padding:12px 20px;border:0;border-radius:10px;cursor:pointer">■ 중지</button><p id="music-status" role="status">재생 버튼을 누르면 음악이 시작됩니다.</p></section><script>(function(){var mood='+JSON.stringify(mood)+',AC=window.AudioContext||window.webkitAudioContext,ctx=null,timer=null,voices=[];function stop(){if(timer){clearTimeout(timer);timer=null;}voices.forEach(function(v){try{v.stop();}catch(e){}});voices=[];if(ctx){ctx.close().catch(function(){});ctx=null;}document.getElementById("music-status").textContent="재생이 중지되었습니다.";}function play(){stop();if(!AC){document.getElementById("music-status").textContent="이 브라우저는 오디오를 지원하지 않습니다.";return;}ctx=new AC();var notes=mood==="spring"?[60,64,67,72,69,67,64,62]:mood==="nocturne"?[57,60,64,69,67,64,60,59]:mood==="water"?[62,66,69,74,71,69,66,64]:[60,64,67,69,67,64,62,60];var t=ctx.currentTime+0.1;function tone(note,start,dur,volume,wave){var o=ctx.createOscillator(),g=ctx.createGain();o.type=wave||"sine";o.frequency.value=440*Math.pow(2,(note-69)/12);g.gain.setValueAtTime(0.0001,start);g.gain.exponentialRampToValueAtTime(volume,start+0.08);g.gain.exponentialRampToValueAtTime(0.0001,start+dur);o.connect(g);g.connect(ctx.destination);o.start(start);o.stop(start+dur+0.02);voices.push(o);}for(var i=0;i<60;i++){var n=notes[i%notes.length];tone(n,t+i*0.5,0.46,0.075,"sine");if(i%3===0)tone(notes[(i+2)%notes.length]-12,t+i*0.5,1.4,0.045,"triangle");if(i%6===0)tone(notes[0]-24,t+i*0.5,2.8,0.035,"sine");}document.getElementById("music-status").textContent="재생 중 · 30초";timer=setTimeout(stop,30000);}document.getElementById("music-play").addEventListener("click",play);document.getElementById("music-stop").addEventListener("click",stop);window.addEventListener("pagehide",stop);})();</script>';
+  // Generate original 30-second tonal pieces in the browser, without external copyrighted recordings.
+  function artworkMood(text){
+    return /봄|꽃|햇살|밝|노랑/.test(text)?'spring':/밤|달|겨울|고요|눈|그리움/.test(text)?'nocturne':/바다|물|강|푸른|파랑/.test(text)?'water':'pastoral';
+  }
+  function musicPlayerHtml(item,index,summary){
+    const mood=artworkMood((item.caption||'')+' '+summary);
+    const title={spring:'봄의 미뉴에트',nocturne:'달빛 녹턴',water:'물결의 소나티나',pastoral:'숲의 작은 왈츠'}[mood];
+    return '<div class="music-player" style="margin:12px 0;padding:12px;border:1px solid #e5e1d8;border-radius:12px;background:#faf8f3"><div style="font-size:13px;margin-bottom:6px">🎻 '+title+' · 서양 클래식풍 창작곡 30초</div><button type="button" class="music-start" style="padding:7px 12px;margin-bottom:8px;border-radius:8px;border:0;background:#24384e;color:#fff;cursor:pointer">♫ 음악 생성·듣기</button><audio controls preload="none" data-classic-mood="'+mood+'" data-work="'+index+'" style="display:block;width:100%;max-width:100%"></audio><small style="color:#665">▶ 버튼을 누르면 생성·재생됩니다. 진행바·음량 조절 가능</small></div>';
+  }
+  function musicRuntime(){
+    return `<script>(function(){
+      var players=Array.from(document.querySelectorAll('audio[data-classic-mood]'));
+      function renderWav(mood,work){
+        var rate=16000,seconds=30,count=rate*seconds,out=new Int16Array(count);
+        var motif={spring:[60,64,67,72,69,67,64,62],nocturne:[57,60,64,69,67,64,60,59],water:[62,66,69,74,71,69,66,64],pastoral:[60,64,67,69,67,64,62,60]}[mood]||[60,64,67,72];
+        var shift=(work%4)*2, tempo=mood==='nocturne'?0.75:0.5;
+        function addTone(note,start,duration,vol){
+          var freq=440*Math.pow(2,(note+shift-69)/12),begin=Math.round(start*rate),end=Math.min(count,Math.round((start+duration)*rate));
+          for(var i=begin;i<end;i++){
+            var t=(i-begin)/rate,env=Math.min(1,t/0.06)*Math.min(1,(duration-t)/0.14),v=Math.sin(2*Math.PI*freq*t)*0.65+Math.sin(2*Math.PI*freq*2*t)*0.16;
+            out[i]=Math.max(-32767,Math.min(32767,out[i]+v*env*vol*32767));
+          }
+        }
+        for(var step=0;step<Math.ceil(seconds/tempo);step++){
+          var at=step*tempo,n=motif[(step+work)%motif.length],dur=Math.min(tempo*0.92,seconds-at);
+          addTone(n,at,dur,0.17);
+          if(step%4===0){addTone(motif[0]-12,at,Math.min(tempo*3.8,seconds-at),0.09);addTone(motif[2]-12,at,Math.min(tempo*3.8,seconds-at),0.055);}
+        }
+        var buf=new ArrayBuffer(44+count*2),v=new DataView(buf);
+        function word(i,n){v.setUint32(i,n,true);}function short(i,n){v.setUint16(i,n,true);}
+        function tag(i,t){for(var k=0;k<t.length;k++)v.setUint8(i+k,t.charCodeAt(k));}
+        tag(0,'RIFF');word(4,36+count*2);tag(8,'WAVE');tag(12,'fmt ');word(16,16);short(20,1);short(22,1);
+        word(24,rate);word(28,rate*2);short(32,2);short(34,16);tag(36,'data');word(40,count*2);
+        for(var j=0;j<count;j++)v.setInt16(44+j*2,out[j],true);
+        return URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
+      }
+      players.forEach(function(p){var creating=false;var btn=p.parentNode.querySelector('.music-start');if(btn)btn.addEventListener('click',function(){if(!p.src){p.src=renderWav(p.dataset.classicMood,Number(p.dataset.work)||0);p.load();}p.play().catch(function(e){console.error(e);});});
+        p.addEventListener('play',function(){players.forEach(function(other){if(other!==p)other.pause();});});
+        p.addEventListener('pointerdown',function(){if(p.src||creating)return;creating=true;
+          try{p.src=renderWav(p.dataset.classicMood,Number(p.dataset.work)||0);p.load();}
+          catch(e){console.error(e);}
+          creating=false;
+        });
+        p.addEventListener('keydown',function(e){if(!p.src&&(e.key==='Enter'||e.key===' ')){p.src=renderWav(p.dataset.classicMood,Number(p.dataset.work)||0);p.load();}});
+      });
+      window.addEventListener('pagehide',function(){players.forEach(function(p){if(p.src&&p.src.startsWith('blob:'))URL.revokeObjectURL(p.src);});});
+    })();<\/script>`;
   }
   function buildHtmlDocument(data){
     const meta = templateMeta[data.template] || templateMeta.news;
-    const artworksHtml = (data.artworks || []).map((a, i) => a?.dataUrl ? `<figure style="display:inline-block;vertical-align:top;width:${meta.limit===6?'30%':'31%'};min-width:160px;margin:1%"><img src="${esc(a.dataUrl)}" alt="작품 ${i+1}" style="width:100%;max-height:360px;object-fit:contain;border-radius:12px"><figcaption style="white-space:pre-wrap;margin-top:10px">${esc(a.caption || '')}</figcaption></figure>` : '').join('');
+    const artworksHtml = (data.artworks || []).map((a, i) => a?.dataUrl ? `<figure style="display:inline-block;vertical-align:top;width:${meta.limit===6?'30%':'31%'};min-width:180px;margin:1%"><img src="${esc(a.dataUrl)}" alt="작품 ${i+1}" style="width:100%;max-height:360px;object-fit:contain;border-radius:12px"><figcaption style="white-space:pre-wrap;margin-top:10px">${esc(a.caption || '')}</figcaption>${musicPlayerHtml(a,i,data.summary||'')}</figure>` : '').join('');
     const link = data.linkUrl ? `<p><a href="${esc(data.linkUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:11px 18px;background:#1f3042;color:#fff;border-radius:10px;text-decoration:none">${esc(data.linkTitle || '관련 사이트 열기')}</a></p>` : '';
     const poemArtHtml = data.poemArt?.dataUrl ? `<section><h2>자동 생성 시화</h2><img src="${esc(data.poemArt.dataUrl)}" alt="자동 생성 시화" style="width:100%;max-width:420px;display:block;margin:20px auto"></section>` : '';
     const reviewHtml = meta.showReview ? `<section><h2>전체 작품 평론</h2><article style="white-space:pre-wrap">${esc(data.review || '')}</article></section>` : '';
-    return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(data.title)}</title><meta name="description" content="${esc((data.summary || '').slice(0,150))}"><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:#faf8f3;color:#223143;line-height:1.75}header,footer{background:#1f3042;color:#fff;padding:20px 6%}header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}nav{display:flex;flex-wrap:wrap;gap:14px}nav a{color:#fff;text-decoration:none;padding:6px}nav a:hover,nav a:focus-visible{text-decoration:underline}section[id]{scroll-margin-top:20px}main{max-width:1100px;margin:auto;padding:48px 6%}h1{font-size:clamp(30px,5vw,56px)}article{white-space:pre-wrap;background:#fff;border-radius:16px;padding:20px;border:1px solid #ece7de}img{display:block}.hero{padding:22px 0 30px}.block{margin:26px 0}small.top{color:#8a7f6a}</style></head><body><header><strong>明道 · 명도재 아트웹</strong><nav aria-label="홈페이지 상단 메뉴"><a href="#works-intro">작품 소개</a><a href="#works-bio">작가 약력</a><a href="#works-contact">문의</a></nav></header><main><section class="hero"><small class="top">${esc(meta.label)}</small><h1>${esc(data.title)}</h1><p>${esc(data.subtitle || '')}</p><p><strong>${esc(data.owner)}</strong></p></section><section class="block" id="works-intro"><h2>작품 소개</h2><article>${esc(data.summary || '')}</article></section>${link}<section class="block"><h2>${esc(meta.kind==='art'?'전시 소개':'본문')}</h2><article>${esc(data.mainText || '')}</article></section><section class="block"><h2>${esc(meta.kind==='art'?'작품':'그림 · 작품')}</h2>${artworksHtml || '<p>등록된 작품이 없습니다.</p>'}</section>${reviewHtml}${poemArtHtml}${musicWidgetHtml(data)}<section class="block" id="works-bio"><h2>작가 약력</h2><article>${esc(data.biography || "작가 약력을 준비하고 있습니다.")}</article></section><section class="block" id="works-contact"><h2>문의</h2><article>${esc(data.contact || "문의 정보를 준비하고 있습니다.")}</article></section></main><footer>명도재 문화예술 홈페이지 제작소 · 시안</footer></body></html>`;
+    return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(data.title)}</title><meta name="description" content="${esc((data.summary || '').slice(0,150))}"><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:#faf8f3;color:#223143;line-height:1.75}header,footer{background:#1f3042;color:#fff;padding:20px 6%}header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}nav{display:flex;flex-wrap:wrap;gap:14px}nav a{color:#fff;text-decoration:none;padding:6px}nav a:hover,nav a:focus-visible{text-decoration:underline}section[id]{scroll-margin-top:20px}main{max-width:1100px;margin:auto;padding:48px 6%}h1{font-size:clamp(30px,5vw,56px)}article{white-space:pre-wrap;background:#fff;border-radius:16px;padding:20px;border:1px solid #ece7de}img{display:block}.hero{padding:22px 0 30px}.block{margin:26px 0}small.top{color:#8a7f6a}</style></head><body><header><strong>明道 · 명도재 아트웹</strong><nav aria-label="홈페이지 상단 메뉴"><a href="#works-intro">작품 소개</a><a href="#works-bio">작가 약력</a><a href="#works-contact">문의</a></nav></header><main><section class="hero"><small class="top">${esc(meta.label)}</small><h1>${esc(data.title)}</h1><p>${esc(data.subtitle || '')}</p><p><strong>${esc(data.owner)}</strong></p></section><section class="block" id="works-intro"><h2>작품 소개</h2><article>${esc(data.summary || '')}</article></section>${link}<section class="block"><h2>${esc(meta.kind==='art'?'전시 소개':'본문')}</h2><article>${esc(data.mainText || '')}</article></section><section class="block"><h2>${esc(meta.kind==='art'?'작품':'그림 · 작품')}</h2>${artworksHtml || '<p>등록된 작품이 없습니다.</p>'}</section>${reviewHtml}${poemArtHtml}<section class="block" id="works-bio"><h2>작가 약력</h2><article>${esc(data.biography || "작가 약력을 준비하고 있습니다.")}</article></section><section class="block" id="works-contact"><h2>문의</h2><article>${esc(data.contact || "문의 정보를 준비하고 있습니다.")}</article></section></main><footer>명도재 문화예술 홈페이지 제작소 · 시안</footer>${musicRuntime()}</body></html>`;
   }
 
   function previewBuiltPage(){
