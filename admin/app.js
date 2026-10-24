@@ -73,7 +73,7 @@
     $('review-block').hidden = !meta.showReview;
     $('poem-art-block').hidden = !meta.showPoemArt;
     $('preview-type').textContent = meta.preview;
-    $('preview-nav').textContent = meta.nav;
+    // 상단 메뉴는 고정된 실제 앵커 링크이므로 삭제된 preview-nav를 참조하지 않습니다.
     renderUploadCards();
     renderPreview();
   }
@@ -440,6 +440,7 @@
 
   // Events
   document.querySelectorAll('[data-view]').forEach(btn => btn.addEventListener('click', () => view(btn.dataset.view)));
+  window.addEventListener('hashchange',()=>{const name=location.hash.slice(1);if(headings[name])view(name);});
   $('new-project-btn').addEventListener('click', () => { clearForm(); view('create'); });
   $('template').addEventListener('change', applyTemplateMode);
   $('clear-form').addEventListener('click', clearForm);
