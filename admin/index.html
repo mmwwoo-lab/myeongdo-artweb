@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>명도재 아트웹 관리자 v7.1</title>
-  <link rel="stylesheet" href="./style.css?v=7.1.0">
+  <title>명도재 아트웹 관리자 v7.2</title>
+  <link rel="stylesheet" href="./style.css?v=7.2.0">
 </head>
 <body>
   <div class="app-shell">
@@ -13,7 +13,7 @@
         <div class="seal">明道</div>
         <div>
           <h1>명도재 아트웹 관리자</h1>
-          <p>v7.1 · 글·전시 맞춤 제작</p>
+          <p>v7.2 · 상단 메뉴 작동</p>
         </div>
       </div>
       <nav class="nav">
@@ -94,7 +94,7 @@
               <option value="exhibition">사계의 빛 — 한국화 초대전</option>
             </select>
 
-            <label for="subtitle">한 줄 소개</label>
+            <label for="biography">작가 약력 · 단체 소개</label><textarea id="biography" rows="5" maxlength="5000" placeholder="작가 약력, 주요 활동, 수상, 전시 이력을 입력하세요."></textarea><label for="contact">문의 정보</label><textarea id="contact" rows="3" maxlength="1200" placeholder="연락 가능한 공개 이메일 또는 안내 문구를 입력하세요. 개인정보는 입력하지 마세요."></textarea><label for="subtitle">한 줄 소개</label>
             <input id="subtitle" type="text" maxlength="150" placeholder="예: 시와 그림이 만나는 디지털 공간">
 
             <label for="summary">짧은 소개</label>
@@ -170,16 +170,16 @@
           <div class="panel preview-panel">
             <div class="panel-head"><div><h3>실시간 홈페이지 미리보기</h3><p>유형별 화면 구조를 즉시 확인할 수 있습니다.</p></div></div>
             <div id="preview-site" class="preview-site">
-              <div class="preview-top"><span class="seal">明道</span><span id="preview-nav">소개 · 작품 · 글</span></div>
+              <div class="preview-top"><span class="seal">明道</span><nav class="site-nav" aria-label="홈페이지 미리보기 메뉴"><a href="#pv-intro">작품 소개</a><a href="#pv-bio">작가 약력</a><a href="#pv-contact">문의</a></nav></div>
               <div class="preview-hero">
                 <small id="preview-type">NEWS</small>
                 <h2 id="preview-title">홈페이지 제목</h2>
                 <p id="preview-subtitle">한 줄 소개</p>
               </div>
-              <div class="preview-body">
+              <div class="preview-body"><section id="pv-intro">
                 <h3 id="preview-owner">작가·단체명</h3>
                 <p id="preview-summary">짧은 소개가 여기에 표시됩니다.</p>
-                <div id="preview-link"></div>
+                <div id="preview-link"></div></section><section id="pv-bio" class="preview-section"><h4>작가 약력</h4><div class="preview-article" id="preview-biography"></div></section><section id="pv-contact" class="preview-section"><h4>문의</h4><div class="preview-article" id="preview-contact"></div></section>
                 <div id="preview-main-text" class="preview-article"></div>
                 <div id="preview-art-gallery" class="preview-art-grid"></div>
                 <div id="preview-review" class="preview-review" hidden></div>
@@ -212,6 +212,6 @@
       </section>
     </main>
   </div>
-  <script src="./app.js?v=7.1.0"></script>
+  <script src="./app.js?v=7.2.0"></script>
 </body>
 </html>
