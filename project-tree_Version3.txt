@@ -1,0 +1,63 @@
+project-root/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+├── app/
+│   ├── admin/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── projects/
+│   │       ├── new/
+│   │       │   └── page.tsx
+│   │       └── [projectId]/
+│   │           └── edit/
+│   │               └── page.tsx
+│   ├── api/
+│   │   ├── auth/
+│   │   │   └── [...nextauth]/
+│   │   │       └── route.ts
+│   │   ├── artworks/
+│   │   │   ├── route.ts
+│   │   │   └── [artworkId]/
+│   │   │       └── route.ts
+│   │   ├── deploy/
+│   │   │   └── route.ts
+│   │   ├── exhibitions/
+│   │   │   ├── route.ts
+│   │   │   └── [exhibitionId]/
+│   │   │       └── route.ts
+│   │   ├── inquiries/
+│   │   │   └── route.ts
+│   │   ├── projects/
+│   │   │   ├── route.ts
+│   │   │   └── [projectId]/
+│   │   │       └── route.ts
+│   │   └── upload/
+│   │       └── route.ts
+│   ├── [slug]/
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── admin/
+│   │   ├── ArtworkManager.tsx
+│   │   └── ExhibitionManager.tsx
+├── lib/
+│   ├── cloudinary.ts
+│   └── prisma.ts
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+├── .env.example
+├── .gitignore
+├── auth.ts
+├── middleware.ts
+├── next.config.mjs
+├── package.json
+├── README.md
+├── tsconfig.json
+├── vercel.json
+└── next-env.d.ts
