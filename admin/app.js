@@ -48,6 +48,7 @@
     try{ localStorage.setItem(KEY, JSON.stringify(projects)); return true; }
     catch(err){ alert('저장에 실패했습니다. 브라우저 저장공간을 확인하세요.'); return false; }
   }
+  function mutateProjects(next){const old=projects;projects=next;if(!saveProjects()){projects=old;return false;}renderProjectLists();return true;}
   function emptyArtworks(n){ return Array.from({length:n}, () => ({dataUrl:'', name:'', caption:''})); }
   function currentMeta(){ return templateMeta[$('template').value] || templateMeta.news; }
   function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
@@ -361,11 +362,12 @@
   function projectRow(p){
     const row = document.createElement('div'); row.className='project-row';
     const info = document.createElement('div');
-    info.innerHTML = `<h4>${esc(p.title)}</h4><small>${esc(p.owner)} · ${esc(templateMeta[p.template]?.label || p.template)} · 이미지 ${p.artworks?.length || 0}장</small>`;
+    const pictureCount=(p.artworks||[]).filter(a=>a&&a.dataUrl).length;
+    info.innerHTML = `<h4>${esc(p.title)}</h4><small>${esc(p.owner||'작가 미입력')} · ${esc(templateMeta[p.template]?.label || p.template||'유형 미지정')} · 등록된 이미지 ${pictureCount}장 / 최대 ${templateMeta[p.template]?.limit||3}장</small>`;
     const actions = document.createElement('div'); actions.className='row-actions';
     const tag = document.createElement('span'); tag.className='tag'; tag.textContent = p.status || '기획';
-    const edit = document.createElement('button'); edit.className='subtle'; edit.textContent='다시 편집'; edit.addEventListener('click', () => fillForm(p));
-    const del = document.createElement('button'); del.className='danger'; del.textContent='삭제'; del.addEventListener('click', () => { if(confirm('이 항목을 삭제할까요?')){ projects = projects.filter(x => x.id !== p.id); if(saveProjects()) renderProjectLists(); } });
+    const edit = document.createElement('button'); edit.type='button'; edit.className='subtle'; edit.textContent='다시 편집'; edit.addEventListener('click', () => fillForm(p));
+    const del = document.createElement('button'); del.type='button'; del.className='danger'; del.textContent='삭제'; del.addEventListener('click', () => { if(confirm('「'+p.title+'」 홈페이지를 삭제할까요?')){mutateProjects(projects.filter(x=>x.id!==p.id));} });
     actions.append(tag, edit, del); row.append(info, actions); return row;
   }
 
@@ -411,7 +413,7 @@
   $('clear-form').addEventListener('click', clearForm);
   $('status-filter').addEventListener('change', renderProjectLists);
   $('export-json').addEventListener('click', exportJson);
-  $('reset-samples').addEventListener('click', () => { if(confirm('예시 데이터로 초기화할까요?')){ projects = structuredClone(SAMPLE_PROJECTS); saveProjects(); renderProjectLists(); } });
+  $('reset-samples').addEventListener('click', () => { if(confirm('저장한 모든 홈페이지를 삭제하고 기본 예시 2개로 초기화할까요? 이 작업은 되돌릴 수 없습니다.')){ mutateProjects(structuredClone(SAMPLE_PROJECTS)); $('status-filter').value='전체'; renderProjectLists(); } });
   $('auto-critique').addEventListener('click', () => { const result=generateCritiqueText(); if(!result)return; $('overall-review').value = result; renderPreview(); $('form-feedback').textContent = '입력된 작품 설명을 바탕으로 약 200자의 평론 초안이 작성됐습니다. 이미지 자체를 판독한 AI 평론은 아닙니다.'; });
   $('generate-poem-art').addEventListener('click', () => { const result = generatePoemArtSvg(); if(result){ renderPoemArt(); $('form-feedback').textContent = '9:16 수채화풍 시화가 생성되었습니다.'; } });
   $('download-poem-art').addEventListener('click', () => { if(!poemArt){ alert('먼저 시화를 생성하세요.'); return; } const a=document.createElement('a'); a.href='data:image/svg+xml;charset=utf-8,' + encodeURIComponent(poemArt.svg); a.download = (($('title').value.trim() || 'poem-art') + '.svg'); document.body.append(a); a.click(); a.remove(); });
@@ -440,8 +442,8 @@
     if(!$('title').value.trim() || !$('owner').value.trim()){ alert('홈페이지 제목과 작가·단체명을 입력하세요.'); return; }
     const data = collectFormData();
     const index = projects.findIndex(p => p.id === data.id);
-    if(index >= 0) projects[index] = data; else projects.push(data);
-    if(saveProjects()){ $('form-feedback').textContent = '홈페이지가 저장되었습니다.'; clearForm(); renderProjectLists(); view('projects'); }
+    const next=projects.slice();if(index >= 0) next[index]=data; else next.push(data);
+    if(mutateProjects(next)){clearForm();$('status-filter').value='전체';renderProjectLists();view('projects');}
   });
 
   // Init
