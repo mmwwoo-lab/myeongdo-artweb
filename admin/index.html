@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>명도재 아트웹 관리자 v8.2</title>
-  <link rel="stylesheet" href="./style.css?v=8.2.0">
+  <title>명도재 아트웹 관리자 v8.3</title>
+  <link rel="stylesheet" href="./style.css?v=8.3.0">
 </head>
 <body>
   <div class="app-shell">
@@ -13,7 +13,7 @@
         <div class="seal">明道</div>
         <div>
           <h1>명도재 아트웹 관리자</h1>
-          <p>v8.2 · 대구문화예술 뉴스 신문 만들기</p>
+          <p>v8.3 · 유형별 맞춤 제작</p>
         </div>
       </div>
       <nav class="nav">
@@ -87,7 +87,7 @@
             <label for="owner">작가·단체명 *</label>
             <input id="owner" type="text" maxlength="80" required placeholder="예: 명도재 이명우">
 
-            <label for="template">홈페이지 유형</label>
+            <label for="template">① 홈페이지 유형 선택</label>
             <select id="template">
               <option value="news">만화로 보는 뉴스</option>
               <option value="culture_paper">명도재 이명우의 대구문화예술신문</option>
@@ -98,6 +98,7 @@
               <option value="exhibition">사계의 빛 — 한국화 초대전</option>
             </select>
 
+            <p id="type-workflow-title" class="workflow-guide" aria-live="polite">유형을 선택하면 입력 화면이 자동으로 바뀝니다.</p>
             <label for="subtitle">한 줄 소개</label>
             <input id="subtitle" type="text" maxlength="150" placeholder="예: 시와 그림이 만나는 디지털 공간">
 
@@ -284,6 +285,6 @@
       </section>
     </main>
   </div>
-  <script src="./app.js?v=8.2.0"></script>
+  <script src="./app.js?v=8.3.0"></script>
 </body>
 </html>
