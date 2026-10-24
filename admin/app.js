@@ -16,8 +16,9 @@
   const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;};
   const field=(id)=>$(id).value.trim();
   const headings={dashboard:'운영 대시보드',projects:'프로젝트 관리',create:'홈페이지 만들기',guide:'사용 안내'};
-  function view(name){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('visible',x.id==='view-'+name));document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===name));$('page-heading').textContent=headings[name]||'대시보드';if(name==='dashboard'||name==='projects')render();window.scrollTo({top:0,behavior:'smooth'});}
+  function view(name){if(!headings[name])name='dashboard';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('visible',x.id==='view-'+name));document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===name));$('page-heading').textContent=headings[name]||'대시보드';if(name==='dashboard'||name==='projects')render();if(location.hash!=='#'+name)history.replaceState(null,'','#'+name);window.scrollTo({top:0,behavior:'auto'});if(name==='create'){$('title').focus({preventScroll:true});}}
   document.querySelectorAll('[data-view]').forEach(x=>x.addEventListener('click',()=>view(x.dataset.view)));
+  window.addEventListener('hashchange',()=>{const name=location.hash.slice(1);if(headings[name])view(name);});
   document.querySelectorAll('[data-go]').forEach(x=>x.addEventListener('click',()=>{clearForm();view(x.dataset.go)}));
   function row(p){const wrap=el('div','project-row');const info=el('div');info.append(el('h3','',p.title),el('small','',`${p.artist} · ${p.type||'전시관'}`));const actions=el('div','row-actions');actions.append(el('span','tag',p.status||'기획'));const edit=el('button','subtle','수정');edit.addEventListener('click',()=>editProject(p.id));const del=el('button','danger','삭제');del.addEventListener('click',()=>removeProject(p.id));actions.append(edit,del);wrap.append(info,actions);return wrap;}
   function render(){ $('stat-all').textContent=projects.length;$('stat-doing').textContent=projects.filter(x=>x.status!=='완료').length;$('stat-done').textContent=projects.filter(x=>x.status==='완료').length;
@@ -71,5 +72,8 @@
     setTimeout(()=>URL.revokeObjectURL(url),60000);
   });
 
+  // 입력 중 오류 및 저장 성공 여부를 화면에서 명확하게 안내
+  $('project-form').addEventListener('input',()=>{const n=$('form-feedback');if(n)n.textContent='입력 중 · 오른쪽 화면에 내용이 반영됩니다.';});
   render();updatePreview();
+  const requested=location.hash.slice(1);if(headings[requested])view(requested);
 })();
