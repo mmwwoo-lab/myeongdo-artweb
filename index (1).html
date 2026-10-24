@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#1b2838" />
+  <meta name="description" content="명도재 문화예술 홈페이지 제작소 관리자 시제품" />
+  <title>관리자 데모 | 명도재 아트웹 스튜디오</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="관리 메뉴">
+      <div class="brand"><span class="seal">明道</span><div><b>명도재 아트웹</b><small>ARTWEB STUDIO · DEMO</small></div></div>
+      <nav id="nav" aria-label="관리자 메뉴">
+        <button class="nav-item active" data-view="dashboard">▦ &nbsp;대시보드</button>
+        <button class="nav-item" data-view="projects">▤ &nbsp;프로젝트 관리</button>
+        <button class="nav-item" data-view="create">＋ &nbsp;홈페이지 만들기</button>
+        <button class="nav-item" data-view="guide">ⓘ &nbsp;사용 안내</button>
+      </nav>
+      <div class="sidebar-foot">명도재 이명우 · 문화예술 디지털 창작</div>
+    </aside>
+    <main class="content">
+      <header class="topbar"><div><span class="eyebrow">명도재 문화예술 홈페이지 제작소</span><h1 id="page-heading">운영 대시보드</h1></div><span class="demo-badge">시제품 · 실제 고객정보 입력 금지</span></header>
+      <div class="alert">이 화면은 브라우저에만 저장되는 <b>관리자 기능 시연용</b>입니다. 로그인·서버·결제·고객정보 보호 기능이 없으므로 실제 영업 자료는 등록하지 마세요.</div>
+      <section class="view visible" id="view-dashboard" aria-labelledby="page-heading">
+        <div class="stats"><div class="stat"><small>전체 프로젝트</small><strong id="stat-all">0</strong></div><div class="stat"><small>진행 중</small><strong id="stat-doing">0</strong></div><div class="stat"><small>완료</small><strong id="stat-done">0</strong></div></div>
+        <div class="panel"><div class="panel-title"><div><h2>최근 프로젝트</h2><p>전시관, 문학관, 출판 홍보 홈페이지를 관리합니다.</p></div><button class="primary" data-go="create">+ 새 홈페이지</button></div><div id="recent-projects"></div></div>
+        <div class="tips"><h2>제작 흐름</h2><div class="steps"><span>① 프로젝트 등록</span><span>② 콘텐츠 입력</span><span>③ 미리보기</span><span>④ 정식 서비스에서 공개</span></div></div>
+      </section>
+      <section class="view" id="view-projects">
+        <div class="panel"><div class="panel-title"><div><h2>프로젝트 관리</h2><p>예시 데이터로 연습하고 데이터를 JSON 파일로 백업할 수 있습니다.</p></div><button class="primary" data-go="create">+ 새 프로젝트</button></div>
+          <div class="toolbar"><label>상태 필터 <select id="status-filter"><option value="전체">전체</option><option value="기획">기획</option><option value="제작 중">제작 중</option><option value="검수">검수</option><option value="완료">완료</option></select></label><button id="export-btn" class="subtle">시연 데이터 내보내기</button><button id="reset-btn" class="danger">예시 초기화</button></div>
+          <div id="project-list"></div></div>
+      </section>
+      <section class="view" id="view-create">
+        <div class="editor-grid">
+          <form id="project-form" class="panel form-panel"><div class="panel-title"><div><h2 id="form-title">새 홈페이지 만들기</h2><p>고객이 실제로 제공한 정보 대신 예시 정보로 먼저 시험하세요.</p></div></div>
+            <input type="hidden" id="project-id" />
+            <label for="title">홈페이지 제목 *</label><input id="title" maxlength="80" required placeholder="예: 사계의 빛, 한국화 초대전" />
+            <label for="artist">작가·단체명 *</label><input id="artist" maxlength="60" required placeholder="예: 명도재 예술연구소" />
+            <label for="type">템플릿 유형</label><select id="type"><option value="전시관">미술 전시관</option><option value="문학관">디지털 문학관</option><option value="작가관">작가 포트폴리오</option><option value="출판관">시집·도서 홍보관</option></select>
+            <label for="subtitle">한 줄 소개</label><input id="subtitle" maxlength="130" placeholder="예술의 기록을 디지털 공간으로" />
+            <label for="description">소개 문구</label><textarea id="description" maxlength="1600" rows="5" placeholder="전시와 작품에 대한 소개를 입력하세요."></textarea>
+            <label for="status">진행 상태</label><select id="status"><option>기획</option><option>제작 중</option><option>검수</option><option>완료</option></select>
+            <div class="form-actions"><button type="submit" class="primary">프로젝트 저장</button><button type="button" class="subtle" id="clear-form">새로 입력</button></div>
+          </form>
+          <div class="panel preview-panel"><div class="panel-title"><div><h2>실시간 홈페이지 미리보기</h2><p>입력하는 대로 시안이 바뀝니다.</p></div></div><div class="preview-site" id="preview-site"><div class="preview-top"><span class="preview-logo">明道</span><span>작품 소개　·　작가 약력　·　문의</span></div><div class="preview-hero"><small id="preview-type">ART EXHIBITION</small><h2 id="preview-title">나만의 온라인 미술관</h2><p id="preview-subtitle">문화예술 홈페이지를 만드는 첫걸음</p></div><div class="preview-body"><h3 id="preview-artist">작가·단체명</h3><p id="preview-description">작품의 이야기가 이곳에 담깁니다.</p><div class="preview-art"><span>작품 이미지 자리</span><span>작품 이미지 자리</span><span>작품 이미지 자리</span></div><small class="preview-notice">시연용 화면 · 실제 공개 사이트는 아닙니다</small></div></div></div>
+        </div>
+      </section>
+      <section class="view" id="view-guide"><div class="panel prose"><h2>관리자 시제품 사용 안내</h2><ol><li>‘홈페이지 만들기’에서 제목과 작가 이름을 입력합니다.</li><li>전시관·문학관·작가관·출판관 템플릿을 선택합니다.</li><li>오른쪽 미리보기에서 내용을 확인합니다.</li><li>저장한 프로젝트는 ‘프로젝트 관리’에서 수정·삭제할 수 있습니다.</li><li>‘시연 데이터 내보내기’로 예제 데이터를 JSON 파일로 백업할 수 있습니다.</li></ol><h3>정식 운영에 필요한 추가 개발</h3><p>관리자 로그인, 실제 고객별 접근권한, 서버 데이터베이스, 미디어 업로드, 발행 URL 생성, 변경 이력, 비용·계약 관리, 보안 및 개인정보보호를 추가해야 합니다.</p><p><b>중요:</b> GitHub Pages의 공개 폴더는 누구나 열 수 있습니다. 이 URL을 비공개 관리 시스템이라고 생각하면 안 됩니다.</p></div></section>
+      <footer>© 2026 명도재 문화예술 홈페이지 제작소 · 관리자 시제품 v1.0</footer>
+    </main>
+  </div>
+</body>
+</html>
