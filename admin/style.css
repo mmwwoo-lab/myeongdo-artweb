@@ -3,3 +3,26 @@
 .workflow-guide{padding:12px 16px;border-radius:12px;background:#eaf0f4;color:#203348;font-weight:700;margin:12px 0 18px}.form-panel label[hidden],.form-panel input[hidden],.form-panel textarea[hidden],.form-panel .panel-inner[hidden],.form-panel .field-help[hidden]{display:none!important}.preview-site[data-layout="gallery"]{background:#f4f0e8}.preview-site[data-layout="gallery"] .preview-art-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.preview-site[data-layout="newspaper"]{background:#f7f5ef}.preview-site[data-layout="newspaper"] .preview-hero{border-bottom:4px double #303030}.preview-site[data-layout="newspaper"] .preview-hero h2{font-family:Georgia,serif}.preview-site[data-layout="poetry"] .preview-hero{text-align:center}.preview-site[data-layout="poetry"] .preview-article{font-family:serif;line-height:2.1}.preview-site[data-layout="book"] .preview-hero{border-left:6px solid #9a745c}
 
 .nano-config{padding:12px;border-radius:12px;background:#f0f5fa;margin:14px 0}.nano-config label{margin:0 0 7px}.comic-generated-image{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-radius:12px}.comic-card:has(.comic-generated-image){background:#fff}
+
+/* v8.6 creative studio: task-focused layout, original UI styling */
+.studio-intro{padding:18px;border-radius:16px;background:linear-gradient(125deg,#22394b,#355d65);color:#fff;margin:4px 0 18px}
+.studio-intro h4{font-size:20px;margin:5px 0 5px;line-height:1.35}.studio-intro p{font-size:13px;opacity:.85;margin:0}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:.16em;color:#b5e1d9}
+.studio-step{display:flex;gap:6px;flex-wrap:wrap;margin-top:15px}
+.studio-step span{font-size:11px;border:1px solid #73969b;color:#d3e8eb;border-radius:40px;padding:3px 10px}
+.studio-step .current{background:#e5f4ee;color:#244958;border-color:transparent}
+.editor-mode{display:flex;background:#eff1f3;border-radius:12px;padding:4px;gap:4px;margin-bottom:15px}
+.editor-mode button{width:50%;padding:10px;border:0;background:transparent;border-radius:9px;color:#526274;font-weight:700}
+.editor-mode button.mode-active{background:#fff;color:#1f354a;box-shadow:0 1px 8px #183a4b1a}
+.word-counter{text-align:right;font-size:11px;color:#64748b;margin-top:3px}
+.form-panel.studio-simple .studio-advanced{display:none!important}
+.form-panel.studio-simple #review-block,.form-panel.studio-simple #poem-art-block,.form-panel.studio-simple #news-comic-block{display:block}
+.form-panel .form-action-title{width:100%;font-size:14px;font-weight:800;color:#3e5467;margin-bottom:2px}
+.preview-toolbar{display:flex;align-items:center;justify-content:space-between;margin:0 0 9px;color:#738090;font-size:11px;letter-spacing:.1em;font-weight:700}
+.preview-toolbar button{font-size:12px;padding:5px 10px}
+.form-panel #title,.form-panel #template{font-weight:650}
+.form-panel .form-actions{position:sticky;bottom:5px;z-index:5;background:#fffefaed;padding:13px 9px;border-radius:14px;border:1px solid #e3e7e9;box-shadow:0 9px 20px #1d30471b}
+.form-panel .form-actions .primary{flex:1;min-width:155px}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #83b0b9;outline-offset:2px}
+@media(min-width:1180px){.preview-panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}}
+@media(max-width:640px){.form-panel .form-actions{position:static}.studio-intro{padding:14px}}
