@@ -259,6 +259,8 @@
     $('preview-subtitle').textContent = $('subtitle').value.trim() || '한 줄 소개';
     $('preview-owner').textContent = $('owner').value.trim() || '작가·단체명';
     $('preview-summary').textContent = $('summary').value.trim() || '짧은 소개가 여기에 표시됩니다.';
+    $('preview-biography').textContent = $('biography').value.trim() || '작가 약력 또는 단체 소개를 입력하세요.';
+    $('preview-contact').textContent = $('contact').value.trim() || '문의 방법을 입력하세요.';
     const linkWrap = $('preview-link');
     linkWrap.replaceChildren();
     const href = safeHttps($('link-url').value.trim());
@@ -289,6 +291,8 @@
       owner: $('owner').value.trim(),
       template: $('template').value,
       subtitle: $('subtitle').value.trim(),
+      biography: $('biography').value.trim(),
+      contact: $('contact').value.trim(),
       summary: $('summary').value.trim(),
       mainText: $('main-text').value.trim(),
       review: $('overall-review').value.trim(),
@@ -307,6 +311,8 @@
     $('owner').value = project.owner || '';
     $('template').value = project.template || 'news';
     $('subtitle').value = project.subtitle || '';
+    $('biography').value = project.biography || '';
+    $('contact').value = project.contact || '';
     $('summary').value = project.summary || '';
     $('main-text').value = project.mainText || '';
     $('overall-review').value = project.review || '';
@@ -369,7 +375,7 @@
     const link = data.linkUrl ? `<p><a href="${esc(data.linkUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:11px 18px;background:#1f3042;color:#fff;border-radius:10px;text-decoration:none">${esc(data.linkTitle || '관련 사이트 열기')}</a></p>` : '';
     const poemArtHtml = data.poemArt?.dataUrl ? `<section><h2>자동 생성 시화</h2><img src="${esc(data.poemArt.dataUrl)}" alt="자동 생성 시화" style="width:100%;max-width:420px;display:block;margin:20px auto"></section>` : '';
     const reviewHtml = meta.showReview ? `<section><h2>전체 작품 평론</h2><article style="white-space:pre-wrap">${esc(data.review || '')}</article></section>` : '';
-    return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(data.title)}</title><meta name="description" content="${esc((data.summary || '').slice(0,150))}"><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:#faf8f3;color:#223143;line-height:1.75}header,footer{background:#1f3042;color:#fff;padding:20px 6%}main{max-width:1100px;margin:auto;padding:48px 6%}h1{font-size:clamp(30px,5vw,56px)}article{white-space:pre-wrap;background:#fff;border-radius:16px;padding:20px;border:1px solid #ece7de}img{display:block}.hero{padding:22px 0 30px}.block{margin:26px 0}small.top{color:#8a7f6a}</style></head><body><header>明道 · 명도재 아트웹</header><main><section class="hero"><small class="top">${esc(meta.label)}</small><h1>${esc(data.title)}</h1><p>${esc(data.subtitle || '')}</p><p><strong>${esc(data.owner)}</strong></p></section><section class="block"><h2>소개</h2><article>${esc(data.summary || '')}</article></section>${link}<section class="block"><h2>${esc(meta.kind==='art'?'전시 소개':'본문')}</h2><article>${esc(data.mainText || '')}</article></section><section class="block"><h2>${esc(meta.kind==='art'?'작품':'그림 · 작품')}</h2>${artworksHtml || '<p>등록된 작품이 없습니다.</p>'}</section>${reviewHtml}${poemArtHtml}</main><footer>명도재 문화예술 홈페이지 제작소 · 시안</footer></body></html>`;
+    return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(data.title)}</title><meta name="description" content="${esc((data.summary || '').slice(0,150))}"><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:#faf8f3;color:#223143;line-height:1.75}header,footer{background:#1f3042;color:#fff;padding:20px 6%}header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}nav{display:flex;flex-wrap:wrap;gap:14px}nav a{color:#fff;text-decoration:none;padding:6px}nav a:hover,nav a:focus-visible{text-decoration:underline}section[id]{scroll-margin-top:20px}main{max-width:1100px;margin:auto;padding:48px 6%}h1{font-size:clamp(30px,5vw,56px)}article{white-space:pre-wrap;background:#fff;border-radius:16px;padding:20px;border:1px solid #ece7de}img{display:block}.hero{padding:22px 0 30px}.block{margin:26px 0}small.top{color:#8a7f6a}</style></head><body><header><strong>明道 · 명도재 아트웹</strong><nav aria-label="홈페이지 상단 메뉴"><a href="#works-intro">작품 소개</a><a href="#works-bio">작가 약력</a><a href="#works-contact">문의</a></nav></header><main><section class="hero"><small class="top">${esc(meta.label)}</small><h1>${esc(data.title)}</h1><p>${esc(data.subtitle || '')}</p><p><strong>${esc(data.owner)}</strong></p></section><section class="block" id="works-intro"><h2>작품 소개</h2><article>${esc(data.summary || '')}</article></section>${link}<section class="block"><h2>${esc(meta.kind==='art'?'전시 소개':'본문')}</h2><article>${esc(data.mainText || '')}</article></section><section class="block"><h2>${esc(meta.kind==='art'?'작품':'그림 · 작품')}</h2>${artworksHtml || '<p>등록된 작품이 없습니다.</p>'}</section>${reviewHtml}${poemArtHtml}<section class="block" id="works-bio"><h2>작가 약력</h2><article>${esc(data.biography || "작가 약력을 준비하고 있습니다.")}</article></section><section class="block" id="works-contact"><h2>문의</h2><article>${esc(data.contact || "문의 정보를 준비하고 있습니다.")}</article></section></main><footer>명도재 문화예술 홈페이지 제작소 · 시안</footer></body></html>`;
   }
 
   function previewBuiltPage(){
@@ -427,7 +433,7 @@
     renderManuscript(); renderPreview(); $('form-feedback').textContent = '원고 파일이 불러와졌습니다.';
   });
 
-  ['title','owner','subtitle','summary','main-text','overall-review','link-title','link-url','status'].forEach(id => $(id).addEventListener('input', renderPreview));
+  ['title','owner','subtitle','biography','contact','summary','main-text','overall-review','link-title','link-url','status'].forEach(id => $(id).addEventListener('input', renderPreview));
   $('link-url').addEventListener('change', renderPreview);
   $('project-form').addEventListener('submit', (e) => {
     e.preventDefault();
