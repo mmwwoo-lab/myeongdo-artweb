@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>명도재 아트웹 관리자 v7.8</title>
-  <link rel="stylesheet" href="./style.css?v=7.8.0">
+  <title>명도재 아트웹 관리자 v8.0</title>
+  <link rel="stylesheet" href="./style.css?v=8.0.1">
 </head>
 <body>
   <div class="app-shell">
@@ -13,7 +13,7 @@
         <div class="seal">明道</div>
         <div>
           <h1>명도재 아트웹 관리자</h1>
-          <p>v7.8 · 작품별 클래식 오디오 조절바</p>
+          <p>v8.0 · 미술·시문학·뉴스 특화</p>
         </div>
       </div>
       <nav class="nav">
@@ -32,13 +32,13 @@
 
       <section class="view visible" id="view-dashboard">
         <div class="stats-grid">
-          <article class="stat-card"><h3>전체</h3><strong id="stat-all">0</strong></article>
-          <article class="stat-card"><h3>작업 중</h3><strong id="stat-doing">0</strong></article>
+          <article class="stat-card"><h3>전체 프로젝트</h3><strong id="stat-all">0</strong></article>
+          <article class="stat-card"><h3>진행 중</h3><strong id="stat-doing">0</strong></article>
           <article class="stat-card"><h3>완료</h3><strong id="stat-done">0</strong></article>
           <article class="stat-card"><h3>최근 유형</h3><strong id="stat-type">-</strong></article>
         </div>
         <div class="panel">
-          <div class="panel-head"><h3>최근 저장한 홈페이지</h3></div>
+          <div class="panel-head"><div><h3>최근 저장한 홈페이지</h3><p>최근 작업 4개를 빠르게 확인합니다.</p></div></div>
           <div id="recent-projects"></div>
         </div>
       </section>
@@ -48,7 +48,7 @@
           <div class="panel-head split">
             <div>
               <h3>저장된 홈페이지 관리</h3>
-              <p>홈페이지 만들기에서 저장한 항목을 다시 편집하거나 삭제합니다.</p>
+              <p>저장한 홈페이지를 다시 편집, 미리보기, 삭제, 데이터 백업할 수 있습니다.</p>
             </div>
             <div class="toolbar">
               <label>상태
@@ -60,11 +60,12 @@
                   <option value="완료">완료</option>
                 </select>
               </label>
-              <button id="export-json" class="subtle">데이터 내보내기</button>
-              <button id="reset-samples" class="danger">예시 초기화</button>
+              <button id="export-json" class="subtle" type="button">데이터 내보내기</button>
+              <button id="reset-samples" class="danger" type="button">예시 초기화</button>
             </div>
           </div>
-          <p id="project-help" class="field-help">예시 프로젝트는 사진을 등록하기 전까지 이미지 0장으로 표시됩니다. 새 홈페이지 저장 후 목록에서 다시 편집하세요.</p><div id="project-list"></div>
+          <p class="field-help">기본 예시는 저장 후 다시 편집해 실제 내용으로 바꾸면 됩니다.</p>
+          <div id="project-list"></div>
         </div>
       </section>
 
@@ -74,9 +75,10 @@
             <div class="panel-head">
               <div>
                 <h3 id="form-title">새 홈페이지 만들기</h3>
-                <p id="template-guide">유형에 따라 글 중심 또는 전시 중심 편집기로 자동 전환됩니다.</p>
+                <p id="template-guide">미술 전시, 시 문학, 만화 뉴스에 맞게 편집기가 바뀝니다.</p>
               </div>
             </div>
+
             <input type="hidden" id="project-id">
 
             <label for="title">홈페이지 제목 *</label>
@@ -94,18 +96,46 @@
               <option value="exhibition">사계의 빛 — 한국화 초대전</option>
             </select>
 
-            <label for="biography">작가 약력 · 단체 소개</label><textarea id="biography" rows="5" maxlength="5000" placeholder="작가 약력, 주요 활동, 수상, 전시 이력을 입력하세요."></textarea><label for="contact">문의 정보</label><textarea id="contact" rows="3" maxlength="1200" placeholder="연락 가능한 공개 이메일 또는 안내 문구를 입력하세요. 개인정보는 입력하지 마세요."></textarea><label for="subtitle">한 줄 소개</label>
+            <label for="subtitle">한 줄 소개</label>
             <input id="subtitle" type="text" maxlength="150" placeholder="예: 시와 그림이 만나는 디지털 공간">
 
+            <label for="biography">작가 약력 · 소개</label>
+            <textarea id="biography" rows="4" maxlength="4000" placeholder="작가 소개, 주요 전시, 수상, 약력 등을 입력하세요."></textarea>
+
+            <label for="contact">문의 정보</label>
+            <textarea id="contact" rows="3" maxlength="1000" placeholder="문의 이메일, 전화, 안내문 등을 입력하세요."></textarea>
+
             <label for="summary">짧은 소개</label>
-            <textarea id="summary" rows="3" maxlength="800" placeholder="홈페이지 소개, 전시 개요, 시집 안내, 기사 요약 등을 입력하세요."></textarea>
+            <textarea id="summary" rows="3" maxlength="1200" placeholder="홈페이지 소개, 전시 개요, 시집 안내, 기사 요약 등을 입력하세요."></textarea>
 
             <label for="main-text" id="main-text-label">본문 글쓰기</label>
-            <textarea id="main-text" rows="10" maxlength="16000" placeholder="시, 기사, 작가 소개, 전시 설명, 시집 소개 등 긴 글을 입력하세요."></textarea>
+            <textarea id="main-text" rows="10" maxlength="20000" placeholder="시, 기사, 작가 소개, 전시 설명, 시집 소개 등 긴 글을 입력하세요."></textarea>
 
-            <div id="review-block">
+            <div class="panel-inner" id="settings-block">
+              <h4>설정</h4>
+              <div class="settings-grid">
+                <label>작품 음악 분위기
+                  <select id="music-mode">
+                    <option value="auto">자동 분석</option>
+                    <option value="lyrical">애절한 경음악</option>
+                    <option value="majestic">장엄한 경음악</option>
+                    <option value="fresh">산뜻한 경음악</option>
+                    <option value="calm">고요한 경음악</option>
+                  </select>
+                </label>
+                <label>뉴스 만화 패널 수
+                  <select id="comic-panels">
+                    <option value="12">3열 × 4행 (12컷)</option>
+                    <option value="8">2열 × 4행 (8컷)</option>
+                  </select>
+                </label>
+              </div>
+              <small class="field-help">작품 음악은 이미지 색감과 설명을 함께 참고해 30초 이내의 창작 서양 클래식풍 기악곡으로 구성합니다.</small>
+            </div>
+
+            <div id="review-block" class="panel-inner">
               <label for="overall-review">전체 작품 평론</label>
-              <textarea id="overall-review" rows="7" maxlength="12000" placeholder="전시 전체에 대한 평론을 입력하거나 자동 생성하세요."></textarea>
+              <textarea id="overall-review" rows="6" maxlength="12000" placeholder="전시 전체에 대한 평론을 입력하거나 자동 생성하세요."></textarea>
               <div class="inline-actions">
                 <button type="button" id="auto-critique" class="subtle">작품 평론 자동 생성 (약 200자)</button>
               </div>
@@ -115,7 +145,7 @@
               <div class="panel-head small-head">
                 <div>
                   <h4>시화 자동 생성</h4>
-                  <p>시의 주요 이미지와 정서를 반영한 삽화형 SVG 시화입니다. 가로형·세로형을 내용에 맞게 선택합니다.</p>
+                  <p>시 내용을 분석하여 수채화풍 삽화 배경과 시 글씨를 결합한 시화를 생성합니다. 내용에 따라 세로형 또는 가로형을 자동 선택합니다.</p>
                 </div>
               </div>
               <div class="inline-actions">
@@ -126,9 +156,23 @@
               <div id="poem-art-preview" class="poem-art-preview empty-box">아직 생성된 시화가 없습니다.</div>
             </div>
 
+            <div id="news-comic-block" class="panel-inner">
+              <div class="panel-head small-head">
+                <div>
+                  <h4>뉴스 만화 자동 구성</h4>
+                  <p>기사 내용을 요약해 3열 × 4행 또는 2열 × 4행 뉴스 만화 시안으로 구성합니다. 말풍선 텍스트와 컷 설명을 자동 배치합니다.</p>
+                </div>
+              </div>
+              <div class="inline-actions">
+                <button type="button" id="generate-news-comic" class="primary">뉴스 만화 생성</button>
+                <button type="button" id="remove-news-comic" class="danger">만화 삭제</button>
+              </div>
+              <div id="news-comic-preview" class="news-comic-preview empty-box">아직 생성된 뉴스 만화가 없습니다.</div>
+            </div>
+
             <div class="panel-inner">
               <h4 id="gallery-heading">작품·이미지 등록</h4>
-              <p class="field-help" id="gallery-help">유형에 따라 3장 또는 6장의 이미지 업로드가 가능합니다.</p>
+              <p class="field-help" id="gallery-help">유형에 따라 3장 또는 6장의 이미지 업로드가 가능합니다. 큰 이미지는 자동 축소·압축됩니다.</p>
               <div id="artwork-upload-grid"></div>
             </div>
 
@@ -139,7 +183,7 @@
                 <button type="button" id="remove-manuscript" class="danger">원고 파일 삭제</button>
                 <button type="button" id="download-manuscript" class="subtle">선택한 파일 내려받기</button>
               </div>
-              <small id="manuscript-info" class="field-help">파일 미선택 · TXT는 본문으로 불러오고, JPG는 미리보기, HWP는 첨부 보관만 지원합니다.</small>
+              <small id="manuscript-info" class="field-help">파일 미선택 · TXT는 본문으로 불러오고, JPG는 미리보기, HWP는 첨부 보관용입니다.</small>
               <div id="manuscript-preview" class="manuscript-preview"></div>
             </div>
 
@@ -168,30 +212,51 @@
           </form>
 
           <div class="panel preview-panel">
-            <div class="panel-head"><div><h3>실시간 홈페이지 미리보기</h3><p>유형별 화면 구조를 즉시 확인할 수 있습니다.</p></div></div>
+            <div class="panel-head"><div><h3>실시간 홈페이지 미리보기</h3><p>유형별 구조와 주요 콘텐츠를 즉시 확인합니다.</p></div></div>
             <div id="preview-site" class="preview-site">
-              <div class="preview-top"><span class="seal">明道</span><nav class="site-nav" aria-label="홈페이지 미리보기 메뉴"><a href="#pv-intro">작품 소개</a><a href="#pv-bio">작가 약력</a><a href="#pv-contact">문의</a></nav></div>
+              <div class="preview-top"><span class="seal">明道</span><nav class="mini-nav"><a href="#">작품 소개</a><a href="#">작가 약력</a><a href="#">문의</a></nav></div>
               <div class="preview-hero">
                 <small id="preview-type">NEWS</small>
                 <h2 id="preview-title">홈페이지 제목</h2>
                 <p id="preview-subtitle">한 줄 소개</p>
               </div>
-              <div class="preview-body"><section id="pv-intro">
+              <div class="preview-body">
                 <h3 id="preview-owner">작가·단체명</h3>
                 <p id="preview-summary">짧은 소개가 여기에 표시됩니다.</p>
-                <div id="preview-link"></div></section><section id="pv-bio" class="preview-section"><h4>작가 약력</h4><div class="preview-article" id="preview-biography"></div></section><section id="pv-contact" class="preview-section"><h4>문의</h4><div class="preview-article" id="preview-contact"></div></section>
-                <div id="preview-main-text" class="preview-article"></div>
-                <div id="preview-art-gallery" class="preview-art-grid"></div>
-                <div id="preview-review" class="preview-review" hidden></div>
-                <div id="preview-poem-art-wrap" hidden>
+                <div id="preview-link"></div>
+                <section class="preview-section">
+                  <h4>본문</h4>
+                  <div id="preview-main-text" class="preview-article"></div>
+                </section>
+                <section class="preview-section">
+                  <h4>작품·이미지</h4>
+                  <div id="preview-art-gallery" class="preview-art-grid"></div>
+                </section>
+                <section class="preview-section" id="preview-review-wrap" hidden>
+                  <h4>전체 작품 평론</h4>
+                  <div id="preview-review" class="preview-review"></div>
+                </section>
+                <section class="preview-section" id="preview-poem-art-wrap" hidden>
                   <h4>자동 생성 시화</h4>
                   <div id="preview-poem-art" class="poem-art-preview"></div>
-                </div>
-                <small class="field-help">시연용 화면 · 실제 공개 전용이 아닙니다.</small>
+                </section>
+                <section class="preview-section" id="preview-news-comic-wrap" hidden>
+                  <h4>뉴스 만화 시안</h4>
+                  <div id="preview-news-comic" class="news-comic-preview"></div>
+                </section>
+                <section class="preview-section">
+                  <h4>작가 약력</h4>
+                  <div id="preview-biography" class="preview-article"></div>
+                </section>
+                <section class="preview-section">
+                  <h4>문의</h4>
+                  <div id="preview-contact" class="preview-article"></div>
+                </section>
+                <small class="field-help">실시간 미리보기는 구성 확인용이며, 실제 음악 조절바는 아래 ‘생성된 홈페이지 미리보기’에서 확인할 수 있습니다.</small>
               </div>
             </div>
             <div id="built-preview-box" class="panel nested-panel" hidden>
-              <div class="panel-head"><div><h3>생성된 홈페이지 미리보기</h3><p>다운로드 전 화면 검토용입니다.</p></div></div>
+              <div class="panel-head"><div><h3>생성된 홈페이지 미리보기</h3><p>다운로드 전 버튼, 음악 조절바, 완성 구조를 검토합니다.</p></div></div>
               <iframe id="built-preview" title="생성된 홈페이지 화면"></iframe>
             </div>
           </div>
@@ -200,18 +265,18 @@
 
       <section class="view" id="view-guide">
         <div class="panel">
-          <div class="panel-head"><div><h3>사용 안내</h3></div></div>
+          <div class="panel-head"><div><h3>사용 안내</h3><p>명도재 아트웹의 특징과 한계를 함께 확인하세요.</p></div></div>
           <ul class="guide-list">
-            <li>문학관 · 시집 출간 기념관 · 시가 머무는 집 · 만화로 보는 뉴스는 이미지 3장, 글쓰기 중심으로 구성됩니다.</li>
-            <li>사계의 빛 — 한국화 초대전은 작품 6장, 작품별 설명, 전체 작품 평론 중심으로 구성됩니다.</li>
-            <li>작품 평론 자동 생성은 업로드된 작품 수와 입력 텍스트를 바탕으로 약 200자의 평문을 작성합니다.</li>
-            <li>시화 생성은 시 원문을 분석해 9:16 수채화풍 SVG 시화로 만듭니다. 브라우저 안에서 생성되는 시연용 기능입니다.</li>
-            <li>현재 저장 데이터는 브라우저 내부에 보관됩니다. 실제 고객 개인정보·비공개 자료는 입력하지 마세요.</li>
+            <li><strong>미술 홈페이지:</strong> 작가 소개, 약력, 작품 소개, 작품별 음악 감상 조절바를 제공합니다.</li>
+            <li><strong>작품 음악:</strong> 작품 이미지의 평균 색감과 밝기, 작품 설명의 키워드를 바탕으로 30초 이내 서양 클래식풍 창작 기악곡을 만듭니다.</li>
+            <li><strong>시 문학 사이트:</strong> 시 원문을 바탕으로 세로형/가로형 삽화 시화를 SVG로 생성합니다.</li>
+            <li><strong>만화로 보는 뉴스:</strong> 기사 내용을 분석하여 3열 × 4행 또는 2열 × 4행 뉴스 만화 시안으로 자동 구성합니다.</li>
+            <li><strong>중요:</strong> 본 프로그램은 정적 웹앱 기반 시연용입니다. 실사형 AI 이미지·전문 작곡 AI·뉴스 사진 생성 API를 직접 연결한 것은 아닙니다.</li>
           </ul>
         </div>
       </section>
     </main>
   </div>
-  <script src="./app.js?v=7.8.0"></script>
+  <script src="./app.js?v=8.0.1"></script>
 </body>
 </html>
