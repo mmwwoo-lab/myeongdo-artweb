@@ -111,11 +111,11 @@
       const caption = $('artwork-caption-'+i);
       fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0]; if(!file) return;
-        if(!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 500*1024){ alert('JPG·PNG·WebP 500KB 이하만 가능합니다.'); fileInput.value=''; return; }
-        const dataUrl = await fileToDataUrl(file);
+        if(!['image/jpeg','image/png','image/webp'].includes(file.type)){alert('JPG·PNG·WebP 이미지만 가능합니다.');fileInput.value='';return;}
+        let dataUrl;try{dataUrl=await compressedArtworkData(file);}catch(err){alert('이미지 변환 실패: '+(err.message||'알 수 없는 오류'));fileInput.value='';return;}
         artworks[i] = {...artworks[i], dataUrl, name:file.name, caption:caption.value || artworks[i].caption || ''};
         updateUploadPreview(i); renderPreview();
-        $('form-feedback').textContent = `작품 ${i+1} 이미지가 등록되었습니다.`;
+        $('form-feedback').textContent = `작품 ${i+1} 이미지가 등록되었습니다. 큰 파일은 자동으로 360KB 이내로 축소·압축합니다.`;
       });
       $('replace-artwork-'+i).addEventListener('click', () => fileInput.click());
       $('remove-artwork-'+i).addEventListener('click', () => { artworks[i] = {dataUrl:'',name:'',caption:''}; fileInput.value=''; caption.value=''; updateUploadPreview(i); renderPreview(); $('form-feedback').textContent = `작품 ${i+1} 이미지가 삭제되었습니다.`; });
@@ -138,6 +138,29 @@
     }
   }
 
+  // Resize oversized photos before saving; the original is never modified.
+  async function compressedArtworkData(file){
+    const LIMIT=360*1024, MAX_EDGE=1400;
+    if(file.size<=LIMIT)return fileToDataUrl(file);
+    const source=await fileToDataUrl(file);
+    const img=new Image();
+    await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('이미지 열기 실패'));img.src=source;});
+    const canvas=document.createElement('canvas');
+    const scale=Math.min(1,MAX_EDGE/Math.max(img.naturalWidth,img.naturalHeight));
+    let w=Math.max(1,Math.round(img.naturalWidth*scale)),hh=Math.max(1,Math.round(img.naturalHeight*scale));
+    for(let shrink=0;shrink<5;shrink++){
+      canvas.width=w;canvas.height=hh;
+      const ctx=canvas.getContext('2d');
+      if(!ctx)throw new Error('이미지 처리 불가');
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,hh);ctx.drawImage(img,0,0,w,hh);
+      for(const q of [0.84,0.72,0.60,0.48,0.35]){
+        const result=canvas.toDataURL('image/jpeg',q);
+        if(Math.ceil((result.length-result.indexOf(',')-1)*3/4)<=LIMIT)return result;
+      }
+      w=Math.max(1,Math.round(w*0.78));hh=Math.max(1,Math.round(hh*0.78));
+    }
+    throw new Error('360KB 이하 압축 불가');
+  }
   async function fileToDataUrl(file){ return await new Promise((resolve,reject) => { const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=()=>reject(reader.error); reader.readAsDataURL(file); }); }
 
   function renderManuscript(){
