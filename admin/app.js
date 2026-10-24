@@ -15,12 +15,12 @@
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(projects));return true;}catch{alert('저장에 실패했습니다. 브라우저 저장 설정을 확인하세요.');return false;}};
   const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;};
   const field=(id)=>$(id).value.trim();
-  const headings={dashboard:'운영 대시보드',projects:'프로젝트 관리',create:'홈페이지 만들기',guide:'사용 안내'};
+  const headings={dashboard:'운영 대시보드',projects:'저장된 홈페이지 관리',create:'홈페이지 만들기',guide:'사용 안내'};
   function view(name){if(!headings[name])name='dashboard';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('visible',x.id==='view-'+name));document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===name));$('page-heading').textContent=headings[name]||'대시보드';if(name==='dashboard'||name==='projects')render();if(location.hash!=='#'+name)history.replaceState(null,'','#'+name);window.scrollTo({top:0,behavior:'auto'});if(name==='create'){$('title').focus({preventScroll:true});}}
   document.querySelectorAll('[data-view]').forEach(x=>x.addEventListener('click',()=>view(x.dataset.view)));
   window.addEventListener('hashchange',()=>{const name=location.hash.slice(1);if(headings[name])view(name);});
   document.querySelectorAll('[data-go]').forEach(x=>x.addEventListener('click',()=>{clearForm();view(x.dataset.go)}));
-  function row(p){const wrap=el('div','project-row');const info=el('div');info.append(el('h3','',p.title),el('small','',`${p.artist} · ${p.type||'전시관'}`));const actions=el('div','row-actions');actions.append(el('span','tag',p.status||'기획'));const edit=el('button','subtle','수정');edit.addEventListener('click',()=>editProject(p.id));const del=el('button','danger','삭제');del.addEventListener('click',()=>removeProject(p.id));actions.append(edit,del);wrap.append(info,actions);return wrap;}
+  function row(p){const wrap=el('div','project-row');const info=el('div');info.append(el('h3','',p.title),el('small','',`${p.artist} · ${p.type||'전시관'}`));const actions=el('div','row-actions');actions.append(el('span','tag',p.status||'기획'));const edit=el('button','subtle','다시 편집');edit.addEventListener('click',()=>editProject(p.id));const del=el('button','danger','삭제');del.addEventListener('click',()=>removeProject(p.id));actions.append(edit,del);wrap.append(info,actions);return wrap;}
   function render(){ $('stat-all').textContent=projects.length;$('stat-doing').textContent=projects.filter(x=>x.status!=='완료').length;$('stat-done').textContent=projects.filter(x=>x.status==='완료').length;
     const recent=$('recent-projects');recent.replaceChildren(...(projects.length?projects.slice(-4).reverse().map(row):[el('div','empty','등록된 프로젝트가 없습니다.') ]));
     const filter=$('status-filter').value;const data=projects.filter(p=>filter==='전체'||p.status===filter);const list=$('project-list');list.replaceChildren(...(data.length?data.slice().reverse().map(row):[el('div','empty','해당 상태의 프로젝트가 없습니다.') ]));
@@ -28,10 +28,10 @@
   $('status-filter').addEventListener('change',render);
   function editProject(id){const p=projects.find(x=>x.id===id);if(!p)return;$('project-id').value=p.id;for(const k of ['title','artist','type','subtitle','description','status'])$(k).value=p[k]||'';$('image-url').value=p.imageUrl||'';$('form-title').textContent='프로젝트 수정';updatePreview();view('create');}
   function removeProject(id){if(!confirm('이 예시 프로젝트를 삭제할까요?'))return;const previous=projects;projects=projects.filter(x=>x.id!==id);if(!save())projects=previous;render();}
-  function clearForm(){$('project-form').reset();$('project-id').value='';$('form-title').textContent='새 홈페이지 만들기';updatePreview();}
+  function clearForm(){if($('built-preview-box'))$('built-preview-box').hidden=true;$('project-form').reset();$('project-id').value='';$('form-title').textContent='새 홈페이지 만들기';updatePreview();}
   $('clear-form').addEventListener('click',clearForm);
   $('project-form').addEventListener('submit',e=>{e.preventDefault();const title=field('title'),artist=field('artist');if(!title||!artist){alert('홈페이지 제목과 작가 이름을 입력하세요.');return;}
-    const current=$('project-id').value;const obj={id:current||('demo-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)),title,artist,type:field('type'),subtitle:field('subtitle'),description:field('description'),imageUrl:safeImageURL(field('image-url')),status:field('status')};const idx=projects.findIndex(p=>p.id===current);const previous=clone(projects);if(idx>=0)projects[idx]=obj;else projects.push(obj);if(!save()){projects=previous;return;}clearForm();view('projects');});
+    const current=$('project-id').value;const obj={id:current||('demo-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)),title,artist,type:field('type'),subtitle:field('subtitle'),description:field('description'),imageUrl:safeImageURL(field('image-url')),status:field('status')};const idx=projects.findIndex(p=>p.id===current);const previous=clone(projects);if(idx>=0)projects[idx]=obj;else projects.push(obj);if(!save()){projects=previous;return;}clearForm();view('projects');alert('홈페이지가 저장되었습니다. 목록에서 다시 편집할 수 있습니다.');});
   const types={'전시관':'ART EXHIBITION','문학관':'LITERARY ARCHIVE','작가관':'ARTIST PORTFOLIO','출판관':'BOOK & PUBLISHING'};
   function safeImageURL(raw){try{const u=new URL(raw);return u.protocol==='https:'?u.href:'';}catch{return '';}}
   function updatePreview(){$('preview-title').textContent=field('title')||'나만의 온라인 미술관';$('preview-artist').textContent=field('artist')||'작가·단체명';$('preview-subtitle').textContent=field('subtitle')||'문화예술 홈페이지를 만드는 첫걸음';$('preview-description').textContent=field('description')||'작품의 이야기가 이곳에 담깁니다.';$('preview-type').textContent=types[field('type')]||'ART EXHIBITION';const area=$('preview-image');area.replaceChildren();const src=safeImageURL(field('image-url'));area.hidden=!src;if(src){const pic=document.createElement('img');pic.src=src;pic.alt='대표 작품 이미지';pic.style.cssText='width:100%;max-height:340px;object-fit:contain;border-radius:8px';area.append(pic);}}
@@ -56,20 +56,15 @@
   $('download-site')?.addEventListener('click',exportHTML);
   $('build-site').addEventListener('click',()=>{
     if(!$('project-form').reportValidity())return;
-    // 프로젝트 내용을 먼저 브라우저에 기록하며, 새 탭에 생성된 페이지를 표시한다.
+    // 미리보기는 프로젝트를 저장하지 않습니다. 저장은 별도의 명시적인 버튼으로만 처리합니다.
     const title=field('title'),artist=field('artist'),kind=field('type'),subtitle=field('subtitle'),description=field('description');
     const imageUrl=safeImageURL(field('image-url'));
-    const current=$('project-id').value;
-    const obj={id:current||('demo-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)),title,artist,type:kind,subtitle,description,imageUrl,status:field('status')};
-    const idx=projects.findIndex(p=>p.id===current),old=clone(projects);
-    if(idx>=0)projects[idx]=obj;else projects.push(obj);
-    if(!save()){projects=old;return;}
-    $('project-id').value=obj.id;$('form-title').textContent='프로젝트 수정';render();
     const pic=imageUrl?'<img src="'+escapeHTML(imageUrl)+'" alt="대표 작품" style="max-width:100%;max-height:540px;object-fit:contain">':'';
     const site='<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHTML(title)+'</title><style>body{margin:0;background:#fbf8f1;color:#283b50;font:16px/1.8 system-ui,sans-serif}header,footer{background:#1b2c42;color:#fff;padding:20px 6%}main{max-width:960px;margin:auto;padding:65px 6%}h1{font-size:clamp(30px,5vw,56px)}article{white-space:pre-wrap;margin:36px 0;padding:25px;background:white;border-radius:14px}img{display:block;margin:20px auto}small{color:#8a644a}</style><header>明道 · 명도재 아트웹</header><main><small>'+escapeHTML(kind)+'</small><h1>'+escapeHTML(title)+'</h1><h2>'+escapeHTML(subtitle)+'</h2><p>작가 · '+escapeHTML(artist)+'</p>'+pic+'<article>'+escapeHTML(description||'작품 소개 준비 중')+'</article></main><footer>명도재 문화예술 홈페이지 제작소 · 미리보기</footer></html>';
-    const url=URL.createObjectURL(new Blob([site],{type:'text/html;charset=utf-8'}));
-    const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    const frame=$('built-preview'),box=$('built-preview-box');
+    frame.srcdoc=site;box.hidden=false;
+    $('form-feedback').textContent='미리보기가 생성되었습니다. 저장하려면 ‘이 홈페이지 저장하기’를 누르세요.';
+    box.scrollIntoView({behavior:'smooth',block:'nearest'});
   });
 
   // 입력 중 오류 및 저장 성공 여부를 화면에서 명확하게 안내
