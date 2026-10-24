@@ -197,62 +197,158 @@
   function generatePoemArtSvg(){
     const title = $('title').value.trim() || '시화';
     const owner = $('owner').value.trim() || '명도재';
-    const text = ($('main-text').value.trim() || $('summary').value.trim() || '').replace(/\s+/g,' ').trim();
+    const rawText = $('main-text').value.trim() || $('summary').value.trim() || '';
+    const text = rawText.replace(/\s+/g,' ').trim();
     if(!text){ alert('시 내용 또는 본문 글을 먼저 입력하세요.'); return null; }
     const motifs = extractPoemMotifs(text);
-    const bg = motifs.palette;
-    const excerpt = wrapTextForSvg(text.slice(0, 140), 18).slice(0, 6);
-    const decorative = motifs.icons.map((icon,idx)=> `<text x="${120 + idx*160}" y="${310 + (idx%2)*70}" font-size="54" fill="rgba(60,72,88,.16)">${esc(icon)}</text>`).join('');
-    const lines = excerpt.map((line, idx) => `<text x="80" y="${780 + idx*60}" font-size="34" fill="#243447">${esc(line)}</text>`).join('');
+    const scene = choosePoemScene(text, motifs);
+    const size = scene.orientation === 'landscape' ? {width: 1600, height: 1000} : {width: 1000, height: 1600};
+    const textLines = wrapTextForSvg(rawText.slice(0, 260), scene.orientation === 'landscape' ? 22 : 14).slice(0, scene.orientation === 'landscape' ? 8 : 12);
+    const illustration = buildPoemIllustration(scene, size.width, size.height);
+    const textPanel = buildPoemTextPanel({title, owner, lines: textLines, scene, width: size.width, height: size.height});
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1600" viewBox="0 0 900 1600">
+<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="${bg[0]}"/>
-      <stop offset="50%" stop-color="${bg[1]}"/>
-      <stop offset="100%" stop-color="${bg[2]}"/>
+    <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${scene.palette[0]}"/>
+      <stop offset="55%" stop-color="${scene.palette[1]}"/>
+      <stop offset="100%" stop-color="${scene.palette[2]}"/>
     </linearGradient>
-    <filter id="blur"><feGaussianBlur stdDeviation="22"/></filter>
+    <filter id="soft-blur"><feGaussianBlur stdDeviation="24"/></filter>
+    <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0.025"/></feComponentTransfer></filter>
   </defs>
-  <rect width="900" height="1600" fill="#faf7f1"/>
-  <rect x="28" y="28" width="844" height="1544" rx="28" fill="url(#bg)" opacity="0.38"/>
-  <circle cx="180" cy="250" r="150" fill="${bg[0]}" opacity="0.45" filter="url(#blur)"/>
-  <circle cx="700" cy="400" r="180" fill="${bg[1]}" opacity="0.35" filter="url(#blur)"/>
-  <circle cx="420" cy="1180" r="230" fill="${bg[2]}" opacity="0.32" filter="url(#blur)"/>
-  ${decorative}
-  <text x="80" y="120" font-size="28" fill="#6b7280">9:16 수채화풍 시화</text>
-  <text x="80" y="200" font-size="58" font-weight="700" fill="#1f2f3f">${esc(title)}</text>
-  <text x="80" y="260" font-size="30" fill="#475569">${esc(owner)}</text>
-  <text x="80" y="680" font-size="28" fill="#7c4a4a">${esc(motifs.caption)}</text>
-  ${lines}
-  <rect x="80" y="1220" width="740" height="210" rx="24" fill="rgba(255,255,255,0.58)" stroke="rgba(42,60,80,0.08)"/>
-  <text x="110" y="1285" font-size="30" font-weight="700" fill="#1f2f3f">시의 정서</text>
-  <text x="110" y="1335" font-size="28" fill="#243447">${esc(motifs.analysis1)}</text>
-  <text x="110" y="1385" font-size="28" fill="#243447">${esc(motifs.analysis2)}</text>
-  <rect x="725" y="1460" width="90" height="90" rx="10" fill="#b91c1c"/>
-  <text x="748" y="1518" font-size="34" fill="#fff" font-weight="700">明道</text>
+  <rect width="100%" height="100%" fill="#fbf8f1"/>
+  <rect x="24" y="24" width="${size.width-48}" height="${size.height-48}" rx="28" fill="url(#wash)" opacity="0.34"/>
+  <rect x="0" y="0" width="100%" height="100%" filter="url(#paper)" opacity="0.8"/>
+  ${illustration}
+  ${textPanel}
+  <rect x="${size.width-125}" y="${size.height-125}" width="90" height="90" rx="10" fill="#b91c1c"/>
+  <text x="${size.width-102}" y="${size.height-67}" font-size="34" fill="#fff" font-weight="700">明道</text>
 </svg>`;
     const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-    poemArt = {svg, dataUrl, createdAt: new Date().toISOString()};
+    poemArt = {svg, dataUrl, createdAt: new Date().toISOString(), orientation: scene.orientation, ratio: `${size.width}:${size.height}`};
     return poemArt;
   }
 
   function extractPoemMotifs(text){
     const dictionary = [
-      {word:'달',icon:'☾',color:['#f9e7b2','#ecd4a6','#d7c5f3'],caption:'달빛이 머무는 서정',analysis1:'달빛 이미지는 시 속의 고요와 그리움을 길게 끌어간다.',analysis2:'밝음보다 여운이 먼저 도착하는 정서가 수채화처럼 번진다.'},
-      {word:'꽃',icon:'✿',color:['#f7d2d8','#fbe7c6','#d8efe3'],caption:'꽃의 이미지가 피어나는 시심',analysis1:'꽃의 이미지는 화자의 감정을 섬세하게 열어 보인다.',analysis2:'계절의 순간을 붙드는 따뜻한 시선이 화면 전체를 감싼다.'},
-      {word:'가을',icon:'🍁',color:['#f0c2a3','#d8b38c','#f8e8d7'],caption:'가을빛이 스미는 정조',analysis1:'가을의 색조가 시간의 깊이와 기억의 결을 함께 드러낸다.',analysis2:'사라짐과 머묾이 한 장면 안에서 조용히 공존한다.'},
-      {word:'바다',icon:'〰',color:['#cbe5ef','#a9d5e0','#d8eef2'],caption:'물결처럼 확장되는 시선',analysis1:'바다의 이미지는 감정의 폭과 리듬을 넓게 열어 준다.',analysis2:'파동처럼 반복되는 언어가 사유의 깊이를 만든다.'},
-      {word:'산',icon:'⛰',color:['#d3e1cb','#dbe9d3','#f0f5ea'],caption:'산의 침묵을 닮은 여백',analysis1:'산의 이미지는 묵직한 안정감과 사유의 높이를 암시한다.',analysis2:'단단한 풍경 속에서 화자의 호흡이 천천히 깊어진다.'},
-      {word:'비',icon:'☔',color:['#d7dde8','#c5d2e6','#e9eef7'],caption:'빗결이 적시는 정서',analysis1:'비의 이미지는 감정의 세밀한 파동과 내면의 밀도를 높인다.',analysis2:'젖어드는 장면마다 언어의 온도가 차분하게 살아난다.'}
+      {word:'달',scene:'moon',icon:'☾',color:['#f7e8bf','#e5d4f1','#d7e2f2'],caption:'달빛이 머무는 서정',analysis1:'달빛 이미지는 시 속의 고요와 그리움을 길게 끌어간다.',analysis2:'밝음보다 여운이 먼저 도착하는 정서가 수채화처럼 번진다.'},
+      {word:'꽃',scene:'flower',icon:'✿',color:['#f8d5de','#f8ebc9','#d7ece1'],caption:'꽃의 이미지가 피어나는 시심',analysis1:'꽃의 이미지는 화자의 감정을 섬세하게 열어 보인다.',analysis2:'계절의 순간을 붙드는 따뜻한 시선이 화면 전체를 감싼다.'},
+      {word:'가을',scene:'autumn',icon:'🍁',color:['#f0c2a3','#d7b08f','#f8e8d6'],caption:'가을빛이 스미는 정조',analysis1:'가을의 색조가 시간의 깊이와 기억의 결을 함께 드러낸다.',analysis2:'사라짐과 머묾이 한 장면 안에서 조용히 공존한다.'},
+      {word:'바다',scene:'sea',icon:'〰',color:['#c9e5ef','#a5d7e5','#dff3f8'],caption:'물결처럼 확장되는 시선',analysis1:'바다의 이미지는 감정의 폭과 리듬을 넓게 열어 준다.',analysis2:'파동처럼 반복되는 언어가 사유의 깊이를 만든다.'},
+      {word:'강',scene:'river',icon:'〰',color:['#d2e8ef','#b6d7e0','#e8f6f8'],caption:'물의 흐름을 닮은 사유',analysis1:'강물의 흐름은 시간과 기억의 움직임을 은유한다.',analysis2:'유연한 리듬이 화면 전체에 잔잔한 깊이를 만든다.'},
+      {word:'산',scene:'mountain',icon:'⛰',color:['#d1dfc8','#dce8d3','#eff5e7'],caption:'산의 침묵을 닮은 여백',analysis1:'산의 이미지는 묵직한 안정감과 사유의 높이를 암시한다.',analysis2:'단단한 풍경 속에서 화자의 호흡이 천천히 깊어진다.'},
+      {word:'비',scene:'rain',icon:'☔',color:['#d7dde8','#c5d2e6','#e9eef7'],caption:'빗결이 적시는 정서',analysis1:'비의 이미지는 감정의 세밀한 파동과 내면의 밀도를 높인다.',analysis2:'젖어드는 장면마다 언어의 온도가 차분하게 살아난다.'},
+      {word:'나무',scene:'tree',icon:'❀',color:['#d9ead2','#edf4e9','#dce8ef'],caption:'나무 곁에 머무는 서정',analysis1:'나무의 형상은 견딤과 성장의 시간을 상징한다.',analysis2:'정적인 풍경 속에 살아 있는 숨결이 천천히 스민다.'},
+      {word:'새',scene:'bird',icon:'✧',color:['#e8def6','#f1eacd','#dceaf4'],caption:'날아오르는 시선의 이미지',analysis1:'새의 이미지는 자유와 이동, 기다림의 정서를 동시에 품는다.',analysis2:'가벼운 선율처럼 화면에 맑은 움직임이 생긴다.'}
     ];
-    const found = dictionary.find(item => text.includes(item.word)) || {icon:'✧', color:['#eadfc9','#dce9ef','#f4e6ea'],caption:'수채로 번지는 시의 여운',analysis1:'시의 핵심 이미지는 감정의 결을 부드럽게 펼쳐 보인다.',analysis2:'화자의 시선은 여백 속에 머무르며 서정의 호흡을 만든다.'};
+    const found = dictionary.find(item => text.includes(item.word)) || {scene:'abstract',icon:'✧', color:['#eadfc9','#dce9ef','#f4e6ea'],caption:'수채로 번지는 시의 여운',analysis1:'시의 핵심 이미지는 감정의 결을 부드럽게 펼쳐 보인다.',analysis2:'화자의 시선은 여백 속에 머무르며 서정의 호흡을 만든다.'};
     const icons = [found.icon, '✧', '❀'];
-    return {palette:found.color, icons, caption:found.caption, analysis1:found.analysis1, analysis2:found.analysis2};
+    return {scene:found.scene, palette:found.color, icons, caption:found.caption, analysis1:found.analysis1, analysis2:found.analysis2};
+  }
+
+  function choosePoemScene(text, motifs){
+    const wideHints = /바다|강|산|하늘|들|길|평야|구름|노을|수평선|벌판/;
+    const tallHints = /꽃|달|비|나무|창|별|등불|눈물|얼굴|새/;
+    const orientation = wideHints.test(text) ? 'landscape' : tallHints.test(text) ? 'portrait' : text.length > 180 ? 'portrait' : 'landscape';
+    return {
+      ...motifs,
+      orientation,
+      scene: motifs.scene,
+      titleLabel: orientation === 'landscape' ? '삽화형 가로 시화' : '삽화형 세로 시화'
+    };
+  }
+
+  function buildPoemIllustration(scene, width, height){
+    const p = scene.palette;
+    const moodDots = scene.icons.map((icon, idx)=>`<text x="${width*0.12 + idx*width*0.11}" y="${height*0.18 + (idx%2)*height*0.05}" font-size="${Math.round(width*0.04)}" fill="rgba(60,72,88,.14)">${esc(icon)}</text>`).join('');
+    const baseWash = `
+      <circle cx="${width*0.22}" cy="${height*0.2}" r="${width*0.13}" fill="${p[0]}" opacity="0.48" filter="url(#soft-blur)"/>
+      <circle cx="${width*0.72}" cy="${height*0.3}" r="${width*0.15}" fill="${p[1]}" opacity="0.33" filter="url(#soft-blur)"/>
+      <circle cx="${width*0.52}" cy="${height*0.76}" r="${width*0.18}" fill="${p[2]}" opacity="0.28" filter="url(#soft-blur)"/>
+      ${moodDots}`;
+    const scenes = {
+      mountain:`${baseWash}
+        <circle cx="${width*0.78}" cy="${height*0.18}" r="${width*0.05}" fill="#f5ebc4" opacity="0.9"/>
+        <path d="M0 ${height*0.58} C ${width*0.12} ${height*0.48}, ${width*0.25} ${height*0.46}, ${width*0.38} ${height*0.56} C ${width*0.48} ${height*0.42}, ${width*0.58} ${height*0.39}, ${width*0.73} ${height*0.58} C ${width*0.82} ${height*0.46}, ${width*0.92} ${height*0.5}, ${width} ${height*0.45} L ${width} ${height} L 0 ${height} Z" fill="#758c78" opacity="0.62"/>
+        <path d="M0 ${height*0.68} C ${width*0.16} ${height*0.62}, ${width*0.32} ${height*0.57}, ${width*0.5} ${height*0.7} C ${width*0.66} ${height*0.58}, ${width*0.83} ${height*0.64}, ${width} ${height*0.57} L ${width} ${height} L 0 ${height} Z" fill="#90a38d" opacity="0.58"/>
+        <path d="M0 ${height*0.78} C ${width*0.22} ${height*0.74}, ${width*0.48} ${height*0.72}, ${width} ${height*0.77} L ${width} ${height} L 0 ${height} Z" fill="#d9d1b8" opacity="0.7"/>`,
+      sea:`${baseWash}
+        <circle cx="${width*0.77}" cy="${height*0.18}" r="${width*0.055}" fill="#f6e8b2" opacity="0.92"/>
+        <rect x="0" y="${height*0.57}" width="${width}" height="${height*0.43}" fill="#9fd1de" opacity="0.45"/>
+        <path d="M0 ${height*0.62} Q ${width*0.1} ${height*0.58}, ${width*0.2} ${height*0.62} T ${width*0.4} ${height*0.62} T ${width*0.6} ${height*0.62} T ${width*0.8} ${height*0.62} T ${width} ${height*0.62}" stroke="#5d8fa4" stroke-width="6" fill="none" opacity="0.55"/>
+        <path d="M0 ${height*0.7} Q ${width*0.1} ${height*0.66}, ${width*0.2} ${height*0.7} T ${width*0.4} ${height*0.7} T ${width*0.6} ${height*0.7} T ${width*0.8} ${height*0.7} T ${width} ${height*0.7}" stroke="#6fa0b5" stroke-width="8" fill="none" opacity="0.48"/>
+        <path d="M${width*0.22} ${height*0.58} l${width*0.03} ${-height*0.09} l${width*0.04} ${height*0.08} z" fill="#b97256" opacity="0.75"/>
+        <path d="M${width*0.246} ${height*0.49} l0 ${height*0.09}" stroke="#7c5c48" stroke-width="3"/>
+        <path d="M${width*0.246} ${height*0.495} q${width*0.05} ${height*0.035} 0 ${height*0.07} z" fill="rgba(255,255,255,.72)"/>`,
+      river:`${baseWash}
+        <path d="M${width*0.28} ${height*0.04} C ${width*0.42} ${height*0.18}, ${width*0.55} ${height*0.34}, ${width*0.49} ${height*0.54} C ${width*0.43} ${height*0.72}, ${width*0.57} ${height*0.84}, ${width*0.66} ${height} L ${width} ${height} L ${width} ${height*0.72} C ${width*0.86} ${height*0.62}, ${width*0.73} ${height*0.48}, ${width*0.7} ${height*0.28} C ${width*0.68} ${height*0.16}, ${width*0.58} ${height*0.08}, ${width*0.45} 0 Z" fill="#b8dce4" opacity="0.76"/>
+        <path d="M0 ${height*0.72} C ${width*0.18} ${height*0.58}, ${width*0.36} ${height*0.58}, ${width*0.58} ${height*0.72} L 0 ${height} Z" fill="#b4c7a4" opacity="0.6"/>
+        <path d="M${width*0.52} ${height*0.77} C ${width*0.66} ${height*0.72}, ${width*0.84} ${height*0.74}, ${width} ${height*0.66} L ${width} ${height} L ${width*0.68} ${height} Z" fill="#c8d7bf" opacity="0.65"/>
+        <path d="M${width*0.2} ${height*0.15} q${width*0.06} ${-height*0.08} ${width*0.12} 0" stroke="#6a7f57" stroke-width="6" fill="none" opacity="0.5"/>`,
+      flower:`${baseWash}
+        <ellipse cx="${width*0.32}" cy="${height*0.72}" rx="${width*0.13}" ry="${height*0.18}" fill="#f6d9e3" opacity="0.42"/>
+        <ellipse cx="${width*0.68}" cy="${height*0.68}" rx="${width*0.16}" ry="${height*0.2}" fill="#d5efe0" opacity="0.38"/>
+        <path d="M0 ${height*0.86} C ${width*0.2} ${height*0.8}, ${width*0.38} ${height*0.82}, ${width*0.56} ${height*0.86} C ${width*0.74} ${height*0.81}, ${width*0.86} ${height*0.82}, ${width} ${height*0.78} L ${width} ${height} L 0 ${height} Z" fill="#b5cda8" opacity="0.55"/>
+        ${Array.from({length:5}, (_,i)=>{
+          const x = width*(0.18 + i*0.14);
+          const y = height*(0.68 + (i%2)*0.04);
+          return `<g><path d="M${x} ${height*0.87} Q ${x+10} ${height*0.78}, ${x} ${y}" stroke="#6d9165" stroke-width="4" fill="none"/><circle cx="${x}" cy="${y}" r="${width*0.025}" fill="#f8b9c8" opacity="0.92"/><circle cx="${x-width*0.018}" cy="${y+width*0.008}" r="${width*0.018}" fill="#ffe2ec" opacity="0.9"/><circle cx="${x+width*0.018}" cy="${y+width*0.008}" r="${width*0.018}" fill="#ffd8e8" opacity="0.9"/></g>`;
+        }).join('')}`,
+      autumn:`${baseWash}
+        <path d="M0 ${height*0.78} C ${width*0.22} ${height*0.7}, ${width*0.46} ${height*0.72}, ${width*0.64} ${height*0.82} C ${width*0.8} ${height*0.76}, ${width*0.92} ${height*0.78}, ${width} ${height*0.74} L ${width} ${height} L 0 ${height} Z" fill="#c5a27c" opacity="0.56"/>
+        <path d="M${width*0.18} ${height*0.84} q${width*0.06} ${-height*0.28} ${width*0.12} ${-height*0.48}" stroke="#7a5c3e" stroke-width="10" fill="none" opacity="0.7"/>
+        ${Array.from({length:9},(_,i)=>`<path d="M${width*(0.18+i*0.07)} ${height*(0.3+(i%3)*0.08)} q10 -18 20 0 q-10 22 -20 0" fill="#d98550" opacity="0.78" transform="rotate(${i*16} ${width*(0.18+i*0.07)} ${height*(0.3+(i%3)*0.08)})"/>`).join('')}`,
+      rain:`${baseWash}
+        <rect x="0" y="${height*0.68}" width="${width}" height="${height*0.32}" fill="#dce5ef" opacity="0.34"/>
+        ${Array.from({length:42},(_,i)=>`<line x1="${(i*37)%width}" y1="${height*0.14 + (i%6)*40}" x2="${(i*37)%width - width*0.03}" y2="${height*0.24 + (i%6)*40}" stroke="#8299b6" stroke-width="3" opacity="0.38"/>`).join('')}
+        <path d="M${width*0.52} ${height*0.82} q${width*0.12} ${-height*0.18} ${width*0.24} 0" stroke="#7a5866" stroke-width="8" fill="none"/>
+        <path d="M${width*0.44} ${height*0.72} q${width*0.08} ${-height*0.1} ${width*0.16} 0 q${width*0.08} ${height*0.1} ${width*0.16} 0" fill="#9d6f7e" opacity="0.74"/>`,
+      moon:`${baseWash}
+        <circle cx="${width*0.72}" cy="${height*0.22}" r="${width*0.08}" fill="#fbf0c7" opacity="0.95"/>
+        <circle cx="${width*0.75}" cy="${height*0.2}" r="${width*0.08}" fill="rgba(251,248,241,0.84)"/>
+        <path d="M0 ${height*0.72} C ${width*0.18} ${height*0.66}, ${width*0.33} ${height*0.64}, ${width*0.48} ${height*0.72} C ${width*0.58} ${height*0.64}, ${width*0.74} ${height*0.63}, ${width} ${height*0.66} L ${width} ${height} L 0 ${height} Z" fill="#74809b" opacity="0.62"/>
+        <path d="M0 ${height*0.82} C ${width*0.24} ${height*0.78}, ${width*0.52} ${height*0.76}, ${width} ${height*0.84} L ${width} ${height} L 0 ${height} Z" fill="#9099b3" opacity="0.4"/>
+        ${Array.from({length:14},(_,i)=>`<circle cx="${(i*71)%width}" cy="${height*0.12 + (i%5)*28}" r="2.5" fill="#fff" opacity="0.75"/>`).join('')}`,
+      tree:`${baseWash}
+        <path d="M${width*0.34} ${height} C ${width*0.36} ${height*0.84}, ${width*0.38} ${height*0.68}, ${width*0.42} ${height*0.48}" stroke="#7c5b43" stroke-width="20" fill="none" opacity="0.7"/>
+        <ellipse cx="${width*0.45}" cy="${height*0.38}" rx="${width*0.18}" ry="${height*0.16}" fill="#b8d8b3" opacity="0.68"/>
+        <ellipse cx="${width*0.56}" cy="${height*0.34}" rx="${width*0.16}" ry="${height*0.14}" fill="#d6ebcc" opacity="0.54"/>
+        <path d="M0 ${height*0.84} C ${width*0.26} ${height*0.8}, ${width*0.58} ${height*0.82}, ${width} ${height*0.78} L ${width} ${height} L 0 ${height} Z" fill="#cfd7bb" opacity="0.45"/>
+        ${Array.from({length:8},(_,i)=>`<path d="M${width*(0.18+i*0.08)} ${height*(0.76+(i%2)*0.02)} q10 -18 20 0 q-10 18 -20 0" fill="#9cc7a2" opacity="0.72"/>`).join('')}`,
+      bird:`${baseWash}
+        <path d="M0 ${height*0.8} C ${width*0.18} ${height*0.74}, ${width*0.42} ${height*0.77}, ${width} ${height*0.7} L ${width} ${height} L 0 ${height} Z" fill="#d9e2d4" opacity="0.48"/>
+        ${Array.from({length:6},(_,i)=>`<path d="M${width*(0.18+i*0.12)} ${height*(0.32+(i%3)*0.05)} q${width*0.02} -${height*0.03} ${width*0.04} 0 q-${width*0.02} ${height*0.02} -${width*0.04} 0" stroke="#617189" stroke-width="4" fill="none"/>`).join('')}`,
+      abstract:`${baseWash}
+        <path d="M0 ${height*0.76} C ${width*0.14} ${height*0.68}, ${width*0.3} ${height*0.72}, ${width*0.42} ${height*0.8} C ${width*0.58} ${height*0.66}, ${width*0.74} ${height*0.64}, ${width} ${height*0.74} L ${width} ${height} L 0 ${height} Z" fill="#c6d2d8" opacity="0.5"/>`
+    };
+    return scenes[scene.scene] || scenes.abstract;
+  }
+
+  function buildPoemTextPanel({title, owner, lines, scene, width, height}){
+    const portrait = scene.orientation === 'portrait';
+    const panelW = portrait ? width*0.76 : width*0.42;
+    const panelH = portrait ? height*0.44 : height*0.66;
+    const x = portrait ? width*0.12 : width*0.53;
+    const y = portrait ? height*0.5 : height*0.18;
+    const titleSize = portrait ? 54 : 48;
+    const bodySize = portrait ? 28 : 24;
+    const lineGap = portrait ? 44 : 38;
+    const textY = y + 170;
+    const poemLines = lines.map((line, idx)=>`<text x="${x+34}" y="${textY + idx*lineGap}" font-size="${bodySize}" fill="#243447">${esc(line)}</text>`).join('');
+    return `
+      <rect x="${x}" y="${y}" width="${panelW}" height="${panelH}" rx="24" fill="rgba(255,255,255,0.65)" stroke="rgba(42,60,80,0.08)"/>
+      <text x="${x+34}" y="${y+44}" font-size="24" fill="#6b7280">${scene.titleLabel}</text>
+      <text x="${x+34}" y="${y+104}" font-size="${titleSize}" font-weight="700" fill="#1f2f3f">${esc(title)}</text>
+      <text x="${x+34}" y="${y+144}" font-size="26" fill="#536171">${esc(owner)}</text>
+      ${poemLines}
+      <text x="${x+34}" y="${y+panelH-76}" font-size="24" fill="#8a5757">${esc(scene.caption)}</text>
+      <text x="${x+34}" y="${y+panelH-40}" font-size="22" fill="#38485a">${esc(scene.analysis1)}</text>`;
   }
 
   function wrapTextForSvg(text, wordsPerLine){
-    const words = text.split(' ');
+    const normalized = text.replace(/\r/g,'').split(/\n+/).map(v=>v.trim()).filter(Boolean).join(' ');
+    const words = normalized.split(/\s+/);
     const lines=[];
     let cur='';
     for(const w of words){
@@ -490,7 +586,7 @@
   $('export-json').addEventListener('click', exportJson);
   $('reset-samples').addEventListener('click', () => { if(confirm('저장한 모든 홈페이지를 삭제하고 기본 예시 2개로 초기화할까요? 이 작업은 되돌릴 수 없습니다.')){ mutateProjects(structuredClone(SAMPLE_PROJECTS)); $('status-filter').value='전체'; renderProjectLists(); } });
   $('auto-critique').addEventListener('click', () => { const result=generateCritiqueText(); if(!result)return; $('overall-review').value = result; renderPreview(); $('form-feedback').textContent = '입력된 작품 설명을 바탕으로 약 200자의 평론 초안이 작성됐습니다. 이미지 자체를 판독한 AI 평론은 아닙니다.'; });
-  $('generate-poem-art').addEventListener('click', () => { const result = generatePoemArtSvg(); if(result){ renderPoemArt(); $('form-feedback').textContent = '9:16 수채화풍 시화가 생성되었습니다.'; } });
+  $('generate-poem-art').addEventListener('click', () => { const result = generatePoemArtSvg(); if(result){ renderPoemArt(); $('form-feedback').textContent = '시의 내용을 바탕으로 가로·세로형 삽화 시화가 생성되었습니다.'; } });
   $('download-poem-art').addEventListener('click', () => { if(!poemArt){ alert('먼저 시화를 생성하세요.'); return; } const a=document.createElement('a'); a.href='data:image/svg+xml;charset=utf-8,' + encodeURIComponent(poemArt.svg); a.download = (($('title').value.trim() || 'poem-art') + '.svg'); document.body.append(a); a.click(); a.remove(); });
   $('remove-poem-art').addEventListener('click', () => { poemArt = null; renderPoemArt(); renderPreview(); $('form-feedback').textContent = '생성된 시화가 삭제되었습니다.'; });
   $('preview-site-btn').addEventListener('click', previewBuiltPage);
