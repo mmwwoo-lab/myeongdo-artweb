@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>명도재 아트웹 관리자 v8.5</title>
-  <link rel="stylesheet" href="./style.css?v=8.5.0">
+  <title>명도재 아트웹 관리자 v8.6</title>
+  <link rel="stylesheet" href="./style.css?v=8.6.0">
 </head>
 <body>
   <div class="app-shell">
@@ -13,7 +13,7 @@
         <div class="seal">明道</div>
         <div>
           <h1>명도재 아트웹 관리자</h1>
-          <p>v8.3 · 유형별 맞춤 제작</p>
+          <p>v8.6 · 창작 스튜디오</p>
         </div>
       </div>
       <nav class="nav">
@@ -80,8 +80,16 @@
             </div>
 
             <input type="hidden" id="project-id">
+            <div class="studio-intro">
+              <div><span class="eyebrow">CREATIVE STUDIO</span><h4>내 작품 홈페이지를 만드는 가장 쉬운 방법</h4><p>홈페이지 유형 선택 → 내용 입력 → 결과 미리보기 → 저장</p></div>
+              <div class="studio-step" aria-label="제작 과정"><span class="current">1 유형</span><span>2 내용</span><span>3 확인</span></div>
+            </div>
+            <div class="editor-mode" role="group" aria-label="편집 화면 복잡도">
+              <button type="button" id="mode-simple" class="mode-active" aria-pressed="true">간단 제작</button>
+              <button type="button" id="mode-advanced" aria-pressed="false">상세 설정</button>
+            </div>
 
-            <label for="title">홈페이지 제목 *</label>
+            <label for="title">② 홈페이지 제목 *</label>
             <input id="title" type="text" maxlength="100" required placeholder="예: 사계의 빛 — 한국화 초대전">
 
             <label for="owner">작가·단체명 *</label>
@@ -112,9 +120,9 @@
             <textarea id="summary" rows="3" maxlength="1200" placeholder="홈페이지 소개, 전시 개요, 시집 안내, 기사 요약 등을 입력하세요."></textarea>
 
             <label for="main-text" id="main-text-label">본문 글쓰기</label>
-            <textarea id="main-text" rows="10" maxlength="20000" placeholder="시, 기사, 작가 소개, 전시 설명, 시집 소개 등 긴 글을 입력하세요."></textarea>
+            <textarea id="main-text" rows="10" maxlength="20000" placeholder="시, 기사, 작가 소개, 전시 설명, 시집 소개 등 긴 글을 입력하세요."></textarea><div class="word-counter"><span id="main-text-count">0</span> / 20,000자</div>
 
-            <div class="panel-inner" id="settings-block">
+            <div class="panel-inner studio-advanced" id="settings-block">
               <h4>설정</h4>
               <div class="settings-grid">
                 <label>작품 음악 분위기
@@ -190,7 +198,7 @@
               <div id="artwork-upload-grid"></div>
             </div>
 
-            <div class="panel-inner">
+            <div class="panel-inner studio-advanced">
               <label for="manuscript-file">원고·자료 파일 선택 (JPG · HWP · TXT)</label>
               <input id="manuscript-file" type="file" accept=".jpg,.jpeg,.hwp,.txt,image/jpeg,text/plain,application/x-hwp">
               <div class="inline-actions">
@@ -201,22 +209,22 @@
               <div id="manuscript-preview" class="manuscript-preview"></div>
             </div>
 
-            <div class="panel-inner">
+            <div class="panel-inner studio-advanced">
               <label for="link-title">연결 버튼 이름</label>
               <input id="link-title" type="text" maxlength="60" placeholder="예: 전시 안내 · 기사 원문 · 시집 구매">
               <label for="link-url">연결할 웹사이트 주소 (HTTPS)</label>
               <input id="link-url" type="url" maxlength="500" placeholder="https://example.com">
             </div>
 
-            <label for="status">진행 상태</label>
-            <select id="status">
+            <label for="status" class="studio-advanced">진행 상태</label>
+            <select id="status" class="studio-advanced">
               <option>기획</option>
               <option>제작 중</option>
               <option>검수</option>
               <option>완료</option>
             </select>
 
-            <div class="form-actions">
+            <div class="form-actions"><div class="form-action-title">③ 결과 확인 및 저장</div>
               <button type="submit" class="primary">이 홈페이지 저장하기</button>
               <button type="button" id="preview-site-btn" class="primary">홈페이지 미리보기</button>
               <button type="button" id="download-site" class="subtle">홈페이지 파일 다운로드</button>
@@ -227,7 +235,7 @@
 
           <div class="panel preview-panel">
             <div class="panel-head"><div><h3>실시간 홈페이지 미리보기</h3><p>유형별 구조와 주요 콘텐츠를 즉시 확인합니다.</p></div></div>
-            <div id="preview-site" class="preview-site">
+            <div class="preview-toolbar"><span>LIVE PREVIEW</span><button type="button" id="preview-refresh" class="subtle">새로고침</button></div><div id="preview-site" class="preview-site">
               <div class="preview-top"><span class="seal">明道</span><nav class="mini-nav"><a href="#">작품 소개</a><a href="#">작가 약력</a><a href="#">문의</a></nav></div>
               <div class="preview-hero">
                 <small id="preview-type">NEWS</small>
@@ -291,6 +299,6 @@
       </section>
     </main>
   </div>
-  <script src="./app.js?v=8.5.0"></script>
+  <script src="./app.js?v=8.6.0"></script>
 </body>
 </html>
