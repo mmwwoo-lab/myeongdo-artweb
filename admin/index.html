@@ -2,9 +2,18 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>명도재 아트웹 관리자 v8.6</title>
-  <link rel="stylesheet" href="./style.css?v=8.6.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#172d3b">
+  <meta name="description" content="명도재 아트웹 — 미술 작가 전시, 시화와 문학관, 만화로 보는 뉴스, 대구문화예술신문을 만드는 창작 스튜디오">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="명도재 아트웹">
+  <meta property="og:title" content="명도재 아트웹 · 미술과 문학과 뉴스의 창작 스튜디오">
+  <meta property="og:description" content="작품과 시, 문화예술 뉴스를 직접 만드는 명도재 이명우의 디지털 창작 공간">
+  <meta property="og:url" content="https://mmwwoo-lab.github.io/myeongdo-artweb/admin/">
+  <meta property="og:image" content="https://mmwwoo-lab.github.io/myeongdo-artweb/admin/og-artweb.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>명도재 아트웹 관리자 v8.7</title>
+  <link rel="stylesheet" href="./style.css?v=8.7.0">
 </head>
 <body>
   <div class="app-shell">
@@ -13,7 +22,7 @@
         <div class="seal">明道</div>
         <div>
           <h1>명도재 아트웹 관리자</h1>
-          <p>v8.6 · 창작 스튜디오</p>
+          <p>ART · POETRY · CULTURE · NEWS</p><small class="sidebar-version">v8.7</small>
         </div>
       </div>
       <nav class="nav">
@@ -31,6 +40,19 @@
       </header>
 
       <section class="view visible" id="view-dashboard">
+        <div class="premium-hero">
+          <span class="premium-kicker">MYEONGDO CREATIVE STUDIO</span>
+          <h2>예술의 순간을<br>하나의 웹페이지로.</h2>
+          <p>그림과 시, 문화예술 이야기를 작품으로 남기는 디지털 창작 공간</p>
+          <button class="primary" id="hero-create-btn" type="button">지금 홈페이지 만들기 →</button>
+        </div>
+        <div class="service-head"><span>OUR CREATIVE SERVICES</span><small>유형을 고르면 맞춤 편집기가 열립니다</small></div>
+        <div class="service-tiles" id="service-tiles">
+          <button type="button" data-studio-template="exhibition"><span class="service-num">01 · ART</span><strong>미술 전시관</strong><small>작가 약력 · 작품 전시 · 감상 음악</small><span class="tile-action">시작하기 ↗</span></button>
+          <button type="button" data-studio-template="poem_house"><span class="service-num">02 · POETRY</span><strong>시화·문학관</strong><small>시 원문 · 삽화 시화 · 문학 소개</small><span class="tile-action">시작하기 ↗</span></button>
+          <button type="button" data-studio-template="news"><span class="service-num">03 · NEWS</span><strong>뉴스 만화</strong><small>기사 입력 · 8컷 만화 · 말풍선</small><span class="tile-action">시작하기 ↗</span></button>
+          <button type="button" data-studio-template="culture_news_studio"><span class="service-num">04 · CULTURE</span><strong>대구문화예술신문</strong><small>문화기사 · 전문 칼럼 · 만화 지면</small><span class="tile-action">시작하기 ↗</span></button>
+        </div>
         <div class="stats-grid">
           <article class="stat-card"><h3>전체 프로젝트</h3><strong id="stat-all">0</strong></article>
           <article class="stat-card"><h3>진행 중</h3><strong id="stat-doing">0</strong></article>
@@ -299,6 +321,6 @@
       </section>
     </main>
   </div>
-  <script src="./app.js?v=8.6.0"></script>
+  <script src="./app.js?v=8.7.0"></script>
 </body>
 </html>
