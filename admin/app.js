@@ -657,6 +657,17 @@
   $('preview-refresh').addEventListener('click',()=>{renderPreview();$('form-feedback').textContent='최신 입력으로 미리보기를 갱신했습니다.';});
   $('main-text').addEventListener('input',()=>{$('main-text-count').textContent=$('main-text').value.length.toLocaleString('ko-KR');});
   $('new-project-btn').addEventListener('click',()=>{ clearForm(); view('create'); });
+  $('hero-create-btn').addEventListener('click',()=>{ clearForm(); view('create'); });
+  document.querySelectorAll('[data-studio-template]').forEach(button=>button.addEventListener('click',()=>{
+    clearForm();
+    const type=button.dataset.studioTemplate;
+    if(templateMeta[type]){
+      $('template').value=type;
+      if(type==='news'||type==='culture_news_studio')$('comic-panels').value='8';
+      applyTemplateMode();
+    }
+    view('create');
+  }));
   $('template').addEventListener('change',()=>{if($('template').value==='news'){$('comic-panels').value='8';if(!$('link-title').value.trim())$('link-title').value='기사 원문 보기';}if($('template').value==='culture_news_studio'){$('comic-panels').value='8';if(!$('title').value.trim())$('title').value='명도재 이명우의 대구문화예술 뉴스 신문';if(!$('owner').value.trim())$('owner').value='명도재 이명우';if(!$('subtitle').value.trim())$('subtitle').value='대구 문화예술의 현장을 기사와 만화와 칼럼으로 읽다';}else if($('template').value==='culture_paper'){$('comic-panels').value='8';if(!$('title').value.trim())$('title').value='명도재 이명우의 대구문화예술신문';if(!$('owner').value.trim())$('owner').value='명도재 이명우';if(!$('summary').value.trim())$('summary').value='10월 23일자 발행! 대구국제아트페어, 앤디 워홀전, 고야 판화전, 학생동아리 한마당 소식을 기사·8컷 만화·칼럼으로 만나보세요.';if(!$('link-url').value.trim())$('link-url').value='https://myeongdo-daegu-culture.korea8014lee.chatgpt.site';if(!$('link-title').value.trim())$('link-title').value='대구문화예술신문 읽기';}applyTemplateMode();});
   $('clear-form').addEventListener('click',clearForm);
   $('status-filter').addEventListener('change',renderProjectLists);
