@@ -14,6 +14,7 @@
   let projects=load();
   let imageData='';
   let artworkImages=Array(6).fill('');
+  let manuscript=null;
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(projects));return true;}catch{alert('저장에 실패했습니다. 브라우저 저장 설정을 확인하세요.');return false;}};
   const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;};
   const field=(id)=>$(id).value.trim();
@@ -28,12 +29,12 @@
     const filter=$('status-filter').value;const data=projects.filter(p=>filter==='전체'||p.status===filter);const list=$('project-list');list.replaceChildren(...(data.length?data.slice().reverse().map(row):[el('div','empty','해당 상태의 프로젝트가 없습니다.') ]));
   }
   $('status-filter').addEventListener('change',render);
-  function editProject(id){const p=projects.find(x=>x.id===id);if(!p)return;$('project-id').value=p.id;for(const k of ['title','artist','type','subtitle','description','status'])$(k).value=p[k]||'';$('link-title').value=p.linkTitle||'';$('link-url').value=p.linkUrl||'';$('image-url').value=p.imageUrl||'';imageData=p.imageData||'';artworkImages=Array.from({length:6},(_,i)=>p.artworkImages?.[i]||(i===0?p.imageData||'':''));for(let i=1;i<=6;i++)$('artwork-file-'+i).value='';$('manuscript-file').value='';$('form-title').textContent='프로젝트 수정';updatePreview();view('create');}
+  function editProject(id){const p=projects.find(x=>x.id===id);if(!p)return;$('project-id').value=p.id;for(const k of ['title','artist','type','subtitle','description','status'])$(k).value=p[k]||'';$('link-title').value=p.linkTitle||'';$('link-url').value=p.linkUrl||'';$('image-url').value=p.imageUrl||'';imageData=p.imageData||'';artworkImages=Array.from({length:6},(_,i)=>p.artworkImages?.[i]||(i===0?p.imageData||'':''));for(let i=1;i<=6;i++)$('artwork-file-'+i).value='';$('manuscript-file').value='';manuscript=p.manuscript||null;renderManuscript();$('form-title').textContent='프로젝트 수정';updatePreview();view('create');}
   function removeProject(id){if(!confirm('이 예시 프로젝트를 삭제할까요?'))return;const previous=projects;projects=projects.filter(x=>x.id!==id);if(!save())projects=previous;render();}
-  function clearForm(){imageData='';artworkImages=Array(6).fill('');if($('built-preview-box'))$('built-preview-box').hidden=true;$('project-form').reset();$('project-id').value='';$('form-title').textContent='새 홈페이지 만들기';updatePreview();}
+  function clearForm(){manuscript=null;renderManuscript();imageData='';artworkImages=Array(6).fill('');if($('built-preview-box'))$('built-preview-box').hidden=true;$('project-form').reset();$('project-id').value='';$('form-title').textContent='새 홈페이지 만들기';updatePreview();}
   $('clear-form').addEventListener('click',clearForm);
   $('project-form').addEventListener('submit',e=>{e.preventDefault();const title=field('title'),artist=field('artist');if(!title||!artist){alert('홈페이지 제목과 작가 이름을 입력하세요.');return;}
-    const current=$('project-id').value;const obj={id:current||('demo-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)),title,artist,type:field('type'),subtitle:field('subtitle'),description:field('description'),imageUrl:safeImageURL(field('image-url')),imageData:artworkImages[0]||'',artworkImages:artworkImages.slice(),linkTitle:field('link-title'),linkUrl:safeLinkURL(field('link-url')),status:field('status')};const idx=projects.findIndex(p=>p.id===current);const previous=clone(projects);if(idx>=0)projects[idx]=obj;else projects.push(obj);if(!save()){projects=previous;return;}clearForm();view('projects');alert('홈페이지가 저장되었습니다. 목록에서 다시 편집할 수 있습니다.');});
+    const current=$('project-id').value;const obj={id:current||('demo-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)),title,artist,type:field('type'),subtitle:field('subtitle'),description:field('description'),imageUrl:safeImageURL(field('image-url')),imageData:artworkImages[0]||'',artworkImages:artworkImages.slice(),manuscript,linkTitle:field('link-title'),linkUrl:safeLinkURL(field('link-url')),status:field('status')};const idx=projects.findIndex(p=>p.id===current);const previous=clone(projects);if(idx>=0)projects[idx]=obj;else projects.push(obj);if(!save()){projects=previous;return;}clearForm();view('projects');alert('홈페이지가 저장되었습니다. 목록에서 다시 편집할 수 있습니다.');});
   const types={'전시관':'ART EXHIBITION','문학관':'LITERARY ARCHIVE','작가관':'ARTIST PORTFOLIO','출판관':'BOOK & PUBLISHING'};
   function safeLinkURL(raw){try{const u=new URL(raw);return u.protocol==='https:'?u.href:'';}catch{return '';}}
   function safeImageURL(raw){try{const u=new URL(raw);return u.protocol==='https:'?u.href:'';}catch{return '';}}
@@ -66,13 +67,32 @@
     });
     $('remove-artwork-'+index).addEventListener('click',()=>{artworkImages[index-1]='';imageData=artworkImages[0]||'';$('artwork-file-'+index).value='';updatePreview();});
   }
+  function renderManuscript(){
+    const info=$('manuscript-info'),area=$('manuscript-preview');
+    area.replaceChildren();
+    info.textContent=manuscript?('선택한 자료: '+manuscript.name+' ('+Math.ceil((manuscript.size||0)/1024)+'KB)'):'파일 미선택 · JPG·HWP·TXT 지원 (700KB 이하)';
+    $('download-manuscript').disabled=!manuscript;
+    if(!manuscript)return;
+    if(manuscript.kind==='jpg'){
+      const img=document.createElement('img');img.src=manuscript.data;img.alt='첨부 이미지 미리보기';img.style.cssText='width:100%;max-height:280px;object-fit:contain';area.append(img);
+    }else{
+      const p=document.createElement('p');p.textContent=manuscript.kind==='hwp'?'HWP 원본 파일을 보관합니다. 문서 본문 자동 읽기는 지원하지 않습니다.':'TXT 원고를 소개 문구에 불러왔습니다.';area.append(p);
+    }
+  }
   $('manuscript-file').addEventListener('change',async e=>{
     const file=e.target.files[0];if(!file)return;
-    if(!/\.(txt|md)$/i.test(file.name)||file.size>100*1024){alert('100KB 이하 TXT 또는 MD 원고만 지원합니다.');e.target.value='';return;}
+    const ext=file.name.split('.').pop().toLowerCase();
+    if(!['jpg','jpeg','hwp','txt'].includes(ext)||file.size>700*1024){alert('JPG·HWP·TXT 파일만 선택할 수 있으며, 700KB 이하여야 합니다.');e.target.value='';return;}
     try{
-      const text=await file.text();$('description').value=text.slice(0,1600);updatePreview();$('form-feedback').textContent='원고 '+file.name+' 불러오기 완료. 글자 수 제한에 따라 최대 1,600자만 반영됩니다.';
-    }catch{alert('원고 파일을 읽지 못했습니다.');}
+      const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('읽기 실패'));reader.readAsDataURL(file);});
+      manuscript={name:file.name,size:file.size,kind:ext==='jpeg'?'jpg':ext,data};
+      if(ext==='txt'){$('description').value=(await file.text()).slice(0,1600);updatePreview();}
+      renderManuscript();$('form-feedback').textContent='원고 자료가 선택되었습니다. 홈페이지를 저장하면 첨부 정보가 함께 보관됩니다.';
+    }catch{alert('자료 파일을 읽지 못했습니다.');}
   });
+  $('remove-manuscript').addEventListener('click',()=>{manuscript=null;$('manuscript-file').value='';renderManuscript();$('form-feedback').textContent='원고 첨부 파일을 삭제했습니다. 변경 내용을 유지하려면 홈페이지를 저장하세요.';});
+  $('download-manuscript').addEventListener('click',()=>{if(!manuscript)return;const a=document.createElement('a');a.href=manuscript.data;a.download=manuscript.name;document.body.append(a);a.click();a.remove();});
+  renderManuscript();
   $('download-site')?.addEventListener('click',exportHTML);
   $('build-site').addEventListener('click',()=>{
     if(!$('project-form').reportValidity())return;
