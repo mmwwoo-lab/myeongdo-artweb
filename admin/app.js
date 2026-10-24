@@ -74,6 +74,17 @@
     const isPoetry=['literary','book_launch','poem_house'].includes(type);
     const isStudio=type==='culture_news_studio';
     // All fields remain in the DOM so previously saved information is not lost when switching types.
+    if(type==='news'){
+      const labels={'summary':'기사 요약','main-text':'기사 본문','link-title':'기사 링크 버튼 이름','link-url':'기사 링크 주소 (HTTPS)'};
+      for(const [id,label] of Object.entries(labels)){const el=document.querySelector('label[for="'+id+'"]');if(el)el.textContent=label;}
+      $('summary').placeholder='기사의 핵심 내용을 간단하게 요약하세요.';
+      $('main-text').placeholder='기사 내용 또는 취재 내용을 입력하세요. 링크만으로 원문을 자동으로 가져오지는 않습니다.';
+      $('link-url').placeholder='https://news.example.com/article';
+      $('link-title').placeholder='기사 원문 보기';
+    }else{
+      const labels={'summary':'짧은 소개','main-text':currentMeta().mainLabel,'link-title':'연결 버튼 이름','link-url':'연결할 웹사이트 주소 (HTTPS)'};
+      for(const [id,label] of Object.entries(labels)){const el=document.querySelector('label[for="'+id+'"]');if(el)el.textContent=label;}
+    }
     const fields={
       biography:!isNews,contact:true,subtitle:true,summary:true,
       'main-text':!isStudio,
@@ -101,8 +112,8 @@
     const panelLabel=isArt?'작품 사진·그림':isNews?'기사 만화·취재 이미지':isBook?'시집 표지·삽화':'시화·삽화 이미지';
     $('gallery-heading').textContent=panelLabel+' · 최대 '+currentMeta().limit+'장';
     $('gallery-help').textContent='이미지는 자동 축소·압축됩니다. 필요한 사진만 등록하세요.';
-    $('main-text-label').textContent=currentMeta().mainLabel;
-    $('summary').placeholder=isArt?'전시 개요와 관람 포인트':isNews?'오늘의 주요 문화예술 소식 요약':isBook?'시집 소개와 출간 취지':'시인의 작품 세계와 문학 소개';
+    $('main-text-label').textContent=type==='news'?'기사 본문':currentMeta().mainLabel;
+    $('summary').placeholder=type==='news'?'기사 요약을 입력하세요':isArt?'전시 개요와 관람 포인트':isNews?'오늘의 주요 문화예술 소식 요약':isBook?'시집 소개와 출간 취지':'시인의 작품 세계와 문학 소개';
     $('title').placeholder=isArt?'전시 제목을 입력하세요':isNews?'신문·기사 제목을 입력하세요':isBook?'시집 제목을 입력하세요':'시·문학관 제목을 입력하세요';
     const typeLabel=document.getElementById('type-workflow-title');
     if(typeLabel)typeLabel.textContent=isStudio?'① 기사 4건 입력 → ② 만화 구성 → ③ 저장':isNews?'① 기사 입력 → ② 8컷 만화 → ③ 저장':isArt?'① 작가 소개 → ② 작품 등록 → ③ 음악 감상':isBook?'① 시집 소개 → ② 대표 시와 시화 → ③ 저장':'① 시 원문 입력 → ② 시화 생성 → ③ 저장';
@@ -284,20 +295,20 @@
   }
 
   function generateNewsComicData(){
-    const text=($('main-text').value.trim() || $('summary').value.trim()).replace(/\r/g,'');
-    if(!text){ alert('기사 내용을 먼저 입력하세요.'); return null; }
-    const panelCount=Number($('comic-panels').value || 12);
-    const cleaned=text.split(/\n+/).join(' ');
-    let units=cleaned.split(/(?<=[.!?。！？다요])\s+/).map(s=>s.trim()).filter(Boolean);
-    if(!units.length) units=[cleaned];
-    const panels=[];
-    for(let i=0;i<panelCount;i++){
-      const src=units[i % units.length];
-      const short=src.length>80 ? src.slice(0,80)+'…' : src;
-      const bubble=src.length>36 ? src.slice(0,36)+'…' : src;
-      panels.push({index:i+1, scene:`핵심 장면 ${i+1}: ${short}`, bubble, caption:`기사의 핵심 내용을 시각적으로 전달하는 장면입니다.`});
-    }
-    newsComic={panelCount, panels};
+    const title=$('title').value.trim() || '뉴스 제목';
+    const summary=$('summary').value.trim();
+    const body=$('main-text').value.trim();
+    const url=safeHttps($('link-url').value.trim());
+    if(!summary && !body){alert('기사 요약 또는 기사 본문을 입력하세요. 기사 링크만으로 원문을 자동 읽을 수는 없습니다.');return null;}
+    const panelCount=Number($('comic-panels').value||8);
+    const text=[summary,body].filter(Boolean).join(' ').replace(/\r/g,'').replace(/\n+/g,' ');
+    const units=text.split(/(?<=[.!?。！？])\s+/).map(v=>v.trim()).filter(Boolean);
+    if(!units.length)units.push(text);
+    const panels=Array.from({length:panelCount},(_,i)=>{
+      const part=units[Math.min(units.length-1,Math.floor(i*units.length/panelCount))]||text;
+      return {index:i+1,scene:'기사 장면 '+(i+1)+': '+part.slice(0,90),bubble:part.slice(0,42)+(part.length>42?'…':''),caption:i===panelCount-1?(url?'기사 원문: '+url:'기사의 맥락과 출처를 확인해 주세요.'):'기사 내용을 시각적으로 재구성한 장면'};
+    });
+    newsComic={panelCount,title,source:url,panels};
     return newsComic;
   }
 
@@ -429,7 +440,7 @@
     $('preview-biography').textContent=$('biography').value.trim() || '작가 약력 또는 소개를 입력하세요.';
     $('preview-contact').textContent=$('contact').value.trim() || '문의 정보를 입력하세요.';
     const linkWrap=$('preview-link'); linkWrap.replaceChildren(); const href=safeHttps($('link-url').value.trim());
-    if(href){ const a=document.createElement('a'); a.href=href; a.target='_blank'; a.rel='noopener noreferrer'; a.className='primary'; a.textContent=$('link-title').value.trim() || '관련 사이트 열기'; linkWrap.append(a); }
+    if(href){ const a=document.createElement('a'); a.href=href; a.target='_blank'; a.rel='noopener noreferrer'; a.className='primary'; a.textContent=$('link-title').value.trim() || ($('template').value==='news'?'기사 원문 보기':'관련 사이트 열기'); linkWrap.append(a); if($('template').value==='news'){const note=document.createElement('small');note.className='field-help';note.textContent='기사 출처 링크 · 원문은 새 창에서 확인';linkWrap.append(note);} }
     const gallery=$('preview-art-gallery'); gallery.replaceChildren();
     const limit=meta.limit;
     for(let i=0;i<limit;i++){
@@ -588,7 +599,7 @@
   document.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click',()=>view(btn.dataset.view)));
   window.addEventListener('hashchange',()=>{ const name=location.hash.slice(1); if(headings[name]) view(name); });
   $('new-project-btn').addEventListener('click',()=>{ clearForm(); view('create'); });
-  $('template').addEventListener('change',()=>{if($('template').value==='culture_news_studio'){$('comic-panels').value='8';if(!$('title').value.trim())$('title').value='명도재 이명우의 대구문화예술 뉴스 신문';if(!$('owner').value.trim())$('owner').value='명도재 이명우';if(!$('subtitle').value.trim())$('subtitle').value='대구 문화예술의 현장을 기사와 만화와 칼럼으로 읽다';}else if($('template').value==='culture_paper'){$('comic-panels').value='8';if(!$('title').value.trim())$('title').value='명도재 이명우의 대구문화예술신문';if(!$('owner').value.trim())$('owner').value='명도재 이명우';if(!$('summary').value.trim())$('summary').value='10월 23일자 발행! 대구국제아트페어, 앤디 워홀전, 고야 판화전, 학생동아리 한마당 소식을 기사·8컷 만화·칼럼으로 만나보세요.';if(!$('link-url').value.trim())$('link-url').value='https://myeongdo-daegu-culture.korea8014lee.chatgpt.site';if(!$('link-title').value.trim())$('link-title').value='대구문화예술신문 읽기';}applyTemplateMode();});
+  $('template').addEventListener('change',()=>{if($('template').value==='news'){$('comic-panels').value='8';if(!$('link-title').value.trim())$('link-title').value='기사 원문 보기';}if($('template').value==='culture_news_studio'){$('comic-panels').value='8';if(!$('title').value.trim())$('title').value='명도재 이명우의 대구문화예술 뉴스 신문';if(!$('owner').value.trim())$('owner').value='명도재 이명우';if(!$('subtitle').value.trim())$('subtitle').value='대구 문화예술의 현장을 기사와 만화와 칼럼으로 읽다';}else if($('template').value==='culture_paper'){$('comic-panels').value='8';if(!$('title').value.trim())$('title').value='명도재 이명우의 대구문화예술신문';if(!$('owner').value.trim())$('owner').value='명도재 이명우';if(!$('summary').value.trim())$('summary').value='10월 23일자 발행! 대구국제아트페어, 앤디 워홀전, 고야 판화전, 학생동아리 한마당 소식을 기사·8컷 만화·칼럼으로 만나보세요.';if(!$('link-url').value.trim())$('link-url').value='https://myeongdo-daegu-culture.korea8014lee.chatgpt.site';if(!$('link-title').value.trim())$('link-title').value='대구문화예술신문 읽기';}applyTemplateMode();});
   $('clear-form').addEventListener('click',clearForm);
   $('status-filter').addEventListener('change',renderProjectLists);
   $('export-json').addEventListener('click',exportJson);
