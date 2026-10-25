@@ -439,31 +439,31 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
 /* Keep image/video preview players themselves visually distinct from action buttons. */
 
 
-/* v12.5 — ONLY the artwork music & video creation buttons are lime-green
+/* v12.5 — ONLY the artwork music & video creation buttons are soft-purple
    with black labels. Other studio controls remain lavender. */
 .studio-layout #view-create .media-buttons button[data-act="make-music"],
 .studio-layout #view-create .media-buttons button[data-act="make-video"]{
-  background:#e0f5c7!important;
+  background:#c59aee!important;
   background-image:none!important;
-  border:1px solid #afd48f!important;
+  border:1px solid #9f6bd2!important;
   color:#000000!important;
   font-weight:800;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:not(:disabled):hover,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:not(:disabled):hover{
-  background:#d0edac!important;
-  border-color:#96bd70!important;
+  background:#b787e5!important;
+  border-color:#9160c5!important;
   color:#000000!important;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:active,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:active{
-  background:#c0e49a!important;
+  background:#a979d8!important;
   color:#000000!important;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:disabled,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:disabled{
-  background:#eff9e5!important;
-  border-color:#d3e8bf!important;
+  background:#eee1fb!important;
+  border-color:#cbb0e9!important;
   color:#333!important;
   opacity:.65;
 }
@@ -472,15 +472,15 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
 /* Matching music/video shortcuts in the left production menu. */
 .studio-layout .side-menu button[data-jump="music-controls"],
 .studio-layout .side-menu button[data-jump="video-controls"]{
-  background:#e0f5c7!important;
-  border:1px solid #afd48f!important;
+  background:#c59aee!important;
+  border:1px solid #9f6bd2!important;
   color:#000000!important;
   font-weight:800;
 }
 .studio-layout .side-menu button[data-jump="music-controls"]:hover,
 .studio-layout .side-menu button[data-jump="video-controls"]:hover{
-  background:#d0edac!important;
-  border-color:#96bd70!important;
+  background:#b787e5!important;
+  border-color:#9160c5!important;
   color:#000000!important;
 }
 .studio-layout .side-menu button[data-jump="music-controls"]:before,
