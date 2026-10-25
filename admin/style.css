@@ -131,3 +131,12 @@ details.form-section>.form-section-header{margin-top:10px}
 .advanced-production{margin-bottom:0;background:#f9f8f3}
 @media(max-width:950px){.quick-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.quick-hero{padding:20px 17px}.quick-finish{display:block}.quick-finish-actions{margin-top:12px}.quick-finish-actions button{width:100%}.quick-finish-actions{display:grid}.batch-upload{padding:14px}.execute-artwork{width:100%}}
+
+
+/* 20-second film-score brief for each artwork */
+.music-style-brief{margin:3px 0 16px;border:1px solid #cad8c7;background:#fffefa;border-radius:5px;padding:12px 14px}
+.music-style-brief>summary{cursor:pointer;color:#314c3b;font-size:13px;font-weight:800}
+.music-style-brief>summary::marker{color:#886942}
+.music-style-brief>p[data-music-prompt]{white-space:normal;overflow-wrap:anywhere;color:#4f6553;font-size:13px;line-height:1.8;padding:11px;border-radius:4px;background:#f1f5ee;border-left:3px solid #9fae9a;margin:12px 0}
+.music-style-brief .subtle{font-size:12px;padding:9px 12px}
+.music-style-brief .helper{margin-top:8px!important;font-size:12px;color:#697669}
