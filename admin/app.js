@@ -239,12 +239,12 @@ function updateMediaControls(el,w){
    output.append(audio,a);
  }
  if(media.video){
-   flags.push("영상 생성 완료");
+   flags.push("음악+영상 완성");
    const video=document.createElement("video");video.controls=true;video.preload="metadata";video.playsInline=true;video.src=media.video.url;
    const a=document.createElement("a");a.href=media.video.url;a.download=(w.title||"myeongdo-work").replace(/[\\/:*?"<>|]/g,"-")+"."+media.video.extension;a.textContent="↓ 영상 "+media.video.extension.toUpperCase()+" 저장";
    output.append(video,a);
  }
- status.textContent=flags.length?flags.join(" · ")+" · 파일 저장 후 공개 URL을 연결하세요.":(!videoButton.disabled?"작품 등록 완료 · 음악·영상 생성 준비됨":"음악 제작 가능 · 영상은 Chrome/Edge 또는 Python 프로그램 이용");
+ status.textContent=flags.length?flags.join(" · ")+(w.localVideoReady?" · 전시관에 자동 등록됨":" · 영상 제작 후 자동 등록할 수 있습니다."):(!videoButton.disabled?"작품 사진 등록 완료 · 버튼 한 번으로 음악이 들어간 영상 완성":"음악만 가능 · 영상은 Chrome/Edge 또는 Python 기능 이용");
 }
 
 const notify=(message,bad=false)=>{const n=$("notice");n.textContent=message;n.dataset.kind=bad?"error":"success"};
@@ -323,11 +323,11 @@ function renderWorks(){
   const el=document.createElement("article");el.className="work-editor";el.dataset.id=w.id;
   el.innerHTML='<div class="work-header"><h3>작품 '+(i+1)+' <small>ARTWORK '+String(i+1).padStart(2,"0")+'</small></h3><div class="work-tools"><button type="button" data-act="up" title="위로 이동" aria-label="작품 위로 이동">↑</button><button type="button" data-act="down" title="아래로 이동" aria-label="작품 아래로 이동">↓</button><button type="button" data-act="remove" class="danger">삭제</button></div></div>'+
   '<div class="work-fields"><div class="work-image-col"><label>작품 이미지 (JPG·PNG·WebP)<input type="file" data-art-file accept="image/jpeg,image/png,image/webp"></label><div class="art-upload-preview" data-image></div></div>'+
-  '<div class="work-info-col"><p class="work-video-status" data-video-status role="status"></p><div class="field-grid"><label>작품 제목<input data-field="title" maxlength="140" placeholder="작품 제목"></label><label>제작연도<input data-field="year" maxlength="50" placeholder="2026"></label><label>재료·기법<input data-field="material" maxlength="140" placeholder="수채화, 캔버스에 유채"></label><label>크기<input data-field="size" maxlength="100" placeholder="72.7 × 60.6 cm"></label></div>'+
+  '<div class="work-info-col"><p class="work-video-status" data-video-status role="status"></p><label class="quick-work-title">작품명<input data-field="title" maxlength="140" placeholder="사진 이름으로 자동입력"></label><details class="optional-details work-extra"><summary>선택 · 제작연도·규격·작품 해설·미술평론</summary><div class="field-grid"><label>제작연도<input data-field="year" maxlength="50" placeholder="2026"></label><label>재료·기법<input data-field="material" maxlength="140" placeholder="수채화, 캔버스에 유채"></label><label>크기<input data-field="size" maxlength="100" placeholder="72.7 × 60.6 cm"></label></div>'+
   '<label>작품 설명<textarea data-field="caption" rows="3" maxlength="2600" placeholder="작품에 담긴 이야기"></textarea></label>'+
   '<label>작품별 미술평론<textarea data-field="critique" rows="3" maxlength="3500" placeholder="조형 요소, 색채와 상징에 대한 평론"></textarea></label>'+
   '<div class="field-grid"><label>음악 감상 링크 (HTTPS)<input data-field="musicUrl" type="url" placeholder="https://..."></label><label>영상 감상 링크 (HTTPS)<input data-field="videoUrl" type="url" placeholder="https://..."></label></div>'+
-  '<div class="work-create-media"><div class="media-buttons"><button type="button" class="primary" data-act="make-music">♫ 음악 만들기</button><button type="button" class="primary" data-act="make-video">▶ 영상 만들기</button></div><p class="work-create-status" data-media-status role="status"></p><div class="generated-media" data-media-output></div><p class="helper">브라우저에서 생성한 기악 WAV와 7초 작품 영상을 내려받을 수 있습니다. 완성 파일을 웹에 올린 뒤 위의 감상 링크에 주소를 입력하세요. MP4 고화질 제작은 아래 Python 기능을 이용합니다.</p></div></div></div>';
+  '</details><div class="work-create-media"><div class="media-buttons"><button type="button" class="primary execute-artwork" data-act="make-video">▶ 작품 실행 · 음악+영상 제작·등록</button><button type="button" class="subtle" data-act="make-music">음악만 듣기</button></div><p class="work-create-status" data-media-status role="status"></p><div class="generated-media" data-media-output></div><p class="helper">브라우저에서 생성한 기악 WAV와 7초 작품 영상을 내려받을 수 있습니다. 영상 완성 후 이 브라우저에 자동 등록됩니다. 전시관 미리보기에서 음악과 함께 감상하고, 전시 홈페이지 HTML로 함께 저장할 수 있습니다.</p></div></div></div>';
   wrap.append(el);
   const badge=el.querySelector("[data-video-status]");
   badge.textContent=videoState(w);
@@ -354,20 +354,25 @@ function renderWorks(){
     el.querySelector("[data-media-status]").textContent="약 7초 분량의 작품 감상 영상을 녹화하고 있습니다. 제작이 끝날 때까지 편집을 유지하세요.";
     try{
       const music=locallyGenerated.get(w.id)?.music?.blob||musicForArtwork(w);
+      if(!locallyGenerated.get(w.id)?.music)storeLocal(w,"music",music,"wav");
       const result=await recordArtworkFilm(w,music);
       storeLocal(w,"video",result.blob,result.extension);
-      w.videoStatus="브라우저 작품 영상 생성 완료 · 내려받기 필요";
+      const persisted=await persistFilm(w.id,result.blob);
+      w.localVideoReady=persisted;
+      w.videoStatus=persisted?"음악이 포함된 영상 제작·등록 완료":"영상 생성 완료 · 브라우저 저장 실패";
       setDirty();
       updateMediaControls(el,w);
-      notify("작품 "+(i+1)+" 영상이 완성되었습니다. 내려받기 후 웹에 올려 감상 URL을 연결하세요.");
+      renderVideoStats();
+      if(persisted){save();notify("작품 "+(i+1)+" 음악 포함 영상이 전시 프로젝트에 등록됐습니다. 전시관 바로 보기에서 확인하세요.")}
+      else notify("영상은 만들어졌지만 브라우저 저장소에 등록하지 못했습니다. 영상 파일을 먼저 내려받아 보관하세요.",true);
     }catch(err){
       updateMediaControls(el,w);
       notify("영상 제작 오류: "+err.message,true);
-    }finally{button.textContent="▶ 영상 다시 만들기";button.disabled=!w.dataUrl||!supportedVideoMime()}
+    }finally{button.textContent="▶ 작품 다시 실행 · 음악+영상 등록";button.disabled=!w.dataUrl||!supportedVideoMime()}
   });
   el.querySelector("[data-art-file]").addEventListener("change",async e=>{
     const file=e.target.files?.[0];if(!file)return;
-    try{discardLocalMedia(w.id);w.dataUrl=await fileAsImage(file);w.filename=file.name;w.videoStatus="";w.videoFile="";renderWorks();setDirty();notify("작품 "+(i+1)+" 이미지를 등록했습니다.")}
+    try{discardLocalMedia(w.id);w.dataUrl=await fileAsImage(file);w.filename=file.name;w.videoStatus="";w.videoFile="";w.localVideoReady=false;renderWorks();setDirty();notify("작품 "+(i+1)+" 이미지를 등록했습니다.")}
     catch(err){notify(err.message,true)}
   });
   el.querySelector('[data-act="remove"]').addEventListener("click",()=>{
