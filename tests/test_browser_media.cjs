@@ -34,7 +34,7 @@ async function main() {
  });
  for(const [name,style] of Object.entries({music:mediaColors.music,video:mediaColors.video})){
    assert.equal(style.background,"rgb(224, 245, 199)",name+" button must be pastel lime");
-   assert.equal(style.color,"rgb(16, 16, 16)",name+" button text must be near-black");
+   assert.equal(style.color,"rgb(0, 0, 0)",name+" button text must be pure black");
  }
  assert.equal(mediaColors.ordinary,"rgb(232, 221, 252)","Other buttons must remain pastel lavender");
  assert.equal(await music.isDisabled(),false,"Music button must be enabled once artwork registered");
