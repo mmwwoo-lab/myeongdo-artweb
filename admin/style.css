@@ -253,3 +253,120 @@ input[type=file]::file-selector-button{border:1px solid #5a6993;background:#2333
  .sonu-heading h2{font-size:29px}
 }
 @media(max-width:390px){.sonu-steps{grid-template-columns:1fr}.side-menu{grid-template-columns:1fr 1fr}}
+
+
+/* v12.3 — pure-white, light-palette ONLY for "미술작품 전시 홈페이지 만들기".
+   The dashboard keeps its original navy control-room theme. */
+body[data-studio-view="create"]{background:#fff;color:#27364c}
+body[data-studio-view="create"] .studio-layout{background:#fff}
+body[data-studio-view="create"] .sidebar{
+ background:#f8faff;color:#34425b;border-right:1px solid #dce3f2
+}
+body[data-studio-view="create"] .identity b{color:#263754}
+body[data-studio-view="create"] .identity small{color:#677791}
+body[data-studio-view="create"] .seal{background:#eadfff;color:#63409f}
+body[data-studio-view="create"] .side-menu button{color:#485971;background:#fff;border:1px solid #edf0f7}
+body[data-studio-view="create"] .side-menu button[data-jump]{color:#556584}
+body[data-studio-view="create"] .side-menu button:hover,
+body[data-studio-view="create"] .side-menu button.active,
+body[data-studio-view="create"] .side-menu button[data-jump]:hover{
+ background:#eae3ff;color:#55349d;border-color:#d7c6fa
+}
+body[data-studio-view="create"] .sidebar-bottom{color:#61708a}
+body[data-studio-view="create"] .sidebar-bottom a{color:#624599}
+body[data-studio-view="create"] .main{background:#fff}
+body[data-studio-view="create"] .topbar{background:#fff;border-bottom-color:#e6eaf3}
+body[data-studio-view="create"] .topbar h1{color:#1f304a}
+body[data-studio-view="create"] .eyebrow{color:#7a55b8}
+body[data-studio-view="create"] .text-link{color:#7050a9;border-color:#c0addd}
+#view-create{background:#fff;color:#27364c}
+#view-create .quick-hero{background:linear-gradient(115deg,#fff,#f8f6ff 60%,#edf7ff);border:1px solid #dce3f2}
+#view-create .quick-hero h2{color:#263752}
+#view-create .quick-hero p{color:#52647a}
+#view-create .quick-steps span{background:#f6f8ff;border:1px solid #e0e6f2;color:#4c5a74}
+#view-create .quick-help,
+#view-create .optional-details,
+#view-create .form-section,
+#view-create .work-editor,
+#view-create .panel,
+#view-create .preview-panel{
+ background:#fff;color:#293a50;border-color:#dfe5ef
+}
+#view-create .quick-help>summary,
+#view-create .optional-details>summary{color:#3f4d71}
+#view-create .optional-details[open]>summary,
+#view-create .form-section-header,
+#view-create .work-header{border-bottom-color:#e5e9f2}
+#view-create .form-section-header h2,
+#view-create .form-section h2,
+#view-create .form-section h3,
+#view-create .panel-heading h2,
+#view-create .work-header h3{color:#29394f}
+#view-create .form-section-header>span,
+#view-create .form-section-header>div>span,
+#view-create .work-header h3 small{color:#8464b5}
+#view-create .form-section-header p,
+#view-create .hint,
+#view-create .helper,
+#view-create .work-info-col p,
+#view-create .video-production-heading p{color:#586981}
+#view-create label,
+#view-create .video-manifest-label,
+#view-create .quick-work-title,
+#view-create .batch-upload label{color:#35455e}
+#view-create .form-section label em{color:#b05d52}
+#view-create .form-section input:not([type=checkbox]):not([type=file]),
+#view-create .form-section textarea,
+#view-create .form-section select,
+#view-create .work-editor input:not([type=file]),
+#view-create .work-editor textarea,
+#view-create .publish-token-row input{
+ background:#fff;color:#27364c;border:1px solid #cdd7e5
+}
+#view-create input::placeholder,
+#view-create textarea::placeholder{color:#8694a6}
+#view-create .image-preview,
+#view-create .art-upload-preview{background:#f9fbff;border-color:#d4deea;color:#6b7d93}
+#view-create .batch-upload{background:#f4f9ff;border:2px dashed #a7c3e2}
+#view-create .batch-upload p{color:#60748a}
+#view-create input[type=file]{color:#43556e}
+#view-create input[type=file]::file-selector-button{
+ background:#eee8ff;border:1px solid #d5c8f1;color:#563b8b
+}
+#view-create .primary{background:#e7dcff;color:#4c2b8a;border:1px solid #c9b5f4}
+#view-create .primary:hover{background:#d9c9fa;color:#3e2078}
+#view-create .subtle{background:#eef5ff;color:#35567f;border:1px solid #d1e0f3}
+#view-create .subtle:hover{background:#e0edff}
+#view-create .ghost{background:#fff;color:#50617b;border-color:#cbd5e4}
+#view-create .danger{background:#fff3f2;color:#a54040;border-color:#edcece}
+#view-create .work-tools button{background:#f8f9fd;color:#40536e;border-color:#d8e0ec}
+#view-create .work-tools button.danger{background:#fff0ef;color:#aa4946}
+#view-create .quick-finish{background:linear-gradient(110deg,#f5faff,#f7f0ff);border-color:#d7ddef}
+#view-create .quick-finish strong{color:#293b58}
+#view-create .quick-finish p{color:#64728b}
+#view-create .quick-rights{background:#fffdf5;border:1px solid #eee3bc;color:#3f4a5c}
+#view-create .work-create-media,
+#view-create .video-production{background:linear-gradient(125deg,#f9fbff,#f8f6ff);border:1px solid #d7e1f0}
+#view-create .cinematic-caption{background:linear-gradient(90deg,#eef8ff,#fbf7ff);border-left-color:#8faedc;color:#3e5776}
+#view-create .music-style-brief{background:#fff;border:1px solid #d9e2f0}
+#view-create .music-style-brief>summary{color:#44577c}
+#view-create .music-style-brief p{color:#526780}
+#view-create .work-create-status{color:#3c6870}
+#view-create .work-video-status{background:#eaf9f1;color:#2c7351;border-left-color:#8dccb1}
+#view-create .generated-media a{background:#f1edff;color:#64409a;border-color:#cbb8ef}
+#view-create .generated-media audio,
+#view-create .generated-media video{background:#e4eaf5}
+#view-create .video-process span,
+#view-create .process span{background:#f9faff;border:1px solid #dce3ef;color:#53637a}
+#view-create .video-stats{background:#f0faf7;color:#315f5d;border-left-color:#76b3a6}
+#view-create .video-production-heading h3{color:#304d6a}
+#view-create .video-production .helper{color:#596b85}
+#view-create .publish-panel{background:#fafdff;color:#263b51;border:1px solid #d8e2ef;border-radius:9px;padding:22px}
+#view-create .publish-panel h3{color:#2d4260}
+#view-create .publish-help,
+#view-create .publish-status{color:#5a6f83}
+#view-create .publish-help-link{color:#7054a5}
+#view-create .notice:not([data-kind="error"]){color:#2b7653}
+#view-create .notice[data-kind="error"]{color:#a52b36}
+#view-create .preview-panel iframe{background:#fff;border-color:#d2ddeb}
+body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visible{outline:3px solid #a988ed;outline-offset:2px}
