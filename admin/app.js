@@ -832,10 +832,13 @@ async function importProject(e){
 for(const b of document.querySelectorAll("[data-view]"))b.addEventListener("click",()=>{
  show(b.dataset.view);
  if(b.dataset.jump){
-  const target=$(b.dataset.jump);
+  const jump=b.dataset.jump;
+  const target=jump==="music-controls"||jump==="video-controls"
+   ?document.querySelector('#artwork-list [data-act="'+(jump==="music-controls"?"make-music":"make-video")+'"]')?.closest(".work-create-media")
+   :$(jump);
   if(target){
    if(target.tagName==="DETAILS")target.open=true;
-   requestAnimationFrame(()=>target.scrollIntoView({behavior:"smooth",block:"start"}));
+   requestAnimationFrame(()=>target.scrollIntoView({behavior:"smooth",block:"center"}));
   }
  }
 });
