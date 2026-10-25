@@ -7,7 +7,7 @@ const MAX=20;
 const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const safeLink=value=>{try{const u=new URL(String(value||""));return u.protocol==="https:"?u.href:""}catch{return""}};
 const safeImage=value=>typeof value==="string"&&/^data:image\/(?:jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(value)?value:"";
-const freshWork=()=>({id:"work-"+Math.random().toString(36).slice(2,11),title:"",year:"",material:"",size:"",caption:"",critique:"",musicUrl:"",videoUrl:"",videoFile:"",videoStatus:"",dataUrl:"",filename:""});
+const freshWork=()=>({id:"work-"+Math.random().toString(36).slice(2,11),title:"",year:"",material:"",size:"",caption:"",critique:"",musicUrl:"",videoUrl:"",videoFile:"",videoStatus:"",localVideoReady:false,dataUrl:"",filename:""});
 const freshProject=()=>({id:"",title:"",artist:"",genre:"한국화",status:"기획",subtitle:"",summary:"",biography:"",artistNote:"",contact:"",officialUrl:"",review:"",cover:"",portrait:"",rightsConfirmed:false,exhibitionVideoUrl:"",artworks:[freshWork()],updatedAt:""});
 const fields={"title":"title","artist":"artist","genre":"genre","status":"status","subtitle":"subtitle","summary":"summary","biography":"biography","artist-note":"artistNote","contact":"contact","official-url":"officialUrl","review":"review","exhibition-video-url":"exhibitionVideoUrl"};
 const text=(node,value)=>{node.textContent=value;};
@@ -38,7 +38,7 @@ const normalize=p=>{
  critique:String(a.critique||""),
  musicUrl:safeLink(a.musicUrl),
  videoUrl:safeLink(a.videoUrl),
- videoFile:String(a.videoFile||""),videoStatus:String(a.videoStatus||"")
+ videoFile:String(a.videoFile||""),videoStatus:String(a.videoStatus||""),localVideoReady:Boolean(a.localVideoReady)
  })):[];
  if(!result.artworks.length)result.artworks=[freshWork()];
  return result;
@@ -55,7 +55,61 @@ let draft=freshProject();
 let dirty=false;
 let currentView="dashboard";
 const locallyGenerated=new Map();
+const MEDIA_DB="myeongdo-artwork-films-v1";
+function openMediaDB(){
+ if(typeof indexedDB==="undefined")return Promise.resolve(null);
+ return new Promise(resolve=>{
+  try{
+   const req=indexedDB.open(MEDIA_DB,1);
+   req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("films"))req.result.createObjectStore("films")};
+   req.onsuccess=()=>resolve(req.result);
+   req.onerror=()=>resolve(null);
+   req.onblocked=()=>resolve(null);
+  }catch{resolve(null)}
+ });
+}
+async function persistFilm(id,blob){
+ const db=await openMediaDB();
+ if(!db)return false;
+ return new Promise(resolve=>{
+  try{
+   const tx=db.transaction("films","readwrite");
+   tx.objectStore("films").put(blob,id);
+   tx.oncomplete=()=>{db.close();resolve(true)};
+   tx.onerror=()=>{db.close();resolve(false)};
+   tx.onabort=()=>{db.close();resolve(false)};
+  }catch{db.close();resolve(false)}
+ });
+}
+async function recoverFilm(id){
+ const db=await openMediaDB();if(!db)return null;
+ return new Promise(resolve=>{
+  try{
+   const tx=db.transaction("films","readonly");
+   const q=tx.objectStore("films").get(id);
+   q.onsuccess=()=>resolve(q.result instanceof Blob?q.result:null);
+   q.onerror=()=>resolve(null);
+   tx.oncomplete=()=>db.close();
+   tx.onabort=()=>db.close();
+  }catch{db.close();resolve(null)}
+ });
+}
+async function removePersistedFilm(id){
+ const db=await openMediaDB();if(!db)return;
+ try{const tx=db.transaction("films","readwrite");tx.objectStore("films").delete(id);tx.oncomplete=()=>db.close();tx.onerror=()=>db.close()}catch{db.close()}
+}
+async function restoreLocalFilms(){
+ const token=draft;
+ for(const w of token.artworks){
+  if(!w.localVideoReady||locallyGenerated.get(w.id)?.video)continue;
+  const film=await recoverFilm(w.id);
+  if(token!==draft)return;
+  if(film){storeLocal(w,"video",film,film.type.includes("mp4")?"mp4":"webm");const el=[...document.querySelectorAll(".work-editor")].find(x=>x.dataset.id===w.id);if(el)updateMediaControls(el,w)}
+  else{w.localVideoReady=false;w.videoStatus="영상 원본 확인 필요 · 다시 제작하세요"}
+ }
+}
 function discardLocalMedia(id){
+ removePersistedFilm(id);
  const entry=locallyGenerated.get(id);
  if(!entry)return;
  for(const kind of ["music","video"]){if(entry[kind]?.url)URL.revokeObjectURL(entry[kind].url)}
@@ -120,7 +174,8 @@ async function recordArtworkFilm(w,audioBlob,onProgress){
       await context.resume();
     }catch(e){if(context){await context.close().catch(()=>{});context=null;source=null}audioTrack=null}
   }
-  const stream=new MediaStream([...frames.getVideoTracks(),...(audioTrack?[audioTrack]:[])]);
+  if(!audioTrack)throw Error("음악 트랙을 준비하지 못했습니다. 소리가 포함된 영상만 등록합니다. 브라우저를 확인해 주세요.");
+  const stream=new MediaStream([...frames.getVideoTracks(),audioTrack]);
   let recorder;
   try{recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:1800000})}
   catch(err){throw Error("영상 녹화 기능을 시작할 수 없습니다: "+err.message)}
@@ -203,7 +258,7 @@ function applyForm(p){
  $("cover-upload").value="";
  $("portrait-upload").value="";
  previewUpload("cover");previewUpload("portrait");
- renderWorks();notify("");dirty=false;
+ renderWorks();restoreLocalFilms();notify("");dirty=false;
 }
 function capture(){
  for(const [id,key] of Object.entries(fields))draft[key]=$(id).value.trim();
@@ -250,6 +305,7 @@ function registerImage(key){
 function videoState(w){
  if(!w.dataUrl)return "이미지 미등록 · 영상 제작 전";
  if(safeLink(w.videoUrl))return "영상 URL 등록됨 · 실제 공개 여부 별도 확인";
+ if(w.localVideoReady)return "음악 포함 작품 영상 자동 등록 완료";
  if(w.videoFile)return (w.videoStatus||"Python 영상 제작 완료")+" · 파일 업로드 대기";
  if(w.videoStatus)return w.videoStatus;
  return "작품 이미지 등록 완료 · 영상 제작 대기";
@@ -257,7 +313,7 @@ function videoState(w){
 function renderVideoStats(){
  const list=draft.artworks;
  const images=list.filter(w=>w.dataUrl).length;
- const made=list.filter(w=>Boolean(w.videoFile||safeLink(w.videoUrl))).length;
+ const made=list.filter(w=>Boolean(w.localVideoReady||w.videoFile||safeLink(w.videoUrl))).length;
  const linked=list.filter(w=>Boolean(safeLink(w.videoUrl))).length;
  $("video-stats").textContent="이미지 등록 "+images+"점 · 영상 제작 기록 "+made+"점 · 공개 영상 URL 등록 "+linked+"점";
 }
@@ -441,7 +497,7 @@ function renderProjects(){
   const el=document.createElement("article");el.className="project-row";
   const summary=document.createElement("div");summary.className="project-info";
   const h=document.createElement("h3");h.textContent=p.title||"제목 없음";
-  const info=document.createElement("p");info.textContent=(p.artist||"작가 미등록")+" · "+p.genre+" · 작품 "+p.artworks.filter(w=>w.dataUrl).length+"점 · 영상 기록 "+p.artworks.filter(w=>Boolean(w.videoFile||safeLink(w.videoUrl))).length+"점 · "+p.status;
+  const info=document.createElement("p");info.textContent=(p.artist||"작가 미등록")+" · "+p.genre+" · 작품 "+p.artworks.filter(w=>w.dataUrl).length+"점 · 영상 기록 "+p.artworks.filter(w=>Boolean(w.localVideoReady||w.videoFile||safeLink(w.videoUrl))).length+"점 · "+p.status;
   summary.append(h,info);
   const controls=document.createElement("div");controls.className="project-actions";
   const edit=document.createElement("button");edit.type="button";edit.className="subtle";edit.textContent="편집";edit.addEventListener("click",()=>{applyForm(p);show("create")});
