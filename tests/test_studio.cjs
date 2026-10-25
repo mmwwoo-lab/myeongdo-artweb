@@ -16,6 +16,9 @@ async function main() {
   w.HTMLElement.prototype.scrollIntoView = function () {};
   w.confirm = () => true;
   w.alert = message => { throw Error("Unexpected alert: " + message); };
+  let blobCount=0;
+  w.URL.createObjectURL = blob => { assert(blob.size > 1000, "Generated media should contain data"); return "blob:https://example.com/"+(++blobCount); };
+  w.URL.revokeObjectURL = () => {};
   w.localStorage.setItem("myeongdo_exhibition_studio_v1", JSON.stringify([{
     id: "demo-exhibition", title: "테스트 전시", artist: "시연 작가",
     genre: "수채화", status: "제작 중", rightsConfirmed: true,
@@ -38,6 +41,16 @@ async function main() {
   $("project-list").querySelector("button").click();
   assert($("artist").value === "시연 작가", "Editor must load stored artist");
   assert($("artwork-list").textContent.includes("이미지 등록 완료"), "Video/image status must be shown");
+  const musicButton = $("artwork-list").querySelector('[data-act="make-music"]');
+  const videoButton = $("artwork-list").querySelector('[data-act="make-video"]');
+  assert(musicButton && videoButton, "Per-artwork media buttons must be rendered");
+  assert(!musicButton.disabled, "Music must be enabled for registered artwork");
+  musicButton.click();
+  assert($("artwork-list").textContent.includes("음악 생성 완료"), "WAV music creation must update status");
+  assert($("artwork-list").querySelector('a[download$=".wav"]'), "Generated WAV must be downloadable");
+  assert($("artwork-list").querySelector("audio[src^='blob:']"), "Generated WAV must be previewable");
+  assert(videoButton.disabled, "Unsupported MediaRecorder environments must not show active video creation");
+
 
   $("artwork-list").querySelector('[data-field="videoUrl"]').value = "https://example.com/media/artwork-01.mp4";
   $("artwork-list").querySelector('[data-field="videoUrl"]').dispatchEvent(new w.Event("input", {bubbles:true}));
@@ -79,7 +92,7 @@ async function main() {
   assert(!root.includes("./artist-gallery/?artist="), "Main artist cards must open source exhibitions");
   assert(root.includes("https://sonu-kwon-dohoon.sino1000.chatgpt.site/"), "Kwon live exhibition link must be present");
 
-  console.log("PASS: deep link, artist editor, saved project, video status, film preview, manifest import and external exhibition links");
+  console.log("PASS: deep link, artwork music WAV generation, video capability detection, save, film preview, manifest import and artist links");
   w.close();
 }
 main().catch(e=>{ console.error(e); process.exitCode=1; });
