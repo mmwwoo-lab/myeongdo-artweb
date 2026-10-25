@@ -42,6 +42,28 @@ async function main(){
    assert.equal(await page.locator("#view-create").isVisible(),true,"Video menu must navigate editor");
    await page.locator('.side-menu [data-view="projects"]').click();
    assert.equal(await page.locator("#view-projects").isVisible(),true,"Project list must open");
+   const projectPalette=await page.evaluate(()=>{
+     const style=id=>{
+       const el=document.querySelector(id);
+       const css=getComputedStyle(el);
+       return {background:css.backgroundColor,color:css.color};
+     };
+     const upload=document.querySelector("#import-json");
+     const picker=getComputedStyle(upload,"::file-selector-button");
+     return {add:style("#projects-new"),filter:style("#status-filter"),
+             upload:style("#import-json"),
+             fileButton:{background:picker.backgroundColor,color:picker.color},
+             optionCount:document.querySelector("#status-filter").options.length};
+   });
+   for(const name of ["add","filter","upload","fileButton"]){
+     assert.equal(projectPalette[name].background,"rgb(235, 227, 250)",name+" must be pale lavender in projects view");
+     assert.equal(projectPalette[name].color,"rgb(75, 54, 116)",name+" must use readable violet text");
+   }
+   assert.equal(projectPalette.optionCount,5,"Status menu must retain all five filtering options");
+   await page.locator("#status-filter").selectOption("기획");
+   assert.equal(await page.locator("#status-filter").inputValue(),"기획","Project status selection must work");
+   await page.locator("#status-filter").selectOption("전체");
+
    await page.locator('.side-menu [data-view="guide"]').click();
    assert.equal(await page.locator("#view-guide").isVisible(),true,"Help screen must open");
    await page.locator('.side-menu [data-view="create"]:not([data-jump])').click();
