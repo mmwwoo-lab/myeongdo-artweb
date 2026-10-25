@@ -34,3 +34,5 @@ jobs:
         run: npm install --no-save --no-package-lock jsdom@26.1.0
       - name: Test editor, save, preview, video registration, artist links
         run: node tests/test_studio.cjs
+      - name: Observe public and external exhibition link status
+        run: python tests/check_public_links.py
