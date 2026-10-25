@@ -785,7 +785,16 @@ function renderProjects(){
  const recentItems=projects.slice(0,3);
  if(!recentItems.length){const d=document.createElement("p");d.className="empty";d.textContent="아직 저장된 미술 전시가 없습니다. 새 전시를 시작하세요.";recent.append(d)}
  for(const p of recentItems){
-  const b=document.createElement("button");b.type="button";b.className="recent-item";b.textContent=(p.title||"제목 없음")+" · "+(p.artist||"작가");b.addEventListener("click",()=>{applyForm(p);show("create")});recent.append(b)
+  const b=document.createElement("button");b.type="button";b.className="recent-item studio-project-card";
+  const artwork=p.artworks?.find(w=>safeImage(w.dataUrl));
+  const thumb=safeImage(p.cover)||safeImage(artwork?.dataUrl);
+  if(thumb){const img=document.createElement("img");img.className="studio-project-thumb";img.src=thumb;img.alt=(p.title||"전시")+" 대표 작품";img.loading="lazy";b.append(img)}
+  else{const icon=document.createElement("div");icon.className="studio-project-empty";icon.textContent="MYEONGDOJAE · ART";b.append(icon)}
+  const details=document.createElement("span");details.className="studio-project-details";
+  const name=document.createElement("strong");name.textContent=p.title||"제목 없음";
+  const meta=document.createElement("small");meta.textContent=(p.artist||"작가 미등록")+" · "+(p.artworks||[]).filter(w=>w.dataUrl).length+"점 · "+p.status;
+  details.append(name,meta);b.append(details);
+  b.addEventListener("click",()=>{applyForm(p);show("create")});recent.append(b)
  }
  if(!list.children.length){const d=document.createElement("p");d.className="empty";d.textContent="표시할 미술 전시가 없습니다.";list.append(d)}
 }
