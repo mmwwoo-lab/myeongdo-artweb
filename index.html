@@ -1,40 +1,53 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="0; url=./admin/" />
-  <title>명도재 아트웹 관리자</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      margin: 0;
-      background: #f7f1ea;
-      color: #2d241f;
-      font-family: Arial, sans-serif;
-      display: grid;
-      place-items: center;
-      min-height: 100vh;
-    }
-    .box {
-      text-align: center;
-      padding: 32px;
-      border-radius: 18px;
-      background: white;
-      border: 1px solid #eadac5;
-      box-shadow: 0 10px 30px rgba(34, 20, 10, 0.05);
-    }
-    a {
-      color: #8f4f32;
-      font-weight: 700;
-      text-decoration: none;
-    }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#151e1c"><meta name="description" content="MYEONGDOJAE · 명도재 디지털 융합예술 전시관. 미술, 문학, 음악, 영상으로 확장하는 작가별 온라인 전시.">
+<meta property="og:title" content="MYEONGDOJAE | 명도재 융합예술 전시관">
+<meta property="og:description" content="작품과 평론, 음악과 영상이 만나는 디지털 전시.">
+<title>MYEONGDOJAE | 명도재 융합예술 전시관</title>
+<style>
+:root{color-scheme:dark;--bg:#101917;--panel:#192521;--text:#f4f0e6;--muted:#c0c9bf;--gold:#dcc29a;--edge:#35443b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:'Pretendard','Noto Sans KR',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+header{position:sticky;top:0;background:#101917ed;z-index:5;border-bottom:1px solid var(--edge);backdrop-filter:blur(12px)}
+.nav{max-width:1200px;margin:auto;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{font-family:Georgia,serif;letter-spacing:.15em;font-weight:700;font-size:19px}
+nav{display:flex;gap:24px;flex-wrap:wrap;font-size:14px}nav a:hover,.link:hover{color:var(--gold)}
+.hero{min-height:580px;display:grid;place-items:center;padding:110px 24px;text-align:center;background:radial-gradient(ellipse at 50% 50%,#3f4c3d 0%,#1b2823 40%,#101917 77%)}
+.seal{display:inline-block;color:var(--gold);font:26px serif;border:1px solid var(--gold);padding:12px;margin-bottom:26px}
+.eyebrow{letter-spacing:.3em;color:var(--gold);font-size:13px}.hero h1{font:clamp(39px,7vw,90px) Georgia,serif;letter-spacing:.12em;margin:12px 0}.hero h2{font-size:clamp(19px,3vw,29px);font-weight:400;margin:0 0 22px}.hero p{color:var(--muted);max-width:650px;margin:auto}
+.btns{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:34px}.btn{display:inline-block;border:1px solid var(--gold);padding:11px 21px;border-radius:4px;color:var(--gold);font-weight:600}.btn.primary{background:var(--gold);color:#17221c}
+main section{max-width:1200px;margin:auto;padding:75px 22px}.intro{max-width:790px!important;text-align:center}.intro h2,.sectionhead h2{font:normal clamp(27px,4vw,40px) Georgia,serif;margin:12px 0}.intro p{color:var(--muted)}
+.sectionhead{display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:10px;margin-bottom:24px}.sectionhead p{margin:0;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--edge);padding:27px;min-height:245px;border-radius:7px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s,border-color .2s}.card:hover{transform:translateY(-4px);border-color:var(--gold)}
+.card small{color:var(--gold);letter-spacing:.12em}.card h3{font-size:23px;margin:12px 0 7px}.card p{margin:0;color:var(--muted);font-size:14px}.link{color:var(--gold);font-weight:600;margin-top:20px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.step{border-left:2px solid var(--gold);background:var(--panel);padding:20px}.step span{color:var(--gold);font-size:13px}.step b{display:block;margin:6px 0}.step p{color:var(--muted);font-size:13px;margin:0}
+.note{border:1px solid var(--edge);border-radius:6px;padding:22px;color:var(--muted);background:var(--panel)}footer{border-top:1px solid var(--edge);color:var(--muted);padding:35px 22px;text-align:center;font-size:13px}
+@media(max-width:650px){.nav{justify-content:center}.hero{min-height:520px;padding:80px 18px}nav{gap:12px;justify-content:center}.card{min-height:215px}}
+</style>
 </head>
 <body>
-  <div class="box">
-    <h1>명도재 아트웹 관리자</h1>
-    <p>관리자 페이지로 이동 중입니다...</p>
-    <p><a href="./admin/">여기를 눌러 바로 이동</a></p>
-  </div>
-</body>
-</html>
+<header><div class="nav"><a class="brand" href="./" aria-label="명도재 메인">MYEONGDOJAE</a><nav aria-label="주 메뉴"><a href="#artists">작가별 전시</a><a href="#collaboration">협업 제작</a><a href="#about">소개</a><a href="./admin/">운영 도구</a></nav></div></header>
+<div class="hero"><div><span class="seal" aria-label="명도">明道</span><div class="eyebrow">ART · LITERATURE · MUSIC · AI</div><h1>MYEONGDOJAE</h1><h2>명도재 이명우의 융합예술 전시관</h2><p>한 점의 작품에서 시작하여 평론과 음악, 영상으로 확장되는 예술의 세계. 작가와 관람객이 만나는 열린 디지털 전시 공간입니다.</p><div class="btns"><a class="btn primary" href="#artists">전시 감상하기</a><a class="btn" href="#collaboration">협업 제작 과정</a></div></div></div>
+<main>
+<section class="intro" id="about"><div class="eyebrow">ABOUT MYEONGDOJAE</div><h2>예술의 경계를 연결합니다</h2><p>MYEONGDOJAE는 시각예술과 문학, 음악, 영상, AI 창작을 하나의 감상 경험으로 엮는 디지털 전시 프로젝트입니다. 기존 작가별 전시의 원문과 작품 표기를 존중하며, 새로운 참여 작가를 위한 전시 형식도 확장해 나갑니다.</p></section>
+<section id="artists"><div class="sectionhead"><div><div class="eyebrow">ONLINE EXHIBITIONS</div><h2>작가별 전시관</h2><p>전시를 선택하면 해당 작가의 독립 페이지로 이동합니다.</p></div></div><div class="grid">
+<a class="card" href="https://sonu-art-collaboration.sino1000.chatgpt.site/" target="_blank" rel="noopener noreferrer"><div><small>COLLABORATION</small><h3>통합 협업 전시</h3><p>여러 작가의 작품과 음악이 만나는 기존 전시 허브.</p></div><span class="link">전시 보기 ↗</span></a>
+<a class="card" href="https://sonu-roman-review.sino1000.chatgpt.site/" target="_blank" rel="noopener noreferrer"><div><small>ARTIST EXHIBITION</small><h3>로만 로마니신</h3><p>작가 소개와 작품 감상, 음악을 연결하는 전시.</p></div><span class="link">전시 보기 ↗</span></a>
+<a class="card" href="https://sonu-kama-review.sino1000.chatgpt.site/" target="_blank" rel="noopener noreferrer"><div><small>ARTIST EXHIBITION</small><h3>카마 잭코프스카</h3><p>작품 세계와 작가 자료를 살펴보는 전시.</p></div><span class="link">전시 보기 ↗</span></a>
+<a class="card" href="https://sonu-cha-jeongbo.sino1000.chatgpt.site/" target="_blank" rel="noopener noreferrer"><div><small>SCULPTURE EXHIBITION</small><h3>차정보</h3><p>목조 작품을 중심으로 전개되는 예술 감상.</p></div><span class="link">전시 보기 ↗</span></a>
+<a class="card" href="https://sonu-kwon-dohoon.sino1000.chatgpt.site/" target="_blank" rel="noopener noreferrer"><div><small>WATERCOLOR EXHIBITION</small><h3>권도훈</h3><p>수채화 작품과 음악을 잇는 온라인 전시.</p></div><span class="link">전시 보기 ↗</span></a>
+<a class="card" href="./exhibitions/cho-honggeun-2026/"><div><small>MYEONGDOJAE EXHIBITION</small><h3>조홍근 초대전</h3><p>자연을 바라보며, 나를 돌아보다.</p></div><span class="link">전시 보기 →</span></a>
+</div><p style="color:var(--muted);font-size:13px;margin-top:18px">※ 외부 작가별 전시관의 주소와 내부 브랜드 표기는 기존 운영자의 원본을 유지합니다. 이 페이지의 MYEONGDOJAE 명칭이 외부 사이트의 소유권이나 운영 주체 변경을 뜻하지 않습니다.</p></section>
+<section id="collaboration"><div class="sectionhead"><div><div class="eyebrow">COLLABORATION WORKFLOW</div><h2>작품에서 공개 전시까지</h2></div></div><div class="steps">
+<div class="step"><span>01 / DIRECTOR</span><b>명도재 총괄 지시</b><p>작가 선정과 전시 방향, 최종 승인</p></div>
+<div class="step"><span>02 / ARCHIVE</span><b>작품 자료 조사</b><p>원본·약력·작품 정보·사용 허락 확인</p></div>
+<div class="step"><span>03 / CURATION</span><b>전시 기획·평론</b><p>전시 맥락과 작품별 해설 작성</p></div>
+<div class="step"><span>04 / CREATION</span><b>음악·영상 제작</b><p>승인된 작품과 음원을 활용한 융합 창작</p></div>
+<div class="step"><span>05 / WEBSITE</span><b>전시 웹 제작</b><p>모바일 대응 갤러리와 감상 기능 구성</p></div>
+<div class="step"><span>06 / REVIEW</span><b>검수·공개</b><p>권리·링크·재생·접근성 점검 후 승인</p></div>
+</div></section>
+<section><div class="note"><strong style="color:var(--text)">새로운 작가의 참여</strong><p>추가 작가도 같은 제작 순서를 따릅니다. 전시 자료와 이미지·음악 사용 권한을 확인한 뒤 작품별 페이지를 구성하고, 총괄 승인 후 공개합니다. 본 페이지는 공개 전시용이며, 운영 도구는 별도의 시연 환경입니다.</p><a class="link" href="./admin/">운영 도구 살펴보기 →</a></div></section>
+</main><footer><div class="brand" style="margin-bottom:8px">MYEONGDOJAE</div>명도재 이명우 · 디지털 융합예술 전시관<br>© 2026 MYEONGDOJAE. All rights reserved.</footer>
+</body></html>
