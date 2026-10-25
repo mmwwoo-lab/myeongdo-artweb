@@ -91,3 +91,43 @@
 .generated-media a:hover{background:#e9e1d1}
 .work-create-media .helper{display:block;margin-top:12px;color:#647566;font-size:12px;line-height:1.65}
 @media(max-width:600px){.media-buttons button,.generated-media a{width:100%;text-align:center}}
+
+
+/* MYEONGDOJAE simple exhibition workflow v11 */
+.quick-hero{margin:0 0 14px;background:linear-gradient(110deg,#d9e6dd,#f6eddd);border:1px solid #d4d9cc;padding:24px 28px;border-radius:6px}
+.quick-hero h2{font:normal clamp(25px,3.7vw,41px) Georgia,'Noto Serif KR',serif;margin:8px 0 12px;color:#2f4737}
+.quick-hero p{margin:0;color:#57685d;font-size:15px}
+.quick-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:12px}
+.quick-steps span{background:#fffdf8;border:1px solid #e3dbcb;padding:13px;color:#516456;font-size:13px;font-weight:700;text-align:center}
+.quick-help{background:#faf6ec;border:1px solid #e3d9c8;padding:13px 17px;border-radius:4px;margin-bottom:15px;color:#667366;font-size:13px}
+.quick-help summary,.optional-details>summary{cursor:pointer;font-weight:750;color:#3b573f;list-style:none}
+.quick-help summary::-webkit-details-marker,.optional-details>summary::-webkit-details-marker{display:none}
+.quick-help summary:before,.optional-details>summary:before{content:"＋";display:inline-block;margin-right:8px;color:#967044}
+.quick-help[open] summary:before,.optional-details[open]>summary:before{content:"－"}
+.optional-details{border:1px solid #e2d9c7;border-radius:5px;background:#fffdf8;padding:13px 17px;margin:10px 0 16px}
+.optional-details[open]{padding-bottom:18px}
+.optional-details>summary{padding:1px 0 8px}
+.optional-details[open]>summary{border-bottom:1px solid #e5ddce;margin-bottom:16px}
+details.form-section{display:block}
+details.form-section>.form-section-header{margin-top:10px}
+.batch-upload{border:2px dashed #91a18d;border-radius:6px;padding:18px;background:#f0f5ed;margin:0 0 19px}
+.batch-upload label{display:block;font-weight:800;font-size:16px;color:#304b38;margin:0}
+.batch-upload p{font-size:12px;margin:6px 0 10px;color:#617065}
+.batch-upload input{width:100%;font-size:13px}
+.work-extra{margin-top:6px}
+.quick-work-title{font-size:15px!important;color:#364e3d;font-weight:800!important}
+.work-create-media{margin-top:13px}
+.execute-artwork{font-size:15px!important;flex:1;min-height:51px;background:#245438!important;border-color:#245438!important}
+.execute-artwork:hover{background:#33684a!important}
+.work-create-media .media-buttons .subtle{font-size:12px;min-width:110px}
+.quick-finish{display:flex;gap:14px;align-items:center;justify-content:space-between;border:1px solid #b7c9b4;background:linear-gradient(120deg,#e2ece1,#f6f5e8);padding:19px 21px;margin:22px 0 12px;border-radius:6px;flex-wrap:wrap}
+.quick-finish strong{font:normal 24px Georgia,'Noto Serif KR',serif;color:#274935}
+.quick-finish p{margin:4px 0 0;color:#5d6d5d;font-size:13px}
+.quick-finish-actions{display:flex;flex-wrap:wrap;gap:9px}
+.quick-finish-actions button{min-height:46px}
+.quick-rights{margin:0 0 14px;padding:12px 13px;background:#fff9ec;border:1px solid #ead7b9}
+.quick-rights label{display:flex;gap:11px;align-items:center;cursor:pointer;font-size:13px;font-weight:700}
+.quick-rights input{width:19px;height:19px;flex:none}
+.advanced-production{margin-bottom:0;background:#f9f8f3}
+@media(max-width:950px){.quick-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.quick-hero{padding:20px 17px}.quick-finish{display:block}.quick-finish-actions{margin-top:12px}.quick-finish-actions button{width:100%}.quick-finish-actions{display:grid}.batch-upload{padding:14px}.execute-artwork{width:100%}}
