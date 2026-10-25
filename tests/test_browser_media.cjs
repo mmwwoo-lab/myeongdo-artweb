@@ -28,8 +28,21 @@ async function main() {
  assert.equal(musicCheck.rate,16000,"WAV sample rate");
  assert.equal(musicCheck.bytes,16000*20*2,"Instrumental WAV must be exactly 20 seconds");
  assert.equal(musicCheck.total,44+16000*20*2,"WAV header and data length");
+ const audioQuality=await page.evaluate(async()=>{
+   const url=document.querySelector(".generated-media audio").src;
+   const dv=new DataView(await (await fetch(url)).arrayBuffer());
+   let rms=0,peak=0;
+   for(let i=0;i<320000;i+=16){
+     const v=dv.getInt16(44+i*2,true)/32768;
+     rms+=v*v;peak=Math.max(peak,Math.abs(v));
+   }
+   return {rms:Math.sqrt(rms/(320000/16)),peak};
+ });
+ assert(audioQuality.rms>.009,"Piano soundtrack must contain audible audio");
+ assert(audioQuality.peak<.99,"Piano soundtrack must avoid hard clipping");
  const prompt=await page.locator('[data-music-prompt]').first().textContent();
- assert(prompt.includes("instrumental film score, Korean folk motifs, andante tempo"),"Requested music style prompt should appear");
+ assert(prompt.includes("Solo classical piano instrumental, gentle lyrical piano light music"),"Classical piano light-music prompt should appear");
+ assert(prompt.includes("no drums, no strings, no brass"),"Piano-only arrangement prompt should exclude orchestral percussion and brass");
  assert.equal(await video.isDisabled(),false,"Video button must be enabled in Chromium");
  await video.click();
  const result=page.locator('.generated-media a[download$=".webm"],.generated-media a[download$=".mp4"]').first();
@@ -59,7 +72,7 @@ async function main() {
  assert(exported.includes("테스트 수채화"),"Artwork information must appear in downloaded homepage");
 
  assert.deepEqual(pageErrors,[],"No browser JS errors expected");
- console.log("PASS: 20s WAV with requested prompt → 20s synchronized music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
+ console.log("PASS: 20s solo classical piano WAV with matching prompt → 20s synchronized music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
  }finally{await browser.close()}
 }
 main().catch(err=>{console.error(err);process.exitCode=1});
