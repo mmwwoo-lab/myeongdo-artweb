@@ -23,6 +23,11 @@ async function main(){
    assert(overviewColors.every(v=>v.includes("gradient")),"Dashboard workflow and checklist use distinct pale gradients");
    await page.locator('.side-menu [data-view="create"]:not([data-jump])').click();
    assert.equal(await page.locator("body").getAttribute("data-studio-view"),"create","Create screen must switch theme");
+   const titleBackground=await page.locator(".topbar").evaluate(el=>getComputedStyle(el).backgroundColor);
+   assert.equal(titleBackground,"rgb(242, 234, 255)","Website creation page title banner must use pale lavender");
+   const creatorBanner=await page.locator(".quick-hero").evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert(creatorBanner.includes("242, 234, 255"),"Creator headline area must have lavender background");
+
    for(const sel of [".main","#view-create",".form-section",".work-editor"]){
      const background=await page.locator(sel).first().evaluate(el=>getComputedStyle(el).backgroundColor);
      assert.equal(background,"rgb(255, 255, 255)",sel+" must use a pure white background");
