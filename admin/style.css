@@ -440,31 +440,31 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
 
 
 /* v12.5 — ONLY the artwork music & video creation buttons are soft-purple
-   with black labels. Other studio controls remain lavender. */
+   with dark-violet text, identical to the other studio buttons. */
 .studio-layout #view-create .media-buttons button[data-act="make-music"],
 .studio-layout #view-create .media-buttons button[data-act="make-video"]{
-  background:#c59aee!important;
+  background:#ebe3fa!important;
   background-image:none!important;
-  border:1px solid #9f6bd2!important;
-  color:#000000!important;
+  border:1px solid #d6c5ee!important;
+  color:#4b3674!important;
   font-weight:800;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:not(:disabled):hover,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:not(:disabled):hover{
-  background:#b787e5!important;
-  border-color:#9160c5!important;
-  color:#000000!important;
+  background:#dfd1f4!important;
+  border-color:#baa1e2!important;
+  color:#4b3674!important;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:active,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:active{
-  background:#a979d8!important;
-  color:#000000!important;
+  background:#d1bfe9!important;
+  color:#4b3674!important;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:disabled,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:disabled{
-  background:#eee1fb!important;
-  border-color:#cbb0e9!important;
-  color:#333!important;
+  background:#f3ecfc!important;
+  border-color:#ded1ec!important;
+  color:#6b6081!important;
   opacity:.65;
 }
 
@@ -472,18 +472,18 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
 /* Matching music/video shortcuts in the left production menu. */
 .studio-layout .side-menu button[data-jump="music-controls"],
 .studio-layout .side-menu button[data-jump="video-controls"]{
-  background:#c59aee!important;
-  border:1px solid #9f6bd2!important;
-  color:#000000!important;
+  background:#ebe3fa!important;
+  border:1px solid #d6c5ee!important;
+  color:#4b3674!important;
   font-weight:800;
 }
 .studio-layout .side-menu button[data-jump="music-controls"]:hover,
 .studio-layout .side-menu button[data-jump="video-controls"]:hover{
-  background:#b787e5!important;
-  border-color:#9160c5!important;
-  color:#000000!important;
+  background:#dfd1f4!important;
+  border-color:#baa1e2!important;
+  color:#4b3674!important;
 }
 .studio-layout .side-menu button[data-jump="music-controls"]:before,
 .studio-layout .side-menu button[data-jump="video-controls"]:before{
-  color:#000000!important;
+  color:#4b3674!important;
 }
