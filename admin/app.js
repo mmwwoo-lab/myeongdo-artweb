@@ -364,7 +364,7 @@ function capture(){
 function show(view){
  currentView=["dashboard","create","projects","guide"].includes(view)?view:"dashboard";
  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("visible",s.id==="view-"+currentView));
- document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===currentView));
+ document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===currentView&&!el.dataset.jump));
  $("page-heading").textContent=currentView==="create"?"미술작품 전시 홈페이지 만들기":currentView==="projects"?"내 미술 전시 프로젝트":currentView==="guide"?"미술작품 전시 사용 안내":"명도재 이명우의 창작실";
  history.replaceState(null,"","#"+currentView);
  if(currentView==="projects"||currentView==="dashboard")renderProjects();
@@ -756,6 +756,21 @@ async function importVideoManifest(e){
  }catch(err){notify("영상 결과 등록 실패: "+err.message,true);$("video-import-result").textContent=err.message}
  finally{e.target.value=""}
 }
+function syncDashboardChecklist(){
+ const p=projects[0],works=Array.isArray(p?.artworks)?p.artworks:[];
+ const ready={
+  basic:!!(p?.title&&p?.artist),
+  art:works.some(w=>safeImage(w.dataUrl)),
+  music:works.some(w=>Boolean(safeLink(w.musicUrl)||w.localVideoReady)),
+  video:works.some(w=>Boolean(w.localVideoReady||w.videoFile||safeLink(w.videoUrl))),
+  published:!!safeLink(p?.publicUrl)
+ };
+ for(const el of document.querySelectorAll(".sonu-check-row[data-stage]")){
+  const done=Boolean(ready[el.dataset.stage]);el.classList.toggle("done",done);
+  const mark=el.querySelector(".sonu-mark");if(mark)mark.textContent=done?"✓":"○";
+  el.setAttribute("aria-label",(done?"완료: ":"대기: ")+el.textContent.trim().replace(/^[✓○]\s*/,""));
+ }
+}
 function renderProjects(){
  const list=$("project-list"),recent=$("recent-projects");list.replaceChildren();recent.replaceChildren();
  text($("stat-all"),projects.length);
@@ -797,6 +812,7 @@ function renderProjects(){
   b.addEventListener("click",()=>{applyForm(p);show("create")});recent.append(b)
  }
  if(!list.children.length){const d=document.createElement("p");d.className="empty";d.textContent="표시할 미술 전시가 없습니다.";list.append(d)}
+ syncDashboardChecklist();
 }
 async function importProject(e){
  const file=e.target.files?.[0];if(!file)return;
@@ -813,7 +829,16 @@ async function importProject(e){
  }catch(err){alert("가져오기 실패: "+err.message)}
  finally{e.target.value=""}
 }
-for(const b of document.querySelectorAll("[data-view]"))b.addEventListener("click",()=>show(b.dataset.view));
+for(const b of document.querySelectorAll("[data-view]"))b.addEventListener("click",()=>{
+ show(b.dataset.view);
+ if(b.dataset.jump){
+  const target=$(b.dataset.jump);
+  if(target){
+   if(target.tagName==="DETAILS")target.open=true;
+   requestAnimationFrame(()=>target.scrollIntoView({behavior:"smooth",block:"start"}));
+  }
+ }
+});
 for(const b of document.querySelectorAll("[data-open-projects]"))b.addEventListener("click",()=>show("projects"));
 $("start-create").addEventListener("click",()=>{applyForm(freshProject());show("create")});
 $("projects-new").addEventListener("click",()=>{applyForm(freshProject());show("create")});
