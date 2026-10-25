@@ -143,3 +143,49 @@ details.form-section>.form-section-header{margin-top:10px}
 
 /* 20-second cinematic art film camera movement guidance */
 .cinematic-caption{background:linear-gradient(95deg,#e3ece4,#fff9ed);border-left:3px solid #72927d;padding:10px 12px;font-size:12px;font-weight:750;color:#365443;line-height:1.8;margin:2px 0 14px}
+
+
+/* MYEONGDOJAE studio 3.0 — SONU-inspired artist production dashboard */
+:root{--paper:#080d1e;--card:#111a2d;--forest:#6f3ee2;--forest-dark:#0e162a;--line:#27314b;--ink:#edf2ff;--muted:#9daac6;--accent:#a88dff;--cream:#141e32}
+body{background:var(--paper);color:var(--ink)}.studio-layout{grid-template-columns:215px minmax(0,1fr)}
+.sidebar{background:#0f1729;border-right:1px solid #202d45;padding:25px 13px;gap:27px}
+.identity{gap:9px}.identity b{font-size:14px;color:#fff}.identity small{color:#9aa5c6;font-size:9px}.seal{background:#6738c6;min-width:43px;height:43px;font-size:18px;border-radius:5px}
+.side-menu{gap:5px}.side-menu button{background:transparent;border:0;color:#9ba9c9;font-size:13px;padding:12px 11px;border-radius:6px;font-weight:600}
+.side-menu button.active,.side-menu button:hover{background:#6d37e6;color:#fff}
+.sidebar-bottom{color:#9daac6}.sidebar-bottom a{color:#cbb4ff}
+.main{padding:27px clamp(17px,3vw,45px) 58px;max-width:1500px;margin-inline:auto}
+.topbar{border-bottom-color:#202e45}.topbar h1{color:#fff}.text-link{color:#c5b3ff;border-color:#6e4ec0}
+.eyebrow{color:#ab90ff}.section-heading h2,.panel-heading h2,.form-section-header h2{color:#f6f4ff}
+.section-heading p,.form-section-header p{color:#a7b3cb}
+.sonu-heading{display:flex;justify-content:space-between;align-items:center;gap:25px;margin:5px 0 19px;padding-bottom:20px;border-bottom:1px solid #243049}
+.sonu-heading h2{font:700 clamp(27px,3.4vw,42px)/1.1 system-ui,sans-serif;color:#fff;margin:9px 0}.sonu-heading h2 strong{color:#c4afff}
+.sonu-heading p{font-size:13px;color:#98a8c9;margin:0;max-width:640px}.sonu-new{white-space:nowrap}
+.sonu-overview{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(230px,1fr);gap:14px}
+.sonu-workflow,.sonu-checklist{padding:23px;background:#11182a;border:1px solid #232d45;border-radius:12px}
+.sonu-panel-head h3,.sonu-checklist h3{margin:4px 0 13px;color:#fff;font-size:20px}.sonu-tip{float:right;margin-top:-37px;font-size:11px;color:#84e0af;background:#144b3d;padding:3px 9px;border-radius:20px}
+.sonu-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sonu-steps button{min-height:105px;background:#121d34;color:#edf2ff;border:1px solid #293653;border-radius:9px;text-align:left;padding:13px 15px;display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.sonu-steps button:hover{background:#1b2845;border-color:#8554ef}
+.sonu-step-no{background:#763df0;color:#fff;width:23px;height:23px;font-size:11px;font-weight:800;border-radius:100%;display:grid;place-items:center;margin-bottom:2px}
+.sonu-steps b{font-size:13px}.sonu-steps small{color:#94a4c3;font-size:11px}.sonu-checklist p{font-size:12px;color:#a0abc3}
+.sonu-check-row{background:#172238;border:1px solid #1e2b42;border-radius:6px;padding:10px 12px;margin:9px 0;font-size:12px;color:#d4dff0}.sonu-checklist .subtle{margin-top:14px;width:100%;text-align:center}
+.dashboard-hero,.creator-banner{background:linear-gradient(120deg,#192543,#111b32 70%,#292047);border-color:#2a3653}
+.dashboard-hero:after{background:linear-gradient(135deg,#8062cf55,#4e67a533)}
+.dashboard-hero h2,.creator-banner h2{color:#fff}.dashboard-hero p,.creator-banner p{color:#b8c5db}
+.primary{background:#713be9;color:#fff}.primary:hover{background:#8859ef}.subtle{background:#24314a;color:#e7ebf6}.subtle:hover{background:#344363}.ghost{color:#d5e2f7;border-color:#53607a}.danger{background:#402331;border-color:#6d3744;color:#ffb7bc}
+.stats>div,.flow-grid>div,.panel,.form-section,.work-editor,.why-grid article,.artist-example,.creator-help article{background:#121b2f;color:#e7efff;border-color:#2a3652}
+.stats span,.flow-grid p{color:#9baac5}.flow-grid span,.form-section-header>span,.form-section-header>div>span{color:#ac95ff}
+.process span,.video-process span{background:#17233a;border-color:#2a3652;color:#cfddf8}
+.form-section input:not([type=checkbox]):not([type=file]),.form-section textarea,.form-section select,.work-editor input:not([type=file]),.work-editor textarea{background:#0c1528;border-color:#384661;color:#f5f6ff}
+.form-section input::placeholder,.work-editor input::placeholder,.work-editor textarea::placeholder{color:#7483a4}
+.image-preview,.art-upload-preview{background:#0f192b;border-color:#334560;color:#9baac6}
+.hint,.helper{color:#9eacc6}.work-video-status{background:#193c35;color:#b8f1d0;border-color:#3b9170}
+.work-create-media,.video-production{background:linear-gradient(125deg,#151f36,#181d33);border-color:#354461}
+.work-create-status,.video-production-heading h3,.video-stats{color:#c5def6}
+.video-stats{background:#1a2a3b}
+.video-production-heading p,.video-production .helper{color:#a1afcb}
+.dashboard-panel .project-list,.project-list{color:#ecf1fc}.recent-item{background:#1a2740;color:#f5f7ff;border-color:#324462}
+.story-section .section-heading h2{color:#f2f4ff}
+.creator-help strong{color:#f3f0ff}
+@media(max-width:990px){.studio-layout{grid-template-columns:180px minmax(0,1fr)}.sonu-overview{grid-template-columns:1fr}}
+@media(max-width:680px){.studio-layout{grid-template-columns:1fr}.sidebar{position:relative;height:auto;padding:14px;gap:12px}.side-menu{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar-bottom{display:none}.main{padding:19px 14px 40px}.sonu-heading{align-items:flex-start;flex-direction:column}.sonu-new{width:100%}.sonu-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
