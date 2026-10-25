@@ -106,6 +106,19 @@ async function main() {
  assert(saved.bytes>5000,"Recorded movie must persist in IndexedDB");
  await page.locator("#quick-preview").click();
  await page.waitForFunction(()=>document.querySelector("#site-preview").srcdoc.includes("blob:"),null,{timeout:8000});
+ // iframe srcdoc must not resolve local section links against the /admin/ URL.
+ await page.frameLocator("#site-preview").locator("#artist").waitFor({state:"attached"});
+ const adminUrl=page.url();
+ const links=["artist","story","works","review","contact","top"];
+ for(const id of links){
+   await page.frameLocator("#site-preview").locator('.nav a[href="#'+id+'"],.logo[href="#'+id+'"]').click();
+   await page.waitForTimeout(100);
+   assert.equal(page.url(),adminUrl,"Preview menu #"+id+" must not modify admin URL");
+   const frameURL=await page.locator("#site-preview").evaluate(el=>el.contentWindow.location.href);
+   assert.equal(frameURL,"about:srcdoc","Preview menu #"+id+" must stay inside the loaded exhibition iframe");
+   assert.equal(await page.frameLocator("#site-preview").locator("#"+id).count(),1,"Preview target #"+id+" must exist");
+ }
+
  await page.locator("#rights-confirm").check();
  const finished=page.waitForEvent("download",{timeout:18000});
  await page.locator("#quick-finish").click();
