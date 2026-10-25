@@ -33,7 +33,7 @@ async function main() {
    return {music:button("music"),video:button("video"),ordinary};
  });
  for(const [name,style] of Object.entries({music:mediaColors.music,video:mediaColors.video})){
-   assert.equal(style.background,"rgb(224, 245, 199)",name+" button must be pastel lime");
+   assert.equal(style.background,"rgb(197, 154, 238)",name+" button must be purple");
    assert.equal(style.color,"rgb(0, 0, 0)",name+" button text must be pure black");
  }
  assert.equal(mediaColors.ordinary,"rgb(232, 221, 252)","Other buttons must remain pastel lavender");
@@ -60,11 +60,22 @@ async function main() {
    }
    return {rms:Math.sqrt(rms/(320000/16)),peak};
  });
- assert(audioQuality.rms>.009,"Piano soundtrack must contain audible audio");
+ assert(audioQuality.rms>.009,"Generated instrumental soundtrack must be audible");
  assert(audioQuality.peak<.99,"Piano soundtrack must avoid hard clipping");
  const prompt=await page.locator('[data-music-prompt]').first().textContent();
- assert(prompt.includes("Solo classical piano instrumental, gentle lyrical piano light music"),"Classical piano light-music prompt should appear");
- assert(prompt.includes("no drums, no strings, no brass"),"Piano-only arrangement prompt should exclude orchestral percussion and brass");
+ const selectedMusicStyle=await page.locator('[data-media-status]').first().textContent();
+ const allowedStyles=["피아노 독주","바이올린 독주","클래식 앙상블"];
+ const styleName=allowedStyles.find(name=>selectedMusicStyle.includes(name));
+ assert(styleName,"Random composer must identify one of the three musical arrangements");
+ assert(prompt.includes("instrumental"),"Selected arrangement must show instrumental Suno prompt");
+ const firstWavUrl=await page.locator(".generated-media audio").first().getAttribute("src");
+ await music.click();
+ const newMusicStyle=await page.locator('[data-media-status]').first().textContent();
+ assert(!newMusicStyle.includes(styleName),"Repeated composing must switch to a different style");
+ const nextWavUrl=await page.locator(".generated-media audio").first().getAttribute("src");
+ assert.notEqual(firstWavUrl,nextWavUrl,"Repeated composing must generate a fresh WAV");
+ assert((await page.locator('[data-music-prompt]').first().textContent()).includes("instrumental"),
+   "Regenerated song must update style prompt");
  assert.equal(await video.isDisabled(),false,"Video button must be enabled in Chromium");
  await video.click();
  const result=page.locator('.generated-media a[download$=".webm"],.generated-media a[download$=".mp4"]').first();
