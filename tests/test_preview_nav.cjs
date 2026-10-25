@@ -7,7 +7,20 @@ async function main(){
    const errors=[];page.on("pageerror",e=>errors.push(e.message));
    await page.goto("http://127.0.0.1:8765/admin/#dashboard");
    const dashboardBackground=await page.locator("body").evaluate(el=>getComputedStyle(el).backgroundColor);
-   assert.notEqual(dashboardBackground,"rgb(255, 255, 255)","Dashboard must keep the navy background");
+   assert.equal(dashboardBackground,"rgb(255, 255, 255)","Dashboard must use white background");
+   for(const selector of [".sonu-panel-head h3",".sonu-checklist h3",".sonu-heading h2"]){
+     const {color,background}=await page.locator(selector).first().evaluate(el=>({
+       color:getComputedStyle(el).color,
+       background:getComputedStyle(el).backgroundColor
+     }));
+     assert(!/rgb\(2(?:4[0-9]|5[0-9]), 2(?:4[0-9]|5[0-9]), 2(?:4[0-9]|5[0-9])\)/.test(color),
+       selector+" requires legible dark lettering");
+   }
+   const overviewColors=await page.locator(".sonu-overview").evaluate(el=>{
+     const w=el.querySelector(".sonu-workflow"),c=el.querySelector(".sonu-checklist");
+     return [getComputedStyle(w).backgroundImage,getComputedStyle(c).backgroundImage];
+   });
+   assert(overviewColors.every(v=>v.includes("gradient")),"Dashboard workflow and checklist use distinct pale gradients");
    await page.locator('.side-menu [data-view="create"]:not([data-jump])').click();
    assert.equal(await page.locator("body").getAttribute("data-studio-view"),"create","Create screen must switch theme");
    for(const sel of [".main","#view-create",".form-section",".work-editor"]){
@@ -51,6 +64,30 @@ async function main(){
        "yes","Menu #"+id+" must scroll to the correct section");
    }
    assert.deepEqual(errors,[]);
+   // Site-wide palette regression: every owned site has a white canvas and
+   // interactive menus use the same light-lavender navigation tokens.
+   for(const path of [
+      "/","/artist-gallery/","/admin/agency.html",
+      "/exhibitions/cho-honggeun-2026/","/literature/seoseokhaeng-poetry/",
+      "/literature/seoseokhaeng-poetry/poet.html",
+      "/culture-news/2026-10-25/"
+   ]){
+     const sub=await browser.newPage();
+     try{
+       const response=await sub.goto("http://127.0.0.1:8765"+path,{waitUntil:"domcontentloaded"});
+       assert.equal(response.status(),200,"Site "+path+" must exist");
+       const color=await sub.locator("body").evaluate(el=>getComputedStyle(el).backgroundColor);
+       assert.equal(color,"rgb(255, 255, 255)",path+" canvas must be white");
+       const first=await sub.locator("nav a").first();
+       if(await first.count()){
+         const background=await first.evaluate(el=>getComputedStyle(el).backgroundColor);
+         assert.equal(background,"rgb(235, 227, 250)",path+" navigation must be pastel lilac");
+       }
+       const stylesheet=await sub.locator('link[href*="design-system.css"]').count();
+       assert.equal(stylesheet,1,path+" must load central design system");
+     }finally{await sub.close()}
+   }
+
    console.log("PASS: white-background editor, 8 navigation links, six artist-gallery preview anchors remain inside iframe");
  }finally{await browser.close()}
 }
