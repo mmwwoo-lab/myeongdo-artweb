@@ -140,3 +140,6 @@ details.form-section>.form-section-header{margin-top:10px}
 .music-style-brief>p[data-music-prompt]{white-space:normal;overflow-wrap:anywhere;color:#4f6553;font-size:13px;line-height:1.8;padding:11px;border-radius:4px;background:#f1f5ee;border-left:3px solid #9fae9a;margin:12px 0}
 .music-style-brief .subtle{font-size:12px;padding:9px 12px}
 .music-style-brief .helper{margin-top:8px!important;font-size:12px;color:#697669}
+
+/* 20-second cinematic art film camera movement guidance */
+.cinematic-caption{background:linear-gradient(95deg,#e3ece4,#fff9ed);border-left:3px solid #72927d;padding:10px 12px;font-size:12px;font-weight:750;color:#365443;line-height:1.8;margin:2px 0 14px}
