@@ -4,7 +4,8 @@ const { chromium } = require("playwright");
 
 async function main() {
  const browser = await chromium.launch({headless:true,args:["--use-fake-ui-for-media-stream","--autoplay-policy=no-user-gesture-required"]});
- const page=await browser.newPage({acceptDownloads:true});
+ try{
+  const page=await browser.newPage({acceptDownloads:true});
  const pageErrors=[];page.on("pageerror",err=>pageErrors.push(err.message));
  await page.goto("http://127.0.0.1:8765/admin/#create",{waitUntil:"domcontentloaded"});
  await page.fill("#title","수채화 테스트 전시");
@@ -44,11 +45,11 @@ async function main() {
  await page.locator("#quick-finish").click();
  const dl=await finished;
  const exported=await fs.readFile(await dl.path(),"utf8");
- assert(exported.includes("data:video/webm;base64,")||exported.includes("data:video/mp4;base64,"),"Completed standalone exhibition must embed registered film");
+ assert(/data:video\/(?:webm|mp4)[^"']*;base64,/.test(exported),"Completed standalone exhibition must embed registered film");
  assert(exported.includes("테스트 수채화"),"Artwork information must appear in downloaded homepage");
 
  assert.deepEqual(pageErrors,[],"No browser JS errors expected");
  console.log("PASS: image upload → recorded music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
- await browser.close();
+ }finally{await browser.close()}
 }
 main().catch(err=>{console.error(err);process.exitCode=1});
