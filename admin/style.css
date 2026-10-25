@@ -60,3 +60,20 @@
 @media(max-width:1200px){.artist-showcase{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:800px){.why-grid,.creator-help{grid-template-columns:1fr}.why-grid article{min-height:auto}.artist-example p{min-height:0}.creative-room-hero{min-height:auto}.artist-example .artist-motif{height:145px}}
 @media(max-width:520px){.artist-showcase{grid-template-columns:1fr 1fr;gap:8px}.artist-example .artist-motif{height:110px}.artist-example h3{font-size:20px}.artist-example .genre,.artist-example h3,.artist-example p,.artist-example .visit{margin-left:12px;margin-right:12px}.artist-example p{font-size:11px}.creative-room-hero .hero-actions .primary,.creative-room-hero .hero-actions .outline-link{width:100%;text-align:center}.creator-welcome{padding:24px 19px}}
+
+
+/* Python video production and artwork registration state */
+.video-production{margin-top:24px;padding:20px 21px;border:1px solid #d4c7b3;background:linear-gradient(135deg,#f8f5e9,#e8eee6);border-radius:5px}
+.video-production-heading h3{font:normal 25px Georgia,'Noto Serif KR',serif;margin:7px 0 9px;color:#304638}
+.video-production-heading p{font-size:13px;color:#607263;margin:0 0 15px}
+.video-stats{font-size:14px;font-weight:750;color:#2d4e38;padding:10px 13px;background:#fffd;border-left:3px solid #8eab90}
+.video-process{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:17px 0}
+.video-process span{border:1px solid #d5cbbb;background:#fffdf8;padding:10px 8px;font-size:12px;color:#637061}
+.video-tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.video-document-link{text-decoration:none;font-size:13px}
+.video-manifest-label{display:block;font-weight:750;color:#334739;font-size:13px;margin-top:20px}
+.video-manifest-label input{display:block;width:100%;max-width:490px;margin-top:8px;padding:8px;border:1px solid #cfc2af;background:#fff}
+.work-video-status{display:inline-block;background:#edf3e9;border-left:3px solid #829b83;color:#3e6946;font-size:12px;font-weight:750;padding:7px 10px;margin:0 0 15px}
+.video-production .helper{display:block;line-height:1.7}
+@media(max-width:1150px){.video-process{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.video-process{grid-template-columns:1fr 1fr}.video-tools>*{width:100%;text-align:center}}
