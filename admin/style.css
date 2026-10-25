@@ -112,3 +112,16 @@ body{background:#f7f4ed;color:#2a332e}
 @media(max-width:1400px){.collab-exhibition-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.collab-workflow{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.collab-exhibition-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.collab-workflow{grid-template-columns:repeat(2,minmax(0,1fr))}#view-dashboard .premium-hero{padding:30px 23px}.collab-section-title{align-items:flex-start;flex-direction:column}}
 @media(max-width:420px){.collab-exhibition-grid{grid-template-columns:1fr 1fr}.collab-art{height:95px}.collab-exhibition-body{padding:10px}.collab-exhibition-body strong{font-size:14px}.collab-exhibition-body em{font-size:11px}}
+
+/* Common artist exhibition editor */
+.artist-standard-intro{background:linear-gradient(120deg,#e5e7dc,#f7f3e9 70%,#d4daca);border:1px solid #d9d1c1;padding:25px 28px;display:flex;align-items:center;justify-content:space-between;gap:22px;margin:0 0 12px;border-radius:4px}
+.artist-standard-intro small{color:#8c6b49;font-size:11px;letter-spacing:.14em;font-weight:800}
+.artist-standard-intro h3{font:normal 27px Georgia,'Noto Serif KR',serif;color:#273c30;margin:7px 0}
+.artist-standard-intro p{font-size:13px;color:#516255;max-width:780px;margin:0}
+.artist-standard-intro a{flex-shrink:0;border:1px solid #846e54;color:#55452f;text-decoration:none;padding:11px 16px;font-size:13px;font-weight:700;background:#fff9ed}
+.artist-stage-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:17px}
+.artist-stage-steps span{padding:12px 14px;background:#fffdf8;border:1px solid #ded8c8;color:#4f6055;font-size:12px}
+.artist-stage-steps b{color:#94764e;padding-right:8px}
+#view-create .panel{border:1px solid #e6dfd3;box-shadow:0 5px 16px #22362a0d}
+#view-create .form-panel .panel-head h3{font:normal 25px Georgia,'Noto Serif KR',serif}
+@media(max-width:800px){.artist-standard-intro{flex-direction:column;align-items:flex-start}.artist-stage-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
