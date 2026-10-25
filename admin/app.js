@@ -7,9 +7,9 @@ const MAX=20;
 const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const safeLink=value=>{try{const u=new URL(String(value||""));return u.protocol==="https:"?u.href:""}catch{return""}};
 const safeImage=value=>typeof value==="string"&&/^data:image\/(?:jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(value)?value:"";
-const freshWork=()=>({id:"work-"+Math.random().toString(36).slice(2,11),title:"",year:"",material:"",size:"",caption:"",critique:"",musicUrl:"",videoUrl:"",dataUrl:"",filename:""});
-const freshProject=()=>({id:"",title:"",artist:"",genre:"한국화",status:"기획",subtitle:"",summary:"",biography:"",artistNote:"",contact:"",officialUrl:"",review:"",cover:"",portrait:"",rightsConfirmed:false,artworks:[freshWork()],updatedAt:""});
-const fields={"title":"title","artist":"artist","genre":"genre","status":"status","subtitle":"subtitle","summary":"summary","biography":"biography","artist-note":"artistNote","contact":"contact","official-url":"officialUrl","review":"review"};
+const freshWork=()=>({id:"work-"+Math.random().toString(36).slice(2,11),title:"",year:"",material:"",size:"",caption:"",critique:"",musicUrl:"",videoUrl:"",videoFile:"",videoStatus:"",dataUrl:"",filename:""});
+const freshProject=()=>({id:"",title:"",artist:"",genre:"한국화",status:"기획",subtitle:"",summary:"",biography:"",artistNote:"",contact:"",officialUrl:"",review:"",cover:"",portrait:"",rightsConfirmed:false,exhibitionVideoUrl:"",artworks:[freshWork()],updatedAt:""});
+const fields={"title":"title","artist":"artist","genre":"genre","status":"status","subtitle":"subtitle","summary":"summary","biography":"biography","artist-note":"artistNote","contact":"contact","official-url":"officialUrl","review":"review","exhibition-video-url":"exhibitionVideoUrl"};
 const text=(node,value)=>{node.textContent=value;};
 const normalize=p=>{
  if(!p||typeof p!=="object")return null;
@@ -26,6 +26,7 @@ const normalize=p=>{
  result.portrait=safeImage(p.portrait);
  result.review=String(p.review||"");
  result.rightsConfirmed=Boolean(p.rightsConfirmed);
+ result.exhibitionVideoUrl=safeLink(p.exhibitionVideoUrl);
  result.artworks=Array.isArray(p.artworks)?p.artworks.slice(0,MAX).filter(Boolean).map(a=>({
  ...freshWork(),...a,
  dataUrl:safeImage(a.dataUrl),
@@ -36,7 +37,8 @@ const normalize=p=>{
  caption:String(a.caption||""),
  critique:String(a.critique||""),
  musicUrl:safeLink(a.musicUrl),
- videoUrl:safeLink(a.videoUrl)
+ videoUrl:safeLink(a.videoUrl),
+ videoFile:String(a.videoFile||""),videoStatus:String(a.videoStatus||"")
  })):[];
  if(!result.artworks.length)result.artworks=[freshWork()];
  return result;
@@ -106,24 +108,39 @@ function registerImage(key){
   catch(err){notify(err.message,true);e.target.value=""}
  });
 }
+function videoState(w){
+ if(!w.dataUrl)return "이미지 미등록 · 영상 제작 전";
+ if(safeLink(w.videoUrl))return "영상 URL 등록됨 · 실제 공개 여부 별도 확인";
+ if(w.videoFile)return "Python 영상 제작 완료 · 파일 업로드 대기";
+ return "작품 이미지 등록 완료 · 영상 제작 대기";
+}
+function renderVideoStats(){
+ const list=draft.artworks;
+ const images=list.filter(w=>w.dataUrl).length;
+ const made=list.filter(w=>Boolean(w.videoFile||safeLink(w.videoUrl))).length;
+ const linked=list.filter(w=>Boolean(safeLink(w.videoUrl))).length;
+ $("video-stats").textContent="이미지 등록 "+images+"점 · 영상 제작 기록 "+made+"점 · 공개 영상 URL 등록 "+linked+"점";
+}
 function renderWorks(){
  const wrap=$("artwork-list");wrap.replaceChildren();
  draft.artworks.forEach((w,i)=>{
   const el=document.createElement("article");el.className="work-editor";el.dataset.id=w.id;
   el.innerHTML='<div class="work-header"><h3>작품 '+(i+1)+' <small>ARTWORK '+String(i+1).padStart(2,"0")+'</small></h3><div class="work-tools"><button type="button" data-act="up" title="위로 이동" aria-label="작품 위로 이동">↑</button><button type="button" data-act="down" title="아래로 이동" aria-label="작품 아래로 이동">↓</button><button type="button" data-act="remove" class="danger">삭제</button></div></div>'+
   '<div class="work-fields"><div class="work-image-col"><label>작품 이미지 (JPG·PNG·WebP)<input type="file" data-art-file accept="image/jpeg,image/png,image/webp"></label><div class="art-upload-preview" data-image></div></div>'+
-  '<div class="work-info-col"><div class="field-grid"><label>작품 제목<input data-field="title" maxlength="140" placeholder="작품 제목"></label><label>제작연도<input data-field="year" maxlength="50" placeholder="2026"></label><label>재료·기법<input data-field="material" maxlength="140" placeholder="수채화, 캔버스에 유채"></label><label>크기<input data-field="size" maxlength="100" placeholder="72.7 × 60.6 cm"></label></div>'+
+  '<div class="work-info-col"><p class="work-video-status" data-video-status role="status"></p><div class="field-grid"><label>작품 제목<input data-field="title" maxlength="140" placeholder="작품 제목"></label><label>제작연도<input data-field="year" maxlength="50" placeholder="2026"></label><label>재료·기법<input data-field="material" maxlength="140" placeholder="수채화, 캔버스에 유채"></label><label>크기<input data-field="size" maxlength="100" placeholder="72.7 × 60.6 cm"></label></div>'+
   '<label>작품 설명<textarea data-field="caption" rows="3" maxlength="2600" placeholder="작품에 담긴 이야기"></textarea></label>'+
   '<label>작품별 미술평론<textarea data-field="critique" rows="3" maxlength="3500" placeholder="조형 요소, 색채와 상징에 대한 평론"></textarea></label>'+
   '<div class="field-grid"><label>음악 감상 링크 (HTTPS)<input data-field="musicUrl" type="url" placeholder="https://..."></label><label>영상 감상 링크 (HTTPS)<input data-field="videoUrl" type="url" placeholder="https://..."></label></div></div></div>';
   wrap.append(el);
+  const badge=el.querySelector("[data-video-status]");
+  badge.textContent=videoState(w);
   const pic=el.querySelector("[data-image]");
   if(w.dataUrl){const image=document.createElement("img");image.src=w.dataUrl;image.alt=w.title||"등록한 작품";pic.append(image)}
   else{text(pic,"작품 이미지가 아직 없습니다.")}
   for(const inp of el.querySelectorAll("[data-field]")){
     const key=inp.dataset.field;
     inp.value=w[key]||"";
-    inp.addEventListener("input",()=>{w[key]=inp.value;setDirty()});
+    inp.addEventListener("input",()=>{w[key]=inp.value;setDirty();if(key==="videoUrl"){badge.textContent=videoState(w);renderVideoStats()}});
   }
   el.querySelector("[data-art-file]").addEventListener("change",async e=>{
     const file=e.target.files?.[0];if(!file)return;
@@ -146,6 +163,7 @@ function renderWorks(){
  });
  $("artwork-count").textContent="작품 "+draft.artworks.filter(w=>w.dataUrl).length+"점 이미지 등록 · 총 "+draft.artworks.length+"개 입력 카드 · 최대 "+MAX+"점";
  $("add-artwork").disabled=draft.artworks.length>=MAX;
+ renderVideoStats();
  if(!draft.artworks.length){const empty=document.createElement("p");empty.className="empty";empty.textContent="등록된 작품이 없습니다. '+ 작품 추가'를 눌러 시작하세요.";wrap.append(empty)}
 }
 const validProject=p=>p.title&&p.artist;
@@ -178,19 +196,23 @@ function site(p){
  const cover=safeImage(p.cover)?'<img class="cover-image" src="'+p.cover+'" alt="'+title+' 전시 표지">':"";
  const link=safeLink(p.officialUrl)?'<a class="outside" href="'+esc(safeLink(p.officialUrl))+'" target="_blank" rel="noopener noreferrer">작가 공식 사이트 ↗</a>':"";
  const textBlock=(t,def="내용을 준비 중입니다.")=>esc(t||def);
+ const fullVideo=safeLink(p.exhibitionVideoUrl);
+ const fullVideoHtml=fullVideo?'<section class="section" id="film"><span class="kicker">EXHIBITION FILM</span><h2>전체 전시 영상</h2>'+( /\.(mp4|webm)(?:[?#]|$)/i.test(fullVideo)?'<video controls playsinline preload="metadata" style="width:100%;max-height:75vh" src="'+esc(fullVideo)+'"></video>':'<a class="outside" href="'+esc(fullVideo)+'" target="_blank" rel="noopener noreferrer">전체 전시 영상 감상 ↗</a>')+'</section>':"";
  const each=works.map((w,i)=>{
   const audio=safeLink(w.musicUrl),video=safeLink(w.videoUrl);
   const audioControl=audio&&/\.(mp3|wav|ogg|m4a)(?:[?#]|$)/i.test(audio)?'<audio controls preload="none" src="'+esc(audio)+'"></audio>':"";
-  return '<article class="work" id="work-'+(i+1)+'"><a class="work-image" href="'+w.dataUrl+'" target="_blank" rel="noopener noreferrer" aria-label="작품 이미지 확대"><img loading="lazy" src="'+w.dataUrl+'" alt="'+esc(w.title||"작품 "+(i+1))+'"></a><div class="work-info"><span class="kicker">ARTWORK '+String(i+1).padStart(2,"0")+'</span><h3>'+esc(w.title||"작품 "+(i+1))+'</h3><p class="meta">'+esc([w.year,w.material,w.size].filter(Boolean).join(" · "))+'</p><p class="prose">'+esc(w.caption)+'</p>'+(w.critique?'<div class="critique"><b>작품 평론</b><p class="prose">'+esc(w.critique)+'</p></div>':"")+'<div class="media">'+(audio?'<a href="'+esc(audio)+'" target="_blank" rel="noopener noreferrer">♫ 음악 감상 ↗</a>':"")+(video?'<a href="'+esc(video)+'" target="_blank" rel="noopener noreferrer">▶ 영상 감상 ↗</a>':"")+audioControl+'</div></div></article>';
+  const player=video&&/\.(mp4|webm)(?:[?#]|$)/i.test(video)?'<video controls playsinline preload="metadata" src="'+esc(video)+'" aria-label="'+esc(w.title||"작품")+' 영상"></video>':"";
+  const videoLabel=w.videoFile?'<p class="video-made">Python 영상 제작 완료'+(video?" · 영상 URL 등록됨":" · 영상 파일 업로드 필요")+'</p>':"";
+  return '<article class="work" id="work-'+(i+1)+'"><a class="work-image" href="'+w.dataUrl+'" target="_blank" rel="noopener noreferrer" aria-label="작품 이미지 확대"><img loading="lazy" src="'+w.dataUrl+'" alt="'+esc(w.title||"작품 "+(i+1))+'"></a><div class="work-info"><span class="kicker">ARTWORK '+String(i+1).padStart(2,"0")+'</span><h3>'+esc(w.title||"작품 "+(i+1))+'</h3><p class="meta">'+esc([w.year,w.material,w.size].filter(Boolean).join(" · "))+'</p><p class="prose">'+esc(w.caption)+'</p>'+(w.critique?'<div class="critique"><b>작품 평론</b><p class="prose">'+esc(w.critique)+'</p></div>':"")+'<div class="media">'+(audio?'<a href="'+esc(audio)+'" target="_blank" rel="noopener noreferrer">♫ 음악 감상 ↗</a>':"")+(video?'<a href="'+esc(video)+'" target="_blank" rel="noopener noreferrer">▶ 영상 감상 ↗</a>':"")+audioControl+player+videoLabel+'</div></div></article>';
  }).join("");
  const stylesheet=`
-:root{--paper:#f7f4ec;--ink:#28362d;--muted:#6d766c;--gold:#a48258}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.8 system-ui,'Malgun Gothic',sans-serif}a{color:inherit}.top{background:#fffdf8;border-bottom:1px solid #e8e1d3;padding:16px max(22px,calc((100vw - 1160px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.logo{text-decoration:none;font:700 18px Georgia,serif;letter-spacing:.1em}.nav{display:flex;gap:20px;flex-wrap:wrap;font-size:13px}.nav a{text-decoration:none}.nav a:hover{color:var(--gold)}.hero{padding:65px 20px 70px;background:linear-gradient(132deg,#e1e6df,#f7f3e8,#e7dbc8);text-align:center}.kicker{color:var(--gold);font-size:12px;letter-spacing:.18em;font-weight:700}.hero h1{font:normal clamp(33px,6vw,72px)/1.28 Georgia,'Noto Serif KR',serif;margin:17px auto;max-width:1000px}.hero .artist{font-weight:700}.cover-image{display:block;margin:32px auto 0;max-width:min(100%,900px);max-height:510px;object-fit:contain;border:7px solid #fff9;box-shadow:0 16px 38px #23392c20}.wrap{max-width:1160px;margin:auto;padding:0 24px}.section{padding:60px 0;border-bottom:1px solid #e4dcce}.section h2{font:normal 35px Georgia,'Noto Serif KR',serif;margin:12px 0 24px}.prose{white-space:pre-wrap;margin:0 0 14px;color:#58655a}.artistbox{display:flex;align-items:flex-start;gap:34px}.artistcopy{flex:1}.portrait{width:190px;aspect-ratio:3/4;object-fit:cover}.works{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.work{margin:0;background:#fffdfa;border:1px solid #e7dfd3;overflow:hidden}.work-image{display:block;background:#eae5dc;aspect-ratio:4/3}.work-image img{display:block;width:100%;height:100%;object-fit:contain}.work-info{padding:23px}.work h3{font:normal 27px Georgia,'Noto Serif KR',serif;margin:8px 0}.meta{color:#837662;font-size:13px;margin:2px 0 15px}.critique{border-top:1px solid #e9e1d4;margin-top:15px;padding-top:12px}.critique b{font-size:13px;color:#94704d}.media{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.media a,.outside{padding:8px 14px;border:1px solid #b49b7e;color:#74583b;text-decoration:none;font-size:13px}.media audio{width:100%}footer{text-align:center;padding:37px 20px;background:#293c30;color:#f8f4e9}#works .helper{color:var(--muted)}@media(max-width:720px){.works{grid-template-columns:1fr}.artistbox{display:block}.portrait{width:145px;margin-bottom:18px}.section{padding:42px 0}.hero{padding:55px 18px}.section h2{font-size:28px}}`;
+:root{--paper:#f7f4ec;--ink:#28362d;--muted:#6d766c;--gold:#a48258}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.8 system-ui,'Malgun Gothic',sans-serif}a{color:inherit}.top{background:#fffdf8;border-bottom:1px solid #e8e1d3;padding:16px max(22px,calc((100vw - 1160px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.logo{text-decoration:none;font:700 18px Georgia,serif;letter-spacing:.1em}.nav{display:flex;gap:20px;flex-wrap:wrap;font-size:13px}.nav a{text-decoration:none}.nav a:hover{color:var(--gold)}.hero{padding:65px 20px 70px;background:linear-gradient(132deg,#e1e6df,#f7f3e8,#e7dbc8);text-align:center}.kicker{color:var(--gold);font-size:12px;letter-spacing:.18em;font-weight:700}.hero h1{font:normal clamp(33px,6vw,72px)/1.28 Georgia,'Noto Serif KR',serif;margin:17px auto;max-width:1000px}.hero .artist{font-weight:700}.cover-image{display:block;margin:32px auto 0;max-width:min(100%,900px);max-height:510px;object-fit:contain;border:7px solid #fff9;box-shadow:0 16px 38px #23392c20}.wrap{max-width:1160px;margin:auto;padding:0 24px}.section{padding:60px 0;border-bottom:1px solid #e4dcce}.section h2{font:normal 35px Georgia,'Noto Serif KR',serif;margin:12px 0 24px}.prose{white-space:pre-wrap;margin:0 0 14px;color:#58655a}.artistbox{display:flex;align-items:flex-start;gap:34px}.artistcopy{flex:1}.portrait{width:190px;aspect-ratio:3/4;object-fit:cover}.works{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.work{margin:0;background:#fffdfa;border:1px solid #e7dfd3;overflow:hidden}.work-image{display:block;background:#eae5dc;aspect-ratio:4/3}.work-image img{display:block;width:100%;height:100%;object-fit:contain}.work-info{padding:23px}.work h3{font:normal 27px Georgia,'Noto Serif KR',serif;margin:8px 0}.meta{color:#837662;font-size:13px;margin:2px 0 15px}.critique{border-top:1px solid #e9e1d4;margin-top:15px;padding-top:12px}.critique b{font-size:13px;color:#94704d}.media{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.media a,.outside{padding:8px 14px;border:1px solid #b49b7e;color:#74583b;text-decoration:none;font-size:13px}.media audio,.media video{width:100%;display:block;max-height:350px}.video-made{font-size:12px;color:#70654f;margin:4px 0}footer{text-align:center;padding:37px 20px;background:#293c30;color:#f8f4e9}#works .helper{color:var(--muted)}@media(max-width:720px){.works{grid-template-columns:1fr}.artistbox{display:block}.portrait{width:145px;margin-bottom:18px}.section{padding:42px 0}.hero{padding:55px 18px}.section h2{font-size:28px}}`;
  return '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f7f4ec"><meta name="description" content="'+esc((p.summary||p.subtitle||"미술작품 전시").slice(0,160))+'"><title>'+title+' | MYEONGDOJAE</title><style>'+stylesheet+'</style></head><body>'+
  '<header class="top"><a class="logo" href="#top">MYEONGDOJAE · 明道</a><nav class="nav"><a href="#artist">작가 소개</a><a href="#story">전시 이야기</a><a href="#works">작품 감상</a><a href="#review">미술평론</a><a href="#contact">전시 안내</a></nav></header>'+
  '<section id="top" class="hero"><div class="kicker">MYEONGDOJAE · ARTIST EXHIBITION · '+esc(p.genre)+'</div><h1>'+title+'</h1><p>'+tagline+'</p><p class="artist">'+artist+'</p>'+cover+'</section>'+
  '<main class="wrap"><section id="artist" class="section"><span class="kicker">ABOUT THE ARTIST</span><h2>작가 소개</h2><div class="artistbox">'+portrait+'<div class="artistcopy"><p class="prose">'+textBlock(p.biography)+'</p>'+(p.artistNote?'<h3>작가 노트</h3><p class="prose">'+esc(p.artistNote)+'</p>':"")+'</div></div></section>'+
  '<section id="story" class="section"><span class="kicker">EXHIBITION STORY</span><h2>전시 이야기</h2><p class="prose">'+textBlock(p.summary)+'</p>'+link+'</section>'+
- '<section id="works" class="section"><span class="kicker">ARTWORK GALLERY</span><h2>작품과 음악 감상</h2><p class="helper">원작 이미지를 누르면 크게 감상할 수 있습니다.</p><div class="works">'+(each||'<p>작품 등록을 준비 중입니다.</p>')+'</div></section>'+
+ '<section id="works" class="section"><span class="kicker">ARTWORK GALLERY</span><h2>작품과 음악 감상</h2><p class="helper">원작 이미지를 누르면 크게 감상할 수 있습니다.</p><div class="works">'+(each||'<p>작품 등록을 준비 중입니다.</p>')+'</div></section>'+fullVideoHtml+
  '<section id="review" class="section"><span class="kicker">CURATORIAL REVIEW</span><h2>미술평론</h2><p class="prose">'+textBlock(p.review)+'</p></section>'+
  '<section id="contact" class="section"><span class="kicker">INFORMATION</span><h2>전시 안내 · 문의</h2><p class="prose">'+textBlock(p.contact,"문의 안내를 준비 중입니다.")+'</p></section></main>'+
  '<footer>© 2026 MYEONGDOJAE · 명도재 이명우</footer></body></html>';
@@ -209,6 +231,39 @@ function downloadHtml(){
 function exportProject(){
  const p=capture();download("myeongdo-exhibition-"+slug(p.title)+".json",JSON.stringify({format:"MYEONGDOJAE-EXHIBITION",version:1,projects:[p]},null,2),"application/json;charset=utf-8");notify("전시 프로젝트 백업 파일을 내려받았습니다.")
 }
+async function importVideoManifest(e){
+ const file=e.target.files?.[0];
+ if(!file)return;
+ try{
+   if(file.size>3*1024*1024)throw Error("영상 결과 JSON은 3MB 이하이어야 합니다.");
+   capture();
+   const manifest=JSON.parse(await file.text());
+   if(manifest.format!=="MYEONGDOJAE-VIDEO-MANIFEST"||!Array.isArray(manifest.videos))throw Error("전용 Python 프로그램이 만든 video-manifest.json만 등록할 수 있습니다.");
+   if(manifest.projectId&&draft.id&&manifest.projectId!==draft.id)throw Error("현재 전시와 프로젝트 ID가 다릅니다. 맞는 전시를 열어 주세요.");
+   if(String(manifest.exhibition||"")!==draft.title||String(manifest.artist||"")!==draft.artist)throw Error("전시 제목·작가가 다릅니다. 올바른 프로젝트 결과만 등록하세요.");
+   let updated=0;
+   for(const item of manifest.videos){
+     if(!item||typeof item!=="object")continue;
+     let work=draft.artworks.find(w=>item.artworkId&&w.id===item.artworkId);
+     if(!work){
+       const matches=draft.artworks.filter(w=>w.title&&w.title===item.artworkTitle);
+       if(matches.length===1)work=matches[0];
+     }
+     if(!work||!work.dataUrl)continue;
+     work.videoFile=String(item.videoFile||"");
+     work.videoStatus=String(item.status||"영상 제작 완료");
+     const url=safeLink(item.videoUrl);
+     if(url)work.videoUrl=url;
+     updated++;
+   }
+   const fullUrl=safeLink(manifest.exhibitionVideoUrl);
+   if(fullUrl){draft.exhibitionVideoUrl=fullUrl;$("exhibition-video-url").value=fullUrl}
+   renderWorks();setDirty();
+   const message=updated+"개 작품의 Python 영상 제작 기록을 가져왔습니다. 영상 MP4를 웹에 업로드한 후 URL을 확인하고 전시 프로젝트를 저장하세요.";
+   $("video-import-result").textContent=message;notify(message);
+ }catch(err){notify("영상 결과 등록 실패: "+err.message,true);$("video-import-result").textContent=err.message}
+ finally{e.target.value=""}
+}
 function renderProjects(){
  const list=$("project-list"),recent=$("recent-projects");list.replaceChildren();recent.replaceChildren();
  text($("stat-all"),projects.length);
@@ -219,7 +274,7 @@ function renderProjects(){
   const el=document.createElement("article");el.className="project-row";
   const summary=document.createElement("div");summary.className="project-info";
   const h=document.createElement("h3");h.textContent=p.title||"제목 없음";
-  const info=document.createElement("p");info.textContent=(p.artist||"작가 미등록")+" · "+p.genre+" · "+p.artworks.filter(w=>w.dataUrl).length+"점 · "+p.status;
+  const info=document.createElement("p");info.textContent=(p.artist||"작가 미등록")+" · "+p.genre+" · 작품 "+p.artworks.filter(w=>w.dataUrl).length+"점 · 영상 기록 "+p.artworks.filter(w=>Boolean(w.videoFile||safeLink(w.videoUrl))).length+"점 · "+p.status;
   summary.append(h,info);
   const controls=document.createElement("div");controls.className="project-actions";
   const edit=document.createElement("button");edit.type="button";edit.className="subtle";edit.textContent="편집";edit.addEventListener("click",()=>{applyForm(p);show("create")});
@@ -270,6 +325,8 @@ $("download-html").addEventListener("click",downloadHtml);
 $("export-project").addEventListener("click",exportProject);
 $("hide-preview").addEventListener("click",()=>{$("preview-panel").hidden=true});
 $("import-json").addEventListener("change",importProject);
+$("video-manifest-import").addEventListener("change",importVideoManifest);
+$("video-project-export").addEventListener("click",exportProject);
 $("status-filter").addEventListener("change",renderProjects);
 for(const id of Object.keys(fields))$(id).addEventListener("input",setDirty);
 $("rights-confirm").addEventListener("change",setDirty);
