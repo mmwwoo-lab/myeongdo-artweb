@@ -77,3 +77,17 @@
 .video-production .helper{display:block;line-height:1.7}
 @media(max-width:1150px){.video-process{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.video-process{grid-template-columns:1fr 1fr}.video-tools>*{width:100%;text-align:center}}
+
+
+/* Interactive artwork music and film production controls */
+.work-create-media{margin-top:20px;padding:16px 16px 13px;background:linear-gradient(130deg,#edf2eb,#faf6ed);border:1px solid #d6ddcf;border-radius:5px}
+.media-buttons{display:flex;flex-wrap:wrap;gap:10px}
+.media-buttons button{display:inline-flex;align-items:center;justify-content:center;min-width:150px;gap:8px;font-size:14px}
+.media-buttons button:disabled{cursor:not-allowed;opacity:.48}
+.work-create-status{color:#45614d;font-weight:700;font-size:13px;margin:12px 0}
+.generated-media{display:grid;grid-template-columns:1fr;gap:9px}
+.generated-media audio,.generated-media video{display:block;width:100%;max-height:360px;border-radius:4px;background:#1d2b23}
+.generated-media a{justify-self:start;display:inline-block;padding:9px 14px;text-decoration:none;background:#fff;border:1px solid #9a8262;color:#59472b;font-size:13px;font-weight:750}
+.generated-media a:hover{background:#e9e1d1}
+.work-create-media .helper{display:block;margin-top:12px;color:#647566;font-size:12px;line-height:1.65}
+@media(max-width:600px){.media-buttons button,.generated-media a{width:100%;text-align:center}}
