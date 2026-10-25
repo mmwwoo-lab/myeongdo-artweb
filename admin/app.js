@@ -74,7 +74,7 @@ function show(view){
  currentView=["dashboard","create","projects","guide"].includes(view)?view:"dashboard";
  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("visible",s.id==="view-"+currentView));
  document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===currentView));
- $("page-heading").textContent=currentView==="create"?"미술작품 전시 홈페이지 만들기":currentView==="projects"?"내 미술 전시 프로젝트":currentView==="guide"?"미술작품 전시 사용 안내":"미술작품 전시 홈페이지";
+ $("page-heading").textContent=currentView==="create"?"미술작품 전시 홈페이지 만들기":currentView==="projects"?"내 미술 전시 프로젝트":currentView==="guide"?"미술작품 전시 사용 안내":"명도재 이명우의 창작실";
  history.replaceState(null,"","#"+currentView);
  if(currentView==="projects"||currentView==="dashboard")renderProjects();
  window.scrollTo({top:0,behavior:"smooth"});
@@ -260,6 +260,7 @@ async function importProject(e){
 for(const b of document.querySelectorAll("[data-view]"))b.addEventListener("click",()=>show(b.dataset.view));
 for(const b of document.querySelectorAll("[data-open-projects]"))b.addEventListener("click",()=>show("projects"));
 $("start-create").addEventListener("click",()=>{applyForm(freshProject());show("create")});
+$("jump-to-form").addEventListener("click",()=>{$("exhibition-form").scrollIntoView({behavior:"smooth",block:"start"});$("title").focus({preventScroll:true})});
 $("projects-new").addEventListener("click",()=>{applyForm(freshProject());show("create")});
 $("new-project").addEventListener("click",()=>{if(dirty&&!confirm("저장하지 않은 변경을 버리고 새 전시를 시작할까요?"))return;applyForm(freshProject());show("create")});
 $("add-artwork").addEventListener("click",()=>{if(draft.artworks.length>=MAX)return;draft.artworks.push(freshWork());renderWorks();setDirty()});
