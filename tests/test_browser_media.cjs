@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs/promises");
 const { chromium } = require("playwright");
 
 async function main() {
@@ -27,8 +28,27 @@ async function main() {
  const size=await page.evaluate(async url=>(await (await fetch(url)).blob()).size,href);
  assert(size>5000,"Film file should have nonempty recorded video");
  assert((await page.locator('.generated-media video').first().getAttribute("src")).startsWith("blob:"));
+ await page.waitForFunction(()=>{const p=JSON.parse(localStorage.getItem("myeongdo_exhibition_studio_v1")||"[]")[0];return Boolean(p?.artworks?.[0]?.localVideoReady)},null,{timeout:10000});
+ const saved=await page.evaluate(async()=>{
+   const project=JSON.parse(localStorage.getItem("myeongdo_exhibition_studio_v1"))[0];
+   const db=await new Promise((resolve,reject)=>{const req=indexedDB.open("myeongdo-artwork-films-v1",1);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});
+   const b=await new Promise(resolve=>{const tx=db.transaction("films","readonly");const req=tx.objectStore("films").get(project.artworks[0].id);req.onsuccess=()=>resolve(req.result)});
+   db.close();return {ready:project.artworks[0].localVideoReady,bytes:b?.size||0};
+ });
+ assert.equal(saved.ready,true,"Music video must be automatically registered to project");
+ assert(saved.bytes>5000,"Recorded movie must persist in IndexedDB");
+ await page.locator("#quick-preview").click();
+ await page.waitForFunction(()=>document.querySelector("#site-preview").srcdoc.includes("blob:"),null,{timeout:8000});
+ await page.locator("#rights-confirm").check();
+ const finished=page.waitForEvent("download",{timeout:18000});
+ await page.locator("#quick-finish").click();
+ const dl=await finished;
+ const exported=await fs.readFile(await dl.path(),"utf8");
+ assert(exported.includes("data:video/webm;base64,")||exported.includes("data:video/mp4;base64,"),"Completed standalone exhibition must embed registered film");
+ assert(exported.includes("테스트 수채화"),"Artwork information must appear in downloaded homepage");
+
  assert.deepEqual(pageErrors,[],"No browser JS errors expected");
- console.log("PASS: image upload → WAV generation + preview → recorded video + preview; size="+size);
+ console.log("PASS: image upload → recorded music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
  await browser.close();
 }
 main().catch(err=>{console.error(err);process.exitCode=1});
