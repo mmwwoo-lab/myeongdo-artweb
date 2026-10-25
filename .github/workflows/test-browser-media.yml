@@ -4,6 +4,7 @@ on:
     paths:
       - "admin/app.js"
       - "admin/index.html"
+      - "admin/style.css"
       - "tests/test_browser_media.cjs"
       - "tests/test_preview_nav.cjs"
       - ".github/workflows/test-browser-media.yml"
