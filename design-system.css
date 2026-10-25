@@ -90,18 +90,23 @@ body :is(.danger,[id="remove"],[data-act="remove"]){
 body :is(.danger,[id="remove"],[data-act="remove"]):hover:not(:disabled){
   background:#ffe1e4!important;color:#842f39!important;
 }
-/* Art production: richer yet gentle lavender, black text as requested. */
+/* Production actions match the SAME lilac as all other navigation/buttons. */
 body .studio-layout .media-buttons button[data-act="make-music"],
 body .studio-layout .media-buttons button[data-act="make-video"],
 body .studio-layout .side-menu button[data-jump="music-controls"],
 body .studio-layout .side-menu button[data-jump="video-controls"]{
- background:#c59aee!important;color:#000!important;border:1px solid #9f6bd2!important;font-weight:800!important;
+ background:var(--md-lilac)!important;
+ color:var(--md-text-purple)!important;
+ border:1px solid #d6c5ee!important;
+ font-weight:800!important;
 }
 body .studio-layout .media-buttons button[data-act="make-music"]:hover:not(:disabled),
 body .studio-layout .media-buttons button[data-act="make-video"]:hover:not(:disabled),
 body .studio-layout .side-menu button[data-jump="music-controls"]:hover,
 body .studio-layout .side-menu button[data-jump="video-controls"]:hover{
- background:#b887e7!important;color:#000!important;border-color:#8555bd!important;
+ background:var(--md-lilac-hover)!important;
+ color:#39265e!important;
+ border-color:#baa1e2!important;
 }
 /* Studio dashboard: warm white surface, restrained blue/lavender hierarchy and contrast. */
 body .studio-layout,body .studio-layout .main{background:#fff!important;color:#26364b!important}
