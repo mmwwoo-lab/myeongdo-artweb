@@ -177,3 +177,32 @@ body .app .sidebar-foot{color:#607289!important}
  body .studio-layout .sonu-steps{grid-template-columns:repeat(2,minmax(0,1fr))}
  nav a:not(.brand):not(.logo){padding:8px 10px}
 }
+
+/* Exhibition website creator: pale lavender headline/title background. */
+body[data-studio-view="create"] .studio-layout .topbar{
+  background:#f2eaff!important;
+  border:1px solid #dfcff4!important;
+  border-radius:12px;
+  padding:19px 23px;
+  margin-bottom:24px;
+}
+body[data-studio-view="create"] .studio-layout .topbar h1{
+  color:#33254c!important;
+  font-weight:700;
+}
+body[data-studio-view="create"] .studio-layout .topbar .eyebrow{
+  color:#72569c!important;
+}
+body[data-studio-view="create"] .studio-layout #view-create .quick-hero{
+  background:linear-gradient(110deg,#f2eaff 0%,#f8f3ff 80%,#fff 100%)!important;
+  color:#33254c!important;
+  border:1px solid #dfcff4!important;
+  border-radius:12px;
+}
+body[data-studio-view="create"] .studio-layout #view-create .quick-hero h2{
+  color:#33254c!important;
+  font-weight:700;
+}
+body[data-studio-view="create"] .studio-layout #view-create .quick-hero p{
+  color:#4d4263!important;
+}
