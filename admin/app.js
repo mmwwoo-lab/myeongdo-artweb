@@ -8,7 +8,7 @@ const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt
 const safeLink=value=>{try{const u=new URL(String(value||""));return u.protocol==="https:"?u.href:""}catch{return""}};
 const safeImage=value=>typeof value==="string"&&/^data:image\/(?:jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(value)?value:"";
 const freshWork=()=>({id:"work-"+Math.random().toString(36).slice(2,11),title:"",year:"",material:"",size:"",caption:"",critique:"",musicUrl:"",videoUrl:"",videoFile:"",videoStatus:"",localVideoReady:false,dataUrl:"",filename:""});
-const freshProject=()=>({id:"",title:"",artist:"",genre:"한국화",status:"기획",subtitle:"",summary:"",biography:"",artistNote:"",contact:"",officialUrl:"",review:"",cover:"",portrait:"",rightsConfirmed:false,exhibitionVideoUrl:"",artworks:[freshWork()],updatedAt:""});
+const freshProject=()=>({id:"",title:"",artist:"",genre:"한국화",status:"기획",subtitle:"",summary:"",biography:"",artistNote:"",contact:"",officialUrl:"",review:"",cover:"",portrait:"",rightsConfirmed:false,exhibitionVideoUrl:"",publicUrl:"",publicPath:"",artworks:[freshWork()],updatedAt:""});
 const fields={"title":"title","artist":"artist","genre":"genre","status":"status","subtitle":"subtitle","summary":"summary","biography":"biography","artist-note":"artistNote","contact":"contact","official-url":"officialUrl","review":"review","exhibition-video-url":"exhibitionVideoUrl"};
 const text=(node,value)=>{node.textContent=value;};
 const normalize=p=>{
@@ -16,6 +16,8 @@ const normalize=p=>{
  const base=freshProject();
  const result={...base,...p};
  result.id=String(p.id||"");
+ result.publicUrl=safeLink(p.publicUrl);
+ result.publicPath=String(p.publicPath||"");
  result.title=String(p.title||"");
  result.artist=String(p.artist||p.owner||"");
  result.genre=String(p.genre||"한국화");
@@ -351,7 +353,7 @@ function applyForm(p){
  $("cover-upload").value="";
  $("portrait-upload").value="";
  previewUpload("cover");previewUpload("portrait");
- renderWorks();restoreLocalFilms();notify("");dirty=false;
+ renderWorks();restoreLocalFilms();syncPublicAddress();notify("");dirty=false;
 }
 function capture(){
  for(const [id,key] of Object.entries(fields))draft[key]=$(id).value.trim();
@@ -508,6 +510,7 @@ function save(){
  if(index>=0)projects[index]=output;else projects.unshift(output);
  if(!store()){projects=old;notify("브라우저 저장공간이 부족합니다. 이미지를 줄이거나 JSON 백업을 먼저 내려받아 주세요.",true);return false}
  draft=normalize(output);$("project-id").value=id;dirty=false;
+ syncPublicAddress();
  renderWorks();
  notify("전시가 이 브라우저에 저장되었습니다. 서버에 공개된 것은 아닙니다.");renderProjects();return true
 }
@@ -588,6 +591,114 @@ async function downloadHtml(){
   download("myeongdo-"+slug(p.artist)+"-"+slug(p.title)+".html",site(p,films),"text/html;charset=utf-8");
   notify("완성된 작품 영상이 포함된 전시 홈페이지를 내려받았습니다. 온라인 공개는 HTML 파일의 별도 업로드가 필요합니다.");
  }catch(err){notify("홈페이지 완성 오류: "+err.message,true)}
+}
+
+const PUBLIC_GH_REPO="mmwwoo-lab/myeongdo-artweb";
+const PUBLIC_BASE="https://mmwwoo-lab.github.io/myeongdo-artweb/";
+const GH_API="https://api.github.com/repos/"+PUBLIC_GH_REPO+"/contents/";
+function publishSlug(value){
+ return String(value||"").trim().replace(/[^a-zA-Z0-9가-힣_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,35)||"artist";
+}
+function publishPathFor(project){
+ if(project.publicPath&&/^exhibitions\/online\/[a-zA-Z0-9가-힣_/-]+\/index\.html$/.test(project.publicPath))return project.publicPath;
+ const id=String(project.id||"").replace(/[^a-zA-Z0-9]/g,"").slice(-9)||Date.now().toString(36);
+ return "exhibitions/online/"+publishSlug(project.artist)+"-"+publishSlug(project.title)+"-"+id+"/index.html";
+}
+function pathURL(path){
+ return path.split("/").map(encodeURIComponent).join("/");
+}
+function publicAddress(path){
+ return PUBLIC_BASE+pathURL(path.replace(/index\.html$/,""));
+}
+function syncPublicAddress(){
+ const url=safeLink(draft.publicUrl||"");
+ const allowed=url.startsWith(PUBLIC_BASE+"exhibitions/online/");
+ $("copy-public-url").disabled=!allowed;
+ const link=$("open-public-url");
+ link.hidden=!allowed;
+ if(allowed){link.href=url;$("publish-status").textContent="등록된 공개 주소: "+url+" · 최신 수정본이 게시됐는지 실제 페이지를 확인해 주세요."}
+ else{link.removeAttribute("href");$("publish-status").textContent="공개 등록 전입니다. 완성 후 GitHub에 업로드하면 주소를 복사할 수 있습니다."}
+}
+function base64Utf8(html){
+ const bytes=new TextEncoder().encode(html);
+ const segments=[];
+ for(let i=0;i<bytes.length;i+=32768){
+   segments.push(String.fromCharCode(...bytes.subarray(i,i+32768)));
+ }
+ return btoa(segments.join(""));
+}
+async function publishToGithub(){
+ const button=$("publish-project");
+ const tokenInput=$("publish-token");
+ const token=tokenInput.value.trim();
+ const p=capture();
+ if(!validProject(p)){notify("전시 제목과 작가 이름을 입력해 주세요.",true);return}
+ if(!p.artworks.some(w=>w.dataUrl)){notify("공개할 작품 이미지를 한 점 이상 등록해 주세요.",true);return}
+ if(!p.rightsConfirmed){notify("공개 전에 작품 이미지·음악·영상의 이용 권한을 확인해 주세요.",true);return}
+ if(!token){$("publish-status").textContent="GitHub 토큰을 입력해야 온라인에 업로드할 수 있습니다.";return}
+ if(!/^github_pat_|^ghp_/.test(token)){$("publish-status").textContent="GitHub의 유효한 Personal Access Token 형식을 확인해 주세요.";return}
+ button.disabled=true;
+ button.textContent="GitHub에 전시 등록 중…";
+ try{
+   if(!save())throw Error("전시 프로젝트의 브라우저 저장에 실패했습니다.");
+   const videos=await collectLocalFilms(true);
+   const lost=draft.artworks.filter(w=>w.localVideoReady&&!videos[w.id]);
+   if(lost.length)throw Error("등록된 영상 "+lost.length+"개의 원본을 찾을 수 없습니다.");
+   const documentHTML=site(draft,videos);
+   const bytes=new TextEncoder().encode(documentHTML).length;
+   if(bytes>45*1024*1024)throw Error("동영상 포함 HTML 용량이 45MB를 넘었습니다. 영상을 압축하거나 외부 영상 URL로 연결해 주세요.");
+   const path=publishPathFor(draft);
+   const target=GH_API+pathURL(path);
+   const headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28"};
+   $("publish-status").textContent="완성된 전시 파일을 GitHub로 전송합니다. 이 창을 닫지 마세요.";
+   const existing=await fetch(target+"?ref=main",{method:"GET",headers,cache:"no-store"});
+   let sha;
+   if(existing.ok){
+     const previous=await existing.json();
+     sha=previous.sha;
+   }else if(existing.status!==404){
+     throw Error("기존 전시 조회 실패 (GitHub HTTP "+existing.status+"). 토큰의 저장소 Contents 권한을 확인해 주세요.");
+   }
+   const payload={
+     message:"Publish MYEONGDOJAE artist exhibition: "+String(draft.title).slice(0,65),
+     branch:"main",
+     content:base64Utf8(documentHTML)
+   };
+   if(sha)payload.sha=sha;
+   const response=await fetch(target,{
+     method:"PUT",
+     headers:{...headers,"Content-Type":"application/json"},
+     body:JSON.stringify(payload)
+   });
+   if(!response.ok)throw Error("GitHub 전시 등록 실패 (HTTP "+response.status+"). Contents: Read and write 권한과 저장소 접근권을 확인해 주세요.");
+   draft.publicPath=path;
+   draft.publicUrl=publicAddress(path);
+   if(!save())throw Error("GitHub 파일 업로드는 성공했지만 공개 URL의 브라우저 저장에 실패했습니다. 업로드된 경로는 "+draft.publicUrl);
+   syncPublicAddress();
+   $("publish-status").textContent="GitHub 파일 업로드 완료. 공개 주소: "+draft.publicUrl+" · GitHub Pages 배포 후 실제 페이지를 열어 확인해 주세요.";
+   notify("전시 홈페이지 업로드 완료! 「공개 주소 복사」로 주소를 공유할 수 있습니다. 실제 게시 여부를 확인해 주세요.");
+ }catch(err){
+   $("publish-status").textContent="등록하지 못했습니다: "+err.message+" 내려받기 기능은 계속 사용할 수 있습니다.";
+   notify("공개 등록 오류: "+err.message,true);
+ }finally{
+   // Credentials are not saved to localStorage, IndexedDB or JSON backups.
+   tokenInput.value="";
+   button.disabled=false;button.textContent="🌐 전시 홈페이지 공개 등록";
+ }
+}
+async function copyPublicAddress(){
+ const value=draft.publicUrl;
+ if(!value||!value.startsWith(PUBLIC_BASE+"exhibitions/online/"))return;
+ try{
+   await navigator.clipboard.writeText(value);
+   $("publish-status").textContent="주소 복사 완료: "+value+" · 실제 공개 페이지가 열리는지 확인해 주세요.";
+ }catch{
+   const input=document.createElement("input");
+   input.value=value;document.body.append(input);input.select();
+   const result=document.execCommand("copy");
+   input.remove();
+   $("publish-status").textContent=result?"주소 복사 완료: "+value:"복사가 제한됩니다. 주소를 직접 선택해 복사해 주세요: "+value;
+ }
 }
 function exportProject(){
  const p=capture();download("myeongdo-exhibition-"+slug(p.title)+".json",JSON.stringify({format:"MYEONGDOJAE-EXHIBITION",version:1,projects:[p]},null,2),"application/json;charset=utf-8");notify("전시 프로젝트 백업 파일을 내려받았습니다.")
@@ -698,6 +809,8 @@ $("batch-artwork-upload").addEventListener("change",async e=>{
  notify("사진 "+added+"점 등록 완료"+(failed?" · 처리하지 못한 파일 "+failed+"개":"")+". 작품 실행 버튼을 누르면 음악 영상이 만들어집니다.",failed>0);
 });
 $("quick-preview").addEventListener("click",()=>preview());
+$("publish-project").addEventListener("click",publishToGithub);
+$("copy-public-url").addEventListener("click",copyPublicAddress);
 $("quick-finish").addEventListener("click",async()=>{
  const btn=$("quick-finish");btn.disabled=true;
  try{await downloadHtml()}finally{btn.disabled=false}
