@@ -446,19 +446,19 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
   background:#e0f5c7!important;
   background-image:none!important;
   border:1px solid #afd48f!important;
-  color:#101010!important;
+  color:#000000!important;
   font-weight:800;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:not(:disabled):hover,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:not(:disabled):hover{
   background:#d0edac!important;
   border-color:#96bd70!important;
-  color:#101010!important;
+  color:#000000!important;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:active,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:active{
   background:#c0e49a!important;
-  color:#101010!important;
+  color:#000000!important;
 }
 .studio-layout #view-create .media-buttons button[data-act="make-music"]:disabled,
 .studio-layout #view-create .media-buttons button[data-act="make-video"]:disabled{
