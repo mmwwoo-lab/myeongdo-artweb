@@ -437,3 +437,33 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
   color:#704aad;
 }
 /* Keep image/video preview players themselves visually distinct from action buttons. */
+
+
+/* v12.5 — ONLY the artwork music & video creation buttons are lime-green
+   with black labels. Other studio controls remain lavender. */
+.studio-layout #view-create .media-buttons button[data-act="make-music"],
+.studio-layout #view-create .media-buttons button[data-act="make-video"]{
+  background:#e0f5c7!important;
+  background-image:none!important;
+  border:1px solid #afd48f!important;
+  color:#101010!important;
+  font-weight:800;
+}
+.studio-layout #view-create .media-buttons button[data-act="make-music"]:not(:disabled):hover,
+.studio-layout #view-create .media-buttons button[data-act="make-video"]:not(:disabled):hover{
+  background:#d0edac!important;
+  border-color:#96bd70!important;
+  color:#101010!important;
+}
+.studio-layout #view-create .media-buttons button[data-act="make-music"]:active,
+.studio-layout #view-create .media-buttons button[data-act="make-video"]:active{
+  background:#c0e49a!important;
+  color:#101010!important;
+}
+.studio-layout #view-create .media-buttons button[data-act="make-music"]:disabled,
+.studio-layout #view-create .media-buttons button[data-act="make-video"]:disabled{
+  background:#eff9e5!important;
+  border-color:#d3e8bf!important;
+  color:#333!important;
+  opacity:.65;
+}
