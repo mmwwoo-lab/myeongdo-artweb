@@ -33,10 +33,10 @@ async function main() {
    return {music:button("music"),video:button("video"),ordinary};
  });
  for(const [name,style] of Object.entries({music:mediaColors.music,video:mediaColors.video})){
-   assert.equal(style.background,"rgb(197, 154, 238)",name+" button must be purple");
-   assert.equal(style.color,"rgb(0, 0, 0)",name+" button text must be pure black");
+   assert.equal(style.background,"rgb(235, 227, 250)",name+" button must match other lilac buttons");
+   assert.equal(style.color,"rgb(75, 54, 116)",name+" button labels should be legible dark violet");
  }
- assert.equal(mediaColors.ordinary,"rgb(232, 221, 252)","Other buttons must remain pastel lavender");
+ assert.equal(mediaColors.ordinary,"rgb(235, 227, 250)","All production buttons must use the identical pastel lavender");
  assert.equal(await music.isDisabled(),false,"Music button must be enabled once artwork registered");
  await music.click();
  const wav=page.locator('.generated-media a[download$=".wav"]').first();
