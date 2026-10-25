@@ -13,3 +13,50 @@
 @media(max-width:920px){.studio-layout{grid-template-columns:1fr}.sidebar{position:static;height:auto;gap:15px;padding:15px 18px}.side-menu{display:flex;flex-wrap:wrap;gap:7px}.side-menu button{padding:9px;font-size:12px}.sidebar-bottom{display:none}.main{padding:20px 17px}.work-fields{grid-template-columns:1fr}.art-upload-preview{min-height:135px}}
 @media(max-width:630px){.dashboard-hero{padding:27px 21px}.dashboard-hero:after{opacity:.22}.field-grid,.stats,.process,.flow-grid{grid-template-columns:1fr 1fr}.process span{font-size:11px;padding:8px 4px}.form-section{padding:18px 14px}.form-section-header.split{align-items:flex-start}.actionbar button{width:100%}.topbar h1{font-size:25px}.preview-panel iframe{height:650px}.work-editor{padding:15px 11px}}
 @media(max-width:400px){.field-grid{grid-template-columns:1fr}.flow-grid{grid-template-columns:1fr 1fr}.side-menu button{width:100%}.process{grid-template-columns:repeat(2,1fr)}}
+
+
+/* MYEONGDOJAE creative room: introductory landing and exhibition workflow */
+.creative-room-hero{padding:clamp(35px,5vw,65px) clamp(25px,4.2vw,65px);min-height:480px}
+.creative-room-hero .hero-lead{font:normal clamp(17px,2vw,24px)/1.55 Georgia,'Noto Serif KR',serif;color:#2c4938;max-width:690px;margin:8px 0 12px}
+.creative-room-hero .hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:26px 0 0}
+.creative-room-hero .outline-link{display:inline-block;text-decoration:none;border:1px solid #788a78;padding:11px 18px;color:#2d4a39;background:#fff6}
+.creative-room-hero .room-signature{color:#7b765f;font-size:12px;letter-spacing:.06em;margin-top:22px}
+.story-section{margin:39px 0 42px}
+.story-section .section-heading{margin:0 0 20px}
+.story-section .section-heading h2{font:normal clamp(25px,3.2vw,37px)/1.4 Georgia,'Noto Serif KR',serif;margin:7px 0}
+.story-section .section-heading p{max-width:800px}
+.why-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.why-grid article{background:#fffefa;border:1px solid #e7dfd0;padding:27px;min-height:215px}
+.why-icon{color:#ad8961;font:normal 28px Georgia,serif}
+.why-grid h3{font:normal 22px Georgia,'Noto Serif KR',serif;margin:15px 0 10px}
+.why-grid p{font-size:13px;color:#667366;margin:0}
+.artist-showcase{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.artist-example{display:block;background:#fffdfa;border:1px solid #e4dbcc;text-decoration:none;overflow:hidden;padding-bottom:18px;transition:transform .2s,border-color .2s}
+.artist-example:hover{transform:translateY(-4px);border-color:#a58b64}
+.artist-example .artist-motif{height:150px;margin-bottom:16px;position:relative;overflow:hidden;isolation:isolate}
+.artist-motif:before,.artist-motif:after{content:"";position:absolute;border-radius:42% 21% 54% 26%;transform:rotate(-17deg)}
+.artist-motif:before{width:38%;height:80%;left:19%;top:12%;background:#f3eee2a6}
+.artist-motif:after{width:30%;height:60%;right:22%;bottom:3%;background:#3d4f4580}
+.motif-water{background:linear-gradient(125deg,#a4c4ca,#e5e1cb 55%,#83a0b1)}
+.motif-wood{background:linear-gradient(115deg,#ad8a68,#f0d5ae 64%,#6d5a4d)}
+.motif-print{background:linear-gradient(125deg,#607f7a,#ddb98a 52%,#b77966)}
+.motif-form{background:linear-gradient(130deg,#d4bbb2,#8c9ca8 65%,#ece0c8)}
+.artist-example .genre,.artist-example h3,.artist-example p,.artist-example .visit{display:block;margin-left:18px;margin-right:18px}
+.artist-example .genre{color:#9d7a53;letter-spacing:.12em;font-size:10px;font-weight:800}
+.artist-example h3{font:normal 24px Georgia,'Noto Serif KR',serif;margin-top:7px;margin-bottom:7px}
+.artist-example p{font-size:12px;color:#657264;line-height:1.75;min-height:88px}
+.artist-example .visit{color:#8f6943;font-weight:750;font-size:12px}
+.example-note{color:#677365;font-size:12px;margin-top:12px}
+.creator-welcome{margin-bottom:15px}
+.creator-welcome h2{font:normal clamp(31px,4vw,48px) Georgia,'Noto Serif KR',serif}
+.creator-welcome h3{font:normal 20px Georgia,'Noto Serif KR',serif;color:#405944;margin:0 0 13px}
+.creator-welcome>p{max-width:900px;line-height:1.8}
+.creator-promise{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 21px}
+.creator-promise span{border-left:2px solid #967a52;background:#fff8;padding:9px 14px;font-size:13px;color:#425744}
+.creator-help{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:22px}
+.creator-help article{background:#fffefa;border:1px solid #e4dccf;padding:18px}
+.creator-help strong{display:block;color:#314b37;font-size:15px;margin-bottom:9px}
+.creator-help p{color:#657266;font-size:13px;margin:0;line-height:1.8}
+@media(max-width:1200px){.artist-showcase{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:800px){.why-grid,.creator-help{grid-template-columns:1fr}.why-grid article{min-height:auto}.artist-example p{min-height:0}.creative-room-hero{min-height:auto}.artist-example .artist-motif{height:145px}}
+@media(max-width:520px){.artist-showcase{grid-template-columns:1fr 1fr;gap:8px}.artist-example .artist-motif{height:110px}.artist-example h3{font-size:20px}.artist-example .genre,.artist-example h3,.artist-example p,.artist-example .visit{margin-left:12px;margin-right:12px}.artist-example p{font-size:11px}.creative-room-hero .hero-actions .primary,.creative-room-hero .hero-actions .outline-link{width:100%;text-align:center}.creator-welcome{padding:24px 19px}}
