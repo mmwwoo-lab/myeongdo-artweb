@@ -201,3 +201,55 @@ body{background:var(--paper);color:var(--ink)}.studio-layout{grid-template-colum
 .studio-project-details strong{font-size:14px}.studio-project-details small{font-size:11px;color:#97a8c7}
 @media(max-width:850px){#recent-projects{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:470px){#recent-projects{grid-template-columns:1fr}}
+
+
+/* v12.1 — complete studio 3.0 control room, keeping all art editing features */
+.sidebar{overflow-y:auto}
+.side-menu button[data-jump]{padding-left:25px;font-size:12px;color:#acb9da}
+.side-menu button[data-jump]:before{content:"·";margin-right:9px;color:#9871fa}
+.side-menu button[data-jump]:hover{background:#273454;color:#fff}
+.sonu-overview{margin-bottom:19px}
+.sonu-check-row{display:flex;align-items:center;gap:9px}
+.sonu-mark{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border:1px solid #506082;border-radius:5px;color:#8e9bb7;font-size:13px;font-weight:800}
+.sonu-check-row.done{background:#163b35;border-color:#256554;color:#b6f7d5}
+.sonu-check-row.done .sonu-mark{color:#98efc4;border-color:#39775f;background:#245243}
+.dashboard-panel{margin-top:8px}
+.dashboard-panel .panel-heading h2{font:700 20px/1.4 system-ui,"Malgun Gothic",sans-serif}
+.studio-about{background:#111a2d;border:1px solid #273651;border-radius:9px;margin:20px 0 12px;padding:0 20px 20px}
+.studio-about:not([open]){padding-bottom:0}
+.studio-about>summary{padding:17px 2px;color:#c5d2e8;font-weight:750;font-size:14px;cursor:pointer;list-style:revert}
+.studio-about>summary:hover{color:#d3c2ff}
+.studio-about[open]>summary{border-bottom:1px solid #2e3a51;margin-bottom:22px}
+.studio-about .dashboard-hero{margin-bottom:22px}
+#title,#artist,#genre,#status{scroll-margin-top:24px}
+#artist-optional,#artwork-list,#quick-finish{scroll-margin-top:26px}
+.quick-hero{background:linear-gradient(115deg,#172342,#252044);border-color:#384260}
+.quick-hero h2{color:#f5f1ff}.quick-hero p{color:#b5c5e0}
+.quick-steps span{background:#17223b;border-color:#34425e;color:#cddbf2}
+.quick-help,.optional-details{background:#151f35;border-color:#38435f;color:#d7e3f7}
+.quick-help summary,.optional-details>summary{color:#ddcffd}
+.optional-details[open]>summary{border-bottom-color:#38435f}
+.batch-upload{background:#14263b;border-color:#506a90}
+.batch-upload label{color:#d9e9ff}.batch-upload p{color:#a4b4d1}
+.quick-work-title{color:#e8e4ff}
+.quick-finish{background:linear-gradient(110deg,#192c37,#24264b);border-color:#4b5674}
+.quick-finish strong{color:#f5efff}.quick-finish p{color:#bdcce1}
+.work-create-media{background:linear-gradient(120deg,#192740,#252b48);border-color:#3b4e6d}
+.work-create-status{color:#b7e4d3}
+.generated-media a{background:#232f47;border-color:#657299;color:#f0eaff}
+.notice:not([data-kind="error"]){color:#9ae7ba}
+.creator-help p,.artist-example p,.why-grid article p,.flow-grid p{color:#abb8d2}
+.form-section label em{color:#ebba9e}
+.form-section input[type=file],.work-editor input[type=file],.batch-upload input[type=file]{color:#ceddf7}
+input[type=file]::file-selector-button{border:1px solid #5a6993;background:#233353;color:#edf2ff;padding:6px 10px;border-radius:4px;cursor:pointer}
+#status-filter,#import-json{color:#f1f4ff;background:#151f35;border:1px solid #384461;padding:8px;border-radius:5px}
+@media(max-width:680px){
+ .studio-layout{min-height:100vh}
+ .sidebar{overflow:visible}
+ .side-menu{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .side-menu button{min-height:42px}
+ .sonu-checklist,.sonu-workflow{padding:15px}
+ .studio-about{padding:0 14px 14px}
+ .sonu-heading h2{font-size:29px}
+}
+@media(max-width:390px){.sonu-steps{grid-template-columns:1fr}.side-menu{grid-template-columns:1fr 1fr}}
