@@ -370,3 +370,6 @@ body[data-studio-view="create"] .text-link{color:#7050a9;border-color:#c0addd}
 #view-create .notice[data-kind="error"]{color:#a52b36}
 #view-create .preview-panel iframe{background:#fff;border-color:#d2ddeb}
 body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visible{outline:3px solid #a988ed;outline-offset:2px}
+
+/* Distinct workflow step anchor; the export button retains #quick-finish. */
+#finish-section{scroll-margin-top:26px}
