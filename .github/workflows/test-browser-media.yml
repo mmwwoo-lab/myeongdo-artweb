@@ -5,6 +5,7 @@ on:
       - "admin/app.js"
       - "admin/index.html"
       - "tests/test_browser_media.cjs"
+      - "tests/test_preview_nav.cjs"
       - ".github/workflows/test-browser-media.yml"
   workflow_dispatch:
 permissions:
@@ -22,7 +23,11 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright
           npx playwright install --with-deps chromium
-      - name: Test artwork music and video buttons in Chromium
+      - name: Serve exhibition creator locally
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/myeongdo-site.log 2>&1 &
-          node tests/test_browser_media.cjs
+          sleep 1
+      - name: Check preview artist menu anchors in Chromium
+        run: node tests/test_preview_nav.cjs
+      - name: Test artwork music and video buttons in Chromium
+        run: node tests/test_browser_media.cjs
