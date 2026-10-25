@@ -13,7 +13,7 @@
   <meta property="og:image" content="https://mmwwoo-lab.github.io/myeongdo-artweb/admin/og-artweb.svg">
   <meta name="twitter:card" content="summary_large_image">
   <title>MYEONGDOJAE | 통합 예술전시 제작 대시보드</title>
-  <link rel="stylesheet" href="./style.css?v=9.0.0">
+  <link rel="stylesheet" href="./style.css?v=9.1.0">
 </head>
 <body>
   <div class="app-shell">
@@ -112,12 +112,17 @@
       </section>
 
       <section class="view" id="view-create">
+        <div class="artist-standard-intro">
+          <div><small>MYEONGDOJAE · STANDARD ARTIST EXHIBITION</small><h3>작가별 공동 전시 포맷 제작</h3><p>권도훈 전시관형 공통 구성: 전시 제목 → 작가 소개 → 작품 갤러리 → 작품 해설·평론 → 음악 감상 → 전시 안내. 등록한 작품은 기존 미리보기·HTML 내보내기 기능으로 확인합니다.</p></div>
+          <a href="../artist-gallery/?artist=kwon-dohoon" target="_blank" rel="noopener noreferrer">공통 작가관 미리보기 ↗</a>
+        </div>
+        <div class="artist-stage-steps"><span><b>01</b> 작가·전시 입력</span><span><b>02</b> 작품·이미지 등록</span><span><b>03</b> 평론·음악 확인</span><span><b>04</b> 전시 미리보기·저장</span></div>
         <div class="editor-grid">
           <form id="project-form" class="panel form-panel" autocomplete="on">
             <div class="panel-head">
               <div>
-                <h3 id="form-title">새 홈페이지 만들기</h3>
-                <p id="template-guide">미술 전시, 시 문학, 만화 뉴스에 맞게 편집기가 바뀝니다.</p>
+                <h3 id="form-title">작가별 전시관 만들기</h3>
+                <p id="template-guide">작가별 전시가 기본이며 문학·뉴스 유형도 선택할 수 있습니다.</p>
               </div>
             </div>
 
@@ -139,13 +144,14 @@
 
             <label for="template">① 홈페이지 유형 선택</label>
             <select id="template">
+              <option value="exhibition">MYEONGDOJAE · 작가별 공통 전시관</option>
               <option value="news">만화로 보는 뉴스</option>
               <option value="culture_paper">명도재 이명우의 대구문화예술신문</option>
               <option value="culture_news_studio">명도재 이명우의 대구문화예술 뉴스 신문 만들기</option>
               <option value="literary">명도재 이명우 · 문학관</option>
               <option value="book_launch">시집 출간 기념관</option>
               <option value="poem_house">시가 머무는 집</option>
-              <option value="exhibition">사계의 빛 — 한국화 초대전</option>
+              
             </select>
 
             <p id="type-workflow-title" class="workflow-guide" aria-live="polite">유형을 선택하면 입력 화면이 자동으로 바뀝니다.</p>
@@ -192,7 +198,7 @@
   <div class="panel-inner"><h4>기사 1</h4><label for="culture-title-0">기사 제목</label><input id="culture-title-0" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-0">기사 원고</label><textarea id="culture-article-0" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-0">출처·원문 링크·보도일</label><textarea id="culture-source-0" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-0">문화칼럼</label><textarea id="culture-column-0" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div><div class="panel-inner"><h4>기사 2</h4><label for="culture-title-1">기사 제목</label><input id="culture-title-1" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-1">기사 원고</label><textarea id="culture-article-1" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-1">출처·원문 링크·보도일</label><textarea id="culture-source-1" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-1">문화칼럼</label><textarea id="culture-column-1" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div><div class="panel-inner"><h4>기사 3</h4><label for="culture-title-2">기사 제목</label><input id="culture-title-2" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-2">기사 원고</label><textarea id="culture-article-2" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-2">출처·원문 링크·보도일</label><textarea id="culture-source-2" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-2">문화칼럼</label><textarea id="culture-column-2" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div><div class="panel-inner"><h4>기사 4</h4><label for="culture-title-3">기사 제목</label><input id="culture-title-3" type="text" maxlength="160" placeholder="대구 문화예술 기사 제목"><label for="culture-article-3">기사 원고</label><textarea id="culture-article-3" rows="6" placeholder="확인된 사실을 근거로 문화부 기사 작성"></textarea><label for="culture-source-3">출처·원문 링크·보도일</label><textarea id="culture-source-3" rows="2" placeholder="기사 출처, URL 및 보도일"></textarea><label for="culture-column-3">문화칼럼</label><textarea id="culture-column-3" rows="4" placeholder="지역 문화적 의미와 쟁점을 분석한 칼럼"></textarea></div>
 </div>
             <div id="review-block" class="panel-inner">
-              <label for="overall-review">전체 작품 평론</label>
+              <label for="overall-review">전시 총평 · 미술평론 (작가별 전시 포맷)</label>
               <textarea id="overall-review" rows="6" maxlength="12000" placeholder="전시 전체에 대한 평론을 입력하거나 자동 생성하세요."></textarea>
               <div class="inline-actions">
                 <button type="button" id="auto-critique" class="subtle">작품 평론 자동 생성 (약 200자)</button>
@@ -235,7 +241,7 @@
             </div>
 
             <div class="panel-inner">
-              <h4 id="gallery-heading">작품·이미지 등록</h4>
+              <h4 id="gallery-heading">작품별 이미지 · 제목 · 해설 등록</h4>
               <p class="field-help" id="gallery-help">유형에 따라 3장 또는 6장의 이미지 업로드가 가능합니다. 큰 이미지는 자동 축소·압축됩니다.</p>
               <div id="artwork-upload-grid"></div>
             </div>
