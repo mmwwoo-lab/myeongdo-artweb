@@ -467,3 +467,23 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
   color:#333!important;
   opacity:.65;
 }
+
+
+/* Matching music/video shortcuts in the left production menu. */
+.studio-layout .side-menu button[data-jump="music-controls"],
+.studio-layout .side-menu button[data-jump="video-controls"]{
+  background:#e0f5c7!important;
+  border:1px solid #afd48f!important;
+  color:#000000!important;
+  font-weight:800;
+}
+.studio-layout .side-menu button[data-jump="music-controls"]:hover,
+.studio-layout .side-menu button[data-jump="video-controls"]:hover{
+  background:#d0edac!important;
+  border-color:#96bd70!important;
+  color:#000000!important;
+}
+.studio-layout .side-menu button[data-jump="music-controls"]:before,
+.studio-layout .side-menu button[data-jump="video-controls"]:before{
+  color:#000000!important;
+}
