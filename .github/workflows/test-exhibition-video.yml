@@ -1,0 +1,65 @@
+name: Test Python Exhibition Video Maker
+on:
+  push:
+    paths:
+      - "tools/python-support/exhibition_video.py"
+      - ".github/workflows/test-exhibition-video.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Pillow and verify ffmpeg
+        run: |
+          python -m pip install Pillow
+          ffmpeg -version
+      - name: Syntax check
+        run: python -m py_compile tools/python-support/exhibition_video.py
+      - name: Generate test exhibition with a synthetic image
+        shell: bash
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from io import BytesIO
+          import base64, json
+          img = Image.new("RGB", (320, 240), "#91b2ae")
+          buf = BytesIO()
+          img.save(buf, format="JPEG")
+          project = {
+              "format": "MYEONGDOJAE-EXHIBITION", "version": 1,
+              "projects": [{
+                  "id": "ci-test", "artist": "테스트 작가", "title": "자동 검증용 전시",
+                  "rightsConfirmed": True,
+                  "artworks": [{
+                      "id": "test-work", "title": "시연용 가상작품",
+                      "year": "2026", "material": "Digital", "size": "320x240",
+                      "caption": "테스트용으로 직접 만든 이미지",
+                      "dataUrl": "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+                  }]
+              }]
+          }
+          with open("test-exhibition.json", "w", encoding="utf-8") as fp:
+              json.dump(project, fp, ensure_ascii=False)
+          PY
+          python tools/python-support/exhibition_video.py test-exhibition.json --duration 2 --fps 12 --output test-video-output
+      - name: Verify MP4s and manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          folder = Path("test-video-output")
+          manifest = json.loads((folder/"video-manifest.json").read_text(encoding="utf-8"))
+          assert manifest["format"] == "MYEONGDOJAE-VIDEO-MANIFEST"
+          assert len(manifest["videos"]) == 1
+          assert manifest["videos"][0]["artworkId"] == "test-work"
+          assert (folder/"videos/artwork-01.mp4").stat().st_size > 1000
+          assert (folder/"exhibition-film.mp4").stat().st_size > 1000
+          assert (folder/"index.html").is_file()
+          print("Python → MP4 → manifest smoke test OK")
+          PY
