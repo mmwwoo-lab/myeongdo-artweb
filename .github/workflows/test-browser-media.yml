@@ -1,0 +1,28 @@
+name: Browser Artwork Music and Video Test
+on:
+  push:
+    paths:
+      - "admin/app.js"
+      - "admin/index.html"
+      - "tests/test_browser_media.cjs"
+      - ".github/workflows/test-browser-media.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install real browser
+        run: |
+          npm install --no-save --no-package-lock playwright
+          npx playwright install --with-deps chromium
+      - name: Test artwork music and video buttons in Chromium
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/myeongdo-site.log 2>&1 &
+          node tests/test_browser_media.cjs
