@@ -10,7 +10,19 @@ async function main() {
  await page.goto("http://127.0.0.1:8765/admin/#create",{waitUntil:"domcontentloaded"});
  await page.fill("#title","수채화 테스트 전시");
  await page.fill("#artist","시연 작가");
- const png=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/YAAAAABJRU5ErkJggg==","base64");
+ const fixture=await page.evaluate(()=>{
+   const canvas=document.createElement("canvas");canvas.width=600;canvas.height=420;
+   const g=canvas.getContext("2d");
+   const grad=g.createLinearGradient(0,0,600,420);
+   grad.addColorStop(0,"#1d5577");grad.addColorStop(.55,"#f3d5ae");grad.addColorStop(1,"#724b75");
+   g.fillStyle=grad;g.fillRect(0,0,600,420);
+   for(let i=0;i<8;i++){
+      g.fillStyle=i%2?"#d8e9c5":"#c46a54";
+      g.beginPath();g.arc(60+i*68,110+i%3*80,28+i*2,0,Math.PI*2);g.fill();
+   }
+   return canvas.toDataURL("image/png").split(",")[1];
+ });
+ const png=Buffer.from(fixture,"base64");
  await page.locator('[data-art-file]').first().setInputFiles({name:"test.png",mimeType:"image/png",buffer:png});
  await page.locator(".art-upload-preview img").first().waitFor({state:"visible",timeout:10000});
  await page.locator('[data-field="title"]').first().fill("테스트 수채화");
@@ -51,7 +63,38 @@ async function main() {
  assert(href.startsWith("blob:"));
  const size=await page.evaluate(async url=>(await (await fetch(url)).blob()).size,href);
  assert(size>5000,"Film file should have nonempty recorded video");
- assert((await page.locator('.generated-media video').first().getAttribute("src")).startsWith("blob:"));
+ assert((await page.locator('.generated-media video').first().getAttribute("src")).startsWith("blob:")); 
+ const motion=await page.evaluate(async()=>{
+   const video=document.querySelector(".generated-media video");
+   await new Promise((resolve,reject)=>{
+     if(video.readyState>=1)return resolve();
+     video.addEventListener("loadedmetadata",resolve,{once:true});
+     video.addEventListener("error",()=>reject(Error("Recorded video could not be decoded")),{once:true});
+     video.load();
+   });
+   const preview=document.createElement("canvas");preview.width=128;preview.height=72;
+   const c=preview.getContext("2d");
+   async function frameAt(second){
+     await new Promise((resolve,reject)=>{
+       const fail=setTimeout(()=>reject(Error("Video frame seek timed out")),8000);
+       video.addEventListener("seeked",()=>{clearTimeout(fail);resolve()},{once:true});
+       video.currentTime=second;
+     });
+     c.drawImage(video,0,0,128,72);
+     return c.getImageData(0,0,128,72).data;
+   }
+   const first=await frameAt(3.1),later=await frameAt(11.4);
+   let diff=0;
+   // Inspect art frame, not just the timer/progress indicator.
+   for(let y=6;y<64;y+=2)for(let x=4;x<82;x+=2){
+     const i=(y*128+x)*4;
+     diff+=Math.abs(first[i]-later[i])+Math.abs(first[i+1]-later[i+1])+Math.abs(first[i+2]-later[i+2]);
+   }
+   return {diff,duration:video.duration};
+ });
+ assert(motion.diff>9000,"Slow camera moves must visibly change artwork frames");
+ assert(motion.duration>=19,"Film should remain approximately 20 seconds");
+
  await page.waitForFunction(()=>{const p=JSON.parse(localStorage.getItem("myeongdo_exhibition_studio_v1")||"[]")[0];return Boolean(p?.artworks?.[0]?.localVideoReady)},null,{timeout:10000});
  const saved=await page.evaluate(async()=>{
    const project=JSON.parse(localStorage.getItem("myeongdo_exhibition_studio_v1"))[0];
@@ -72,7 +115,7 @@ async function main() {
  assert(exported.includes("테스트 수채화"),"Artwork information must appear in downloaded homepage");
 
  assert.deepEqual(pageErrors,[],"No browser JS errors expected");
- console.log("PASS: 20s solo classical piano WAV with matching prompt → 20s synchronized music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
+ console.log("PASS: 20s solo piano soundtrack → measurable cinematic pan-tilt-zoom frame motion → 20s music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
  }finally{await browser.close()}
 }
 main().catch(err=>{console.error(err);process.exitCode=1});
