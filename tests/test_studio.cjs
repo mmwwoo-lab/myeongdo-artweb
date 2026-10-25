@@ -58,6 +58,7 @@ async function main() {
   $("exhibition-video-url").value = "https://example.com/media/exhibition-film.mp4";
   $("exhibition-video-url").dispatchEvent(new w.Event("input",{bubbles:true}));
   $("preview-project").click();
+  await new Promise(resolve=>setTimeout(resolve,80));
   assert(!$("preview-panel").hidden, "Preview must become visible");
   assert($("site-preview").srcdoc.includes("artwork-01.mp4"), "Individual video must be in exported HTML");
   assert($("site-preview").srcdoc.includes("exhibition-film.mp4"), "Exhibition film must be in exported HTML");
