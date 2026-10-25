@@ -20,10 +20,20 @@ async function main() {
  const wav=page.locator('.generated-media a[download$=".wav"]').first();
  await wav.waitFor({state:"visible",timeout:10000});
  assert((await page.locator('.generated-media audio').first().getAttribute("src")).startsWith("blob:"));
+ const musicCheck=await page.evaluate(async()=>{
+   const src=document.querySelector(".generated-media audio").src;
+   const data=new DataView(await (await fetch(src)).arrayBuffer());
+   return {rate:data.getUint32(24,true),bytes:data.getUint32(40,true),total:data.byteLength}
+ });
+ assert.equal(musicCheck.rate,16000,"WAV sample rate");
+ assert.equal(musicCheck.bytes,16000*20*2,"Instrumental WAV must be exactly 20 seconds");
+ assert.equal(musicCheck.total,44+16000*20*2,"WAV header and data length");
+ const prompt=await page.locator('[data-music-prompt]').first().textContent();
+ assert(prompt.includes("instrumental film score, Korean folk motifs, andante tempo"),"Requested music style prompt should appear");
  assert.equal(await video.isDisabled(),false,"Video button must be enabled in Chromium");
  await video.click();
  const result=page.locator('.generated-media a[download$=".webm"],.generated-media a[download$=".mp4"]').first();
- await result.waitFor({state:"visible",timeout:22000});
+ await result.waitFor({state:"visible",timeout:45000});
  const href=await result.getAttribute("href");
  assert(href.startsWith("blob:"));
  const size=await page.evaluate(async url=>(await (await fetch(url)).blob()).size,href);
@@ -49,7 +59,7 @@ async function main() {
  assert(exported.includes("테스트 수채화"),"Artwork information must appear in downloaded homepage");
 
  assert.deepEqual(pageErrors,[],"No browser JS errors expected");
- console.log("PASS: image upload → recorded music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
+ console.log("PASS: 20s WAV with requested prompt → 20s synchronized music video → IndexedDB registration → exhibition preview → standalone HTML with embedded soundtrack video; size="+size);
  }finally{await browser.close()}
 }
 main().catch(err=>{console.error(err);process.exitCode=1});
