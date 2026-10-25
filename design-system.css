@@ -206,3 +206,72 @@ body[data-studio-view="create"] .studio-layout #view-create .quick-hero h2{
 body[data-studio-view="create"] .studio-layout #view-create .quick-hero p{
   color:#4d4263!important;
 }
+
+/* Saved art exhibitions: replace legacy black filters/import controls with lilac. */
+body .studio-layout #view-projects .section-heading{
+  background:linear-gradient(115deg,#f5efff,#fbfaff)!important;
+  border:1px solid #e4d9f2!important;
+  border-radius:12px;padding:18px 20px;margin-bottom:17px;
+}
+body .studio-layout #view-projects .section-heading h2{
+  color:#34274d!important;
+}
+body .studio-layout #view-projects .tool-row{
+  background:#fbf9ff!important;
+  border:1px solid #e3d8f3!important;
+  border-radius:10px;
+  padding:16px;
+  align-items:flex-end;
+}
+body .studio-layout #view-projects .tool-row label{
+  color:#4b3674!important;
+  font-weight:700;
+}
+body .studio-layout #view-projects #projects-new,
+body .studio-layout #view-projects #status-filter,
+body .studio-layout #view-projects #import-json{
+  background:#ebe3fa!important;
+  background-image:none!important;
+  color:#4b3674!important;
+  border:1px solid #d6c5ee!important;
+  border-radius:9px!important;
+}
+body .studio-layout #view-projects #status-filter{
+  min-width:155px;cursor:pointer;
+  color-scheme:light;
+}
+body .studio-layout #view-projects #status-filter option{
+  background:#f7f1ff!important;color:#35264e!important;
+}
+body .studio-layout #view-projects #import-json{
+  max-width:100%;width:min(100%,345px);
+  padding:7px;
+}
+body .studio-layout #view-projects #import-json::file-selector-button,
+body .studio-layout #view-projects #import-json::-webkit-file-upload-button{
+  background:#ebe3fa!important;
+  border:1px solid #cbb8e9!important;
+  border-radius:7px!important;
+  color:#4b3674!important;
+  font-weight:700;
+  padding:8px 12px;
+  margin-right:12px;
+  cursor:pointer;
+}
+body .studio-layout #view-projects #projects-new:hover:not(:disabled),
+body .studio-layout #view-projects #status-filter:hover,
+body .studio-layout #view-projects #import-json::file-selector-button:hover{
+  background:#dfd1f4!important;
+}
+body .studio-layout #view-projects .project-list,
+body .studio-layout #view-projects .project-row{
+  background:#fff!important;
+  color:#293b55!important;
+  border-color:#e1ddec!important;
+}
+body .studio-layout #view-projects .project-info h3{
+  color:#283b56!important;
+}
+body .studio-layout #view-projects .project-info p{
+  color:#576781!important;
+}
