@@ -373,3 +373,66 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
 
 /* Distinct workflow step anchor; the export button retains #quick-finish. */
 #finish-section{scroll-margin-top:26px}
+
+
+/* v12.4 — ALL creation-studio buttons and button-like links use soft lavender.
+   Applied on dashboard, white exhibition editor, projects and help screens. */
+:root{
+  --studio-button-bg:#e8ddfc;
+  --studio-button-hover:#dac7f8;
+  --studio-button-pressed:#d1b9f5;
+  --studio-button-border:#c9b3eb;
+  --studio-button-ink:#503178;
+}
+.studio-layout :is(button, a.primary, a.subtle, a.ghost, a.danger, a.outline-link, a.video-document-link, .generated-media a){
+  background:var(--studio-button-bg)!important;
+  background-image:none!important;
+  border:1px solid var(--studio-button-border)!important;
+  color:var(--studio-button-ink)!important;
+  border-radius:7px;
+  box-shadow:none;
+}
+.studio-layout :is(button, a.primary, a.subtle, a.ghost, a.danger, a.outline-link, a.video-document-link, .generated-media a):not(:disabled):hover{
+  background:var(--studio-button-hover)!important;
+  border-color:#b69adf!important;
+  color:#402364!important;
+}
+.studio-layout :is(button, a.primary, a.subtle, a.ghost, a.danger, a.outline-link, a.video-document-link, .generated-media a):active{
+  background:var(--studio-button-pressed)!important;
+}
+.studio-layout button.active,
+.studio-layout .side-menu button.active{
+  background:#d4c0f6!important;
+  border-color:#a887db!important;
+  color:#412568!important;
+  font-weight:800;
+}
+.studio-layout button:disabled{
+  background:#ede6f8!important;
+  border-color:#d7cbe6!important;
+  color:#786b88!important;
+  opacity:.64;
+  cursor:not-allowed;
+}
+.studio-layout :is(button, a.primary, a.subtle, a.ghost, a.danger, a.outline-link, a.video-document-link, .generated-media a):focus-visible{
+  outline:3px solid #9e7bdb;
+  outline-offset:3px;
+}
+.studio-layout :is(input[type="file"]::file-selector-button, input[type="file"]::-webkit-file-upload-button){
+  background:var(--studio-button-bg)!important;
+  border:1px solid var(--studio-button-border)!important;
+  color:var(--studio-button-ink)!important;
+  padding:7px 12px;
+  border-radius:6px;
+}
+.studio-layout input[type="file"]::file-selector-button:hover{
+  background:var(--studio-button-hover)!important;
+}
+/* Sidebar formerly used white/purple text on dark buttons; use deep-violet on lavender. */
+.studio-layout .side-menu button[data-jump]{
+  color:var(--studio-button-ink)!important;
+}
+.studio-layout .side-menu button[data-jump]:before{
+  color:#704aad;
+}
+/* Keep image/video preview players themselves visually distinct from action buttons. */
