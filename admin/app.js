@@ -244,25 +244,62 @@ async function recordArtworkFilm(w,audioBlob,onProgress){
   let animation=0,timer=0,stopped=false;
   const clean=()=>{cancelAnimationFrame(animation);clearTimeout(timer);frames.getTracks().forEach(track=>track.stop());if(audioTrack)audioTrack.stop();if(context)context.close().catch(()=>{})};
   const artist=($("artist").value||"명도재 전시"),title=w.title||"무제";
+  // Tripod-quality Ken Burns camera path: slow pan, tilt and dolly zoom.
+  // Four five-second shots connected with smoothstep easing (no abrupt jumps).
+  const shots=[
+    {x:-.7,y:.58,z:1.02},{x:.80,y:.34,z:1.085},
+    {x:.60,y:-.75,z:1.035},{x:-.72,y:-.42,z:1.085},
+    {x:-.7,y:.58,z:1.02}
+  ];
+  const pose=t=>{
+    const segment=Math.min(3,Math.floor(t/5));
+    const fraction=Math.max(0,Math.min(1,(t-segment*5)/5));
+    const ease=fraction*fraction*(3-2*fraction);
+    const mix=k=>shots[segment][k]+(shots[segment+1][k]-shots[segment][k])*ease;
+    return {x:mix("x")*30,y:mix("y")*23,z:mix("z")+.008*Math.sin(t*Math.PI/5)};
+  };
   const paint=start=>{
     const frame=now=>{
-      const time=Math.min(duration,(now-start)/1000);
-      ctx.fillStyle="#17251f";ctx.fillRect(0,0,1280,720);
-      ctx.fillStyle="#f1ecdf";ctx.fillRect(35,35,835,650);
-      const scale=Math.min(800/picture.width,615/picture.height)*(1+.028*time/duration);
-      const dw=picture.width*scale,dh=picture.height*scale;
-      ctx.drawImage(picture,452.5-dw/2,360-dh/2,dw,dh);
-      ctx.fillStyle="#d9bc88";ctx.font="28px Georgia, serif";ctx.fillText("MYEONGDOJAE",906,90);
-      ctx.strokeStyle="#8e997d";ctx.beginPath();ctx.moveTo(905,128);ctx.lineTo(1222,128);ctx.stroke();
-      ctx.fillStyle="#ecf0e7";ctx.font="26px sans-serif";ctx.fillText(String(artist).slice(0,15),907,194,310);
-      ctx.font="bold 35px sans-serif";ctx.fillText(String(title).slice(0,16),907,263,310);
-      ctx.fillStyle="#d2d7cf";ctx.font="19px sans-serif";
-      ctx.fillText(String([w.year,w.material].filter(Boolean).join(" · ")).slice(0,28),907,319,310);
+      const time=Math.min(duration,(now-start)/1000),progress=time/duration;
+      const cam=pose(time);
+      // Depth-of-field backdrop: a larger, darkened, blurred copy of the artwork.
+      ctx.fillStyle="#14241d";ctx.fillRect(0,0,1280,720);
+      ctx.save();ctx.filter="blur(32px) brightness(.63) saturate(.82)";
+      const bgScale=Math.max(1280/picture.width,720/picture.height)*1.2;
+      const bgWidth=picture.width*bgScale,bgHeight=picture.height*bgScale;
+      ctx.drawImage(picture,(1280-bgWidth)/2-cam.x*.23,(720-bgHeight)/2-cam.y*.25,bgWidth,bgHeight);
+      ctx.restore();
+      const tone=ctx.createLinearGradient(0,0,1280,0);
+      tone.addColorStop(0,"rgba(14,25,21,.20)");
+      tone.addColorStop(.62,"rgba(14,25,21,.47)");
+      tone.addColorStop(1,"rgba(14,25,21,.82)");
+      ctx.fillStyle=tone;ctx.fillRect(0,0,1280,720);
+      // Original artwork stays complete and undistorted within the gallery frame.
+      const fit=Math.min(730/picture.width,560/picture.height)*cam.z;
+      const width=picture.width*fit,height=picture.height*fit;
+      const x=445+cam.x-width/2,y=350+cam.y-height/2;
+      ctx.save();ctx.shadowColor="rgba(0,0,0,.48)";
+      ctx.shadowBlur=34;ctx.shadowOffsetY=13;
+      ctx.fillStyle="#f5f1e8";ctx.fillRect(x-12,y-12,width+24,height+24);
+      ctx.restore();ctx.drawImage(picture,x,y,width,height);
+      // Stable curatorial captions, independent of the simulated camera move.
+      ctx.fillStyle="rgba(15,29,23,.78)";ctx.fillRect(878,56,352,610);
+      ctx.fillStyle="#ddc394";ctx.font="25px Georgia,serif";ctx.fillText("MYEONGDOJAE",905,107,300);
+      ctx.strokeStyle="rgba(221,195,148,.55)";ctx.beginPath();ctx.moveTo(905,124);ctx.lineTo(1200,124);ctx.stroke();
+      ctx.fillStyle="#eef0e9";ctx.font="23px sans-serif";ctx.fillText(String(artist).slice(0,18),905,180,294);
+      ctx.fillStyle="#fffdf6";ctx.font="bold 31px sans-serif";ctx.fillText(String(title).slice(0,18),905,240,294);
+      ctx.fillStyle="#cad0c5";ctx.font="17px sans-serif";
+      ctx.fillText(String([w.year,w.material].filter(Boolean).join(" · ")).slice(0,30),905,285,294);
+      const caption=String(w.caption||"작품과 클래식 피아노가 만나는 순간").replace(/\s+/g," ");
       ctx.font="17px sans-serif";
-      const description=String(w.caption||"작품과 음악이 만나는 순간").replace(/\s+/g," ");
-      for(let line=0;line<4;line++)ctx.fillText(description.slice(line*18,(line+1)*18),907,415+31*line,304);
-      ctx.fillStyle="#cbb58c";ctx.font="18px sans-serif";ctx.fillText("ARTWORK EXHIBITION FILM",907,644,310);
-      ctx.fillStyle="#cbb58c";ctx.fillRect(907,671,Math.floor(307*time/duration),3);
+      for(let i=0;i<4;i++){const row=caption.slice(i*17,(i+1)*17);if(row)ctx.fillText(row,905,355+i*29,295)}
+      ctx.fillStyle="#dfbd87";ctx.font="14px Georgia,serif";
+      ctx.fillText("CINEMATIC PIANO ART FILM",905,580,300);
+      ctx.font="12px sans-serif";ctx.fillText("SLOW PAN · TILT · ZOOM",905,603,300);
+      ctx.fillStyle="#ffffff30";ctx.fillRect(905,628,294,3);
+      ctx.fillStyle="#dfbd87";ctx.fillRect(905,628,294*progress,3);
+      const fade=Math.min(1,time/.8,(duration-time)/1.1);
+      if(fade<1){ctx.fillStyle="rgba(14,24,19,"+(1-Math.max(0,fade))+")";ctx.fillRect(0,0,1280,720)}
       if(time<duration&&!stopped)animation=requestAnimationFrame(frame);
     };
     animation=requestAnimationFrame(frame);
@@ -383,7 +420,7 @@ function renderWorks(){
   '<label>작품 설명<textarea data-field="caption" rows="3" maxlength="2600" placeholder="작품에 담긴 이야기"></textarea></label>'+
   '<label>작품별 미술평론<textarea data-field="critique" rows="3" maxlength="3500" placeholder="조형 요소, 색채와 상징에 대한 평론"></textarea></label>'+
   '<div class="field-grid"><label>음악 감상 링크 (HTTPS)<input data-field="musicUrl" type="url" placeholder="https://..."></label><label>영상 감상 링크 (HTTPS)<input data-field="videoUrl" type="url" placeholder="https://..."></label></div>'+
-  '</details><div class="work-create-media"><details class="music-style-brief"><summary>적용 음악 스타일 · 20초 클래식 피아노 경음악</summary><p data-music-prompt></p><button type="button" data-act="copy-prompt" class="subtle">Suno 스타일 프롬프트 복사</button><p class="helper">현재 브라우저는 클래식 피아노풍 선율과 아르페지오를 직접 합성합니다. 실제 피아노 녹음이나 Suno AI 작곡과는 다릅니다.</p></details><div class="media-buttons"><button type="button" class="primary execute-artwork" data-act="make-video">▶ 작품 실행 · 음악+영상 제작·등록</button><button type="button" class="subtle" data-act="make-music">음악만 듣기</button></div><p class="work-create-status" data-media-status role="status"></p><div class="generated-media" data-media-output></div><p class="helper">브라우저에서 만든 20초 클래식 피아노 경음악 WAV와 음악이 포함된 20초 작품 영상을 내려받을 수 있습니다. 영상 완성 후 이 브라우저에 자동 등록됩니다. 전시관 미리보기에서 음악과 함께 감상하고, 전시 홈페이지 HTML로 함께 저장할 수 있습니다.</p></div></div></div>';
+  '</details><div class="work-create-media"><p class="cinematic-caption">🎬 영화적 촬영 연출 · 20초 · 천천히 좌우 팬·상하 틸트·줌 · 흐린 배경 · 클래식 피아노</p><details class="music-style-brief"><summary>적용 음악 스타일 · 20초 클래식 피아노 경음악</summary><p data-music-prompt></p><button type="button" data-act="copy-prompt" class="subtle">Suno 스타일 프롬프트 복사</button><p class="helper">현재 브라우저는 클래식 피아노풍 선율과 아르페지오를 직접 합성합니다. 실제 피아노 녹음이나 Suno AI 작곡과는 다릅니다.</p></details><div class="media-buttons"><button type="button" class="primary execute-artwork" data-act="make-video">▶ 작품 실행 · 음악+영상 제작·등록</button><button type="button" class="subtle" data-act="make-music">음악만 듣기</button></div><p class="work-create-status" data-media-status role="status"></p><div class="generated-media" data-media-output></div><p class="helper">20초 클래식 피아노 경음악과 부드러운 팬·틸트·줌 촬영 기법으로 만든 20초 작품 영상을 내려받을 수 있습니다. 영상 완성 후 이 브라우저에 자동 등록됩니다. 전시관 미리보기에서 음악과 함께 감상하고, 전시 홈페이지 HTML로 함께 저장할 수 있습니다.</p></div></div></div>';
   wrap.append(el);
   const badge=el.querySelector("[data-video-status]");
   badge.textContent=videoState(w);
