@@ -125,3 +125,9 @@ body{background:#f7f4ed;color:#2a332e}
 #view-create .panel{border:1px solid #e6dfd3;box-shadow:0 5px 16px #22362a0d}
 #view-create .form-panel .panel-head h3{font:normal 25px Georgia,'Noto Serif KR',serif}
 @media(max-width:800px){.artist-standard-intro{flex-direction:column;align-items:flex-start}.artist-stage-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Artwork registration fields */
+.artwork-meta-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.artwork-meta-fields label{display:block;font-size:12px;font-weight:700;color:#485e51;margin:0}
+.artwork-meta-fields input{width:100%;margin-top:4px;padding:9px;border:1px solid #d9d2c4;border-radius:5px;background:#fff}
+@media(max-width:580px){.artwork-meta-fields{grid-template-columns:1fr}}
