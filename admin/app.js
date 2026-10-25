@@ -577,7 +577,6 @@ async function importProject(e){
 for(const b of document.querySelectorAll("[data-view]"))b.addEventListener("click",()=>show(b.dataset.view));
 for(const b of document.querySelectorAll("[data-open-projects]"))b.addEventListener("click",()=>show("projects"));
 $("start-create").addEventListener("click",()=>{applyForm(freshProject());show("create")});
-$("jump-to-form").addEventListener("click",()=>{$("exhibition-form").scrollIntoView({behavior:"smooth",block:"start"});$("title").focus({preventScroll:true})});
 $("projects-new").addEventListener("click",()=>{applyForm(freshProject());show("create")});
 $("new-project").addEventListener("click",()=>{if(dirty&&!confirm("저장하지 않은 변경을 버리고 새 전시를 시작할까요?"))return;applyForm(freshProject());show("create")});
 $("add-artwork").addEventListener("click",()=>{if(draft.artworks.length>=MAX)return;draft.artworks.push(freshWork());renderWorks();setDirty()});
