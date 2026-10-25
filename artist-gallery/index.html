@@ -8,11 +8,12 @@
 const catalog={
 'kwon-dohoon':{name:'권도훈',genre:'WATERCOLOR',tagline:'수채화의 빛과 음악이 만나는 전시',source:'https://sonu-kwon-dohoon.sino1000.chatgpt.site/'},
 'cha-jeongbo':{name:'차정보',genre:'SCULPTURE',tagline:'나무의 결을 따라 만나는 조각과 음악',source:'https://sonu-cha-jeongbo.sino1000.chatgpt.site/'},
-'roman':{name:'로만 로마니신',genre:'PRINTMAKING',tagline:'조형과 색채, 음악의 대화',source:'https://sonu-roman-review.sino1000.chatgpt.site/'},
-'kama':{name:'카마 잭코프스카',genre:'ART',tagline:'작가의 예술세계를 만나는 전시',source:'https://sonu-kama-review.sino1000.chatgpt.site/'}
+'roman':{name:'로만 로마니신',genre:'PRINTMAKING',tagline:'조형과 색채, 음악의 대화',source:'https://sonu-roman-review.sino1000.chatgpt.site/'}
 };
-const qs=new URLSearchParams(location.search);const key=qs.get('artist')||'kwon-dohoon';const d=catalog[key]||catalog['kwon-dohoon'];const get=id=>document.getElementById(id);
+const qs=new URLSearchParams(location.search);const key=qs.get('artist')||'kwon-dohoon';const d=catalog[key];const get=id=>document.getElementById(id);
+if(!d){location.replace('../#artists')} else {
 get('name').textContent=d.name;get('tagline').textContent=d.tagline;get('bio').textContent=d.name+' 작가의 작품과 음악을 함께 감상하는 명도재 디지털 전시관입니다. 정확한 작가 약력과 작품별 해설은 원본 자료 확인 및 승인 후 게시합니다.';get('source').href=d.source;document.title=d.name+' | MYEONGDOJAE 작가별 전시';
 for(const [k,v] of Object.entries(catalog)){const a=document.createElement('a');a.href='?artist='+encodeURIComponent(k);a.textContent=v.name;if(k===key)a.setAttribute('aria-current','page');get('switcher').append(a)}
 const wrap=get('works-grid');const card=document.createElement('article');card.className='card';const a=document.createElement('div');a.className='art';a.innerHTML='<span class="empty">원작 이미지 등록 대기<br>작가 사용 허락 후 공개</span>';const b=document.createElement('div');b.className='body';const title=document.createElement('h3');title.textContent='작품 등록 준비';const p=document.createElement('p');p.textContent='작품 이미지 · 제목 · 크기 · 연도 · 해설 · 음악 · 영상 정보를 하나의 카드에 연계할 수 있는 표준 포맷입니다.';const btn=document.createElement('a');btn.href=d.source;btn.className='btn';btn.textContent='기존 작품 전시 감상 ↗';btn.target='_blank';btn.rel='noopener noreferrer';b.append(title,p,btn);card.append(a,b);wrap.append(card);
+}
 </script></body></html>
