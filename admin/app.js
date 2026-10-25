@@ -409,6 +409,7 @@ function save(){
  if(index>=0)projects[index]=output;else projects.unshift(output);
  if(!store()){projects=old;notify("브라우저 저장공간이 부족합니다. 이미지를 줄이거나 JSON 백업을 먼저 내려받아 주세요.",true);return false}
  draft=normalize(output);$("project-id").value=id;dirty=false;
+ renderWorks();
  notify("전시가 이 브라우저에 저장되었습니다. 서버에 공개된 것은 아닙니다.");renderProjects();return true
 }
 const download=(filename,body,mime)=>{
@@ -584,7 +585,7 @@ $("batch-artwork-upload").addEventListener("change",async e=>{
  const items=[...(e.target.files||[])];if(!items.length)return;
  const empty=draft.artworks.filter(w=>!w.dataUrl&&!w.title&&!w.caption&&!w.musicUrl&&!w.videoUrl);
  const available=MAX-(draft.artworks.length-empty.length);
- const take=items.slice(0,available+empty.length);
+ const take=items.slice(0,available);
  let added=0,failed=0;
  for(const file of take){
   try{
