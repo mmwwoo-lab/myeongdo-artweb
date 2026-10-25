@@ -55,6 +55,12 @@ let draft=freshProject();
 let dirty=false;
 let currentView="dashboard";
 const locallyGenerated=new Map();
+function discardLocalMedia(id){
+ const entry=locallyGenerated.get(id);
+ if(!entry)return;
+ for(const kind of ["music","video"]){if(entry[kind]?.url)URL.revokeObjectURL(entry[kind].url)}
+ locallyGenerated.delete(id);
+}
 function clearLocalMedia(){
  for(const entry of locallyGenerated.values())for(const kind of ["music","video"]){if(entry[kind]?.url)URL.revokeObjectURL(entry[kind].url)}
  locallyGenerated.clear();
@@ -189,6 +195,7 @@ function updateMediaControls(el,w){
 const notify=(message,bad=false)=>{const n=$("notice");n.textContent=message;n.dataset.kind=bad?"error":"success"};
 const setDirty=()=>{dirty=true};
 function applyForm(p){
+ clearLocalMedia();
  draft=normalize(p)||freshProject();
  for(const [id,key] of Object.entries(fields)){const control=$(id);control.value=draft[key]??""}
  $("project-id").value=draft.id;
@@ -243,7 +250,8 @@ function registerImage(key){
 function videoState(w){
  if(!w.dataUrl)return "이미지 미등록 · 영상 제작 전";
  if(safeLink(w.videoUrl))return "영상 URL 등록됨 · 실제 공개 여부 별도 확인";
- if(w.videoFile)return "Python 영상 제작 완료 · 파일 업로드 대기";
+ if(w.videoFile)return (w.videoStatus||"Python 영상 제작 완료")+" · 파일 업로드 대기";
+ if(w.videoStatus)return w.videoStatus;
  return "작품 이미지 등록 완료 · 영상 제작 대기";
 }
 function renderVideoStats(){
@@ -292,7 +300,8 @@ function renderWorks(){
       const music=locallyGenerated.get(w.id)?.music?.blob||musicForArtwork(w);
       const result=await recordArtworkFilm(w,music);
       storeLocal(w,"video",result.blob,result.extension);
-      w.videoStatus="브라우저 작품 영상 생성 완료";
+      w.videoStatus="브라우저 작품 영상 생성 완료 · 내려받기 필요";
+      setDirty();
       updateMediaControls(el,w);
       notify("작품 "+(i+1)+" 영상이 완성되었습니다. 내려받기 후 웹에 올려 감상 URL을 연결하세요.");
     }catch(err){
@@ -302,12 +311,12 @@ function renderWorks(){
   });
   el.querySelector("[data-art-file]").addEventListener("change",async e=>{
     const file=e.target.files?.[0];if(!file)return;
-    try{w.dataUrl=await fileAsImage(file);w.filename=file.name;renderWorks();setDirty();notify("작품 "+(i+1)+" 이미지를 등록했습니다.")}
+    try{discardLocalMedia(w.id);w.dataUrl=await fileAsImage(file);w.filename=file.name;w.videoStatus="";w.videoFile="";renderWorks();setDirty();notify("작품 "+(i+1)+" 이미지를 등록했습니다.")}
     catch(err){notify(err.message,true)}
   });
   el.querySelector('[data-act="remove"]').addEventListener("click",()=>{
     if(!confirm("이 작품을 전시에서 삭제할까요?"))return;
-    draft.artworks.splice(i,1);renderWorks();setDirty()
+    discardLocalMedia(w.id);draft.artworks.splice(i,1);renderWorks();setDirty()
   });
   el.querySelector('[data-act="up"]').disabled=i===0;
   el.querySelector('[data-act="down"]').disabled=i===draft.artworks.length-1;
