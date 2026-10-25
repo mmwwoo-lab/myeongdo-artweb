@@ -7,8 +7,8 @@
 <meta name="description" content="MYEONGDOJAE 미술작품 전시 홈페이지 제작기. 작가 약력, 작품 이미지, 작품별 설명과 음악·영상을 등록해 개인 전시관을 제작합니다.">
 <meta property="og:title" content="명도재 이명우의 창작실 | 미술작품 전시 홈페이지 제작방">
 <title>명도재 이명우의 창작실 | 미술작품 전시 홈페이지 제작방</title>
-<link rel="stylesheet" href="./style.css?v=10.2.0">
-<script src="./app.js?v=10.2.0" defer></script>
+<link rel="stylesheet" href="./style.css?v=10.3.0">
+<script src="./app.js?v=10.3.0" defer></script>
 </head>
 <body>
 <div class="studio-layout">
@@ -100,7 +100,7 @@
         <label>작가·전시 공식 사이트 (선택)<input id="official-url" type="url" placeholder="https://example.com"></label>
       </div>
 
-      <div class="form-section"><div class="form-section-header split"><div><span>03 · ARTWORKS</span><h2>미술작품 등록</h2><p>작품을 직접 추가하고 정보와 감상 링크를 작품별로 관리합니다. 드래그 대신 위·아래 이동 버튼으로 전시 순서를 바꿀 수 있습니다.</p></div><button id="add-artwork" type="button" class="primary">+ 작품 추가</button></div>
+      <div class="form-section"><div class="form-section-header split"><div><span>03 · ARTWORKS & MEDIA</span><h2>미술작품 등록 · 음악·영상 제작</h2><p>작품 이미지를 등록하면 각 카드의 「음악 만들기」·「영상 만들기」 버튼이 활성화됩니다. 작품 설명·평론을 등록하고, 완성한 파일을 내려받은 뒤 공개 주소를 연결할 수 있습니다.</p></div><button id="add-artwork" type="button" class="primary">+ 작품 추가</button></div>
         <div id="artwork-list" class="artwork-list"></div>
         <div id="artwork-count" class="helper">등록한 작품 0점 · 최대 20점</div>
         <section class="video-production" aria-label="파이썬 영상 제작 · 등록">
@@ -142,6 +142,6 @@
     <div class="panel"><div class="tool-row"><label>상태 <select id="status-filter"><option value="전체">전체</option><option>기획</option><option>제작 중</option><option>검수</option><option>검수 완료</option></select></label><label>백업 파일 가져오기 (JSON) <input type="file" id="import-json" accept=".json,application/json"></label></div><div id="project-list" class="project-list"></div></div>
   </section>
 
-  <section class="view" id="view-guide"><div class="section-heading"><div><span class="eyebrow">USER GUIDE</span><h2>미술작품 전시 홈페이지 사용 방법</h2></div></div><div class="panel guide"><p>작가와 전시 정보를 작성한 후 작품 추가 버튼을 눌러 작품을 등록합니다. 각 작품마다 원본 이미지, 제목, 연도, 재료·크기, 작품 해설과 음악·영상 주소를 따로 저장할 수 있습니다.</p><p><strong>작품 영상 제작:</strong> 작품 등록 후 「영상 제작용 JSON 내려받기」로 자료를 백업하고 Python 영상제작 프로그램에서 MP4를 만듭니다. 출력된 <code>video-manifest.json</code>을 「Python 영상 결과 등록」에서 가져오면 작품별 제작 상태를 확인할 수 있습니다. MP4 파일을 GitHub 또는 영상 저장 서비스에 업로드한 후 링크를 연결해야 전시 홈페이지에서 동영상이 재생됩니다.</p><p>미리보기 버튼으로 전시관의 모습을 확인하고, HTML 파일을 내려받아 배포용 서버나 웹 호스팅에 게시할 수 있습니다. 저장한 작업은 이 브라우저에서 다시 편집할 수 있습니다.</p><p><strong>주의:</strong> 이 제작기는 서버 연동 없이 동작하는 정적 페이지입니다. 입력 내용과 작품 이미지는 사용하는 브라우저에만 저장됩니다. 다른 기기에서 공유·공동 편집하려면 JSON 백업 파일을 전달하거나 별도의 서버가 필요합니다. HTML 다운로드가 공개 배포를 의미하지는 않습니다.</p><p>이전에 저장한 미술 전시 데이터가 있으면 최초 실행 시 구버전에서 복사하여 표시합니다. 다른 종류의 프로젝트는 기존 저장소에서 제거하지 않고, 새 제작기에서 표시하지 않습니다.</p></div></section>
+  <section class="view" id="view-guide"><div class="section-heading"><div><span class="eyebrow">USER GUIDE</span><h2>미술작품 전시 홈페이지 사용 방법</h2></div></div><div class="panel guide"><p>작가와 전시 정보를 작성한 후 작품 추가 버튼을 눌러 작품을 등록합니다. 각 작품마다 원본 이미지, 제목, 연도, 재료·크기, 작품 해설과 음악·영상 주소를 따로 저장할 수 있습니다.</p><p><strong>작품별 제작 버튼:</strong> 작품 이미지를 등록하면 「♫ 음악 만들기」 버튼으로 짧은 기악곡(WAV)을 생성하여 감상·저장할 수 있습니다. 「▶ 영상 만들기」 버튼은 지원하는 브라우저(Chrome·Edge 등)에서 약 7초 분량의 작품 감상 영상(WebM 또는 MP4)을 생성합니다. 생성 파일은 즉시 다운로드해 보관하세요. 브라우저 탭을 닫으면 임시 감상 파일은 사라질 수 있습니다. 공개하려면 완성 파일을 별도 영상·음악 호스팅에 업로드하고 링크를 입력해야 합니다.</p><p><strong>Python 고화질 MP4 제작:</strong> 작품 등록 후 「영상 제작용 JSON 내려받기」로 자료를 백업하고 Python 영상제작 프로그램에서 MP4를 만듭니다. 출력된 <code>video-manifest.json</code>을 「Python 영상 결과 등록」에서 가져오면 작품별 제작 상태를 확인할 수 있습니다. MP4 파일을 GitHub 또는 영상 저장 서비스에 업로드한 후 링크를 연결해야 전시 홈페이지에서 동영상이 재생됩니다.</p><p>미리보기 버튼으로 전시관의 모습을 확인하고, HTML 파일을 내려받아 배포용 서버나 웹 호스팅에 게시할 수 있습니다. 저장한 작업은 이 브라우저에서 다시 편집할 수 있습니다.</p><p><strong>주의:</strong> 이 제작기는 서버 연동 없이 동작하는 정적 페이지입니다. 입력 내용과 작품 이미지는 사용하는 브라우저에만 저장됩니다. 다른 기기에서 공유·공동 편집하려면 JSON 백업 파일을 전달하거나 별도의 서버가 필요합니다. HTML 다운로드가 공개 배포를 의미하지는 않습니다.</p><p>이전에 저장한 미술 전시 데이터가 있으면 최초 실행 시 구버전에서 복사하여 표시합니다. 다른 종류의 프로젝트는 기존 저장소에서 제거하지 않고, 새 제작기에서 표시하지 않습니다.</p></div></section>
 </main></div>
 </body></html>
