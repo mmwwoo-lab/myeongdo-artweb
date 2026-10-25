@@ -54,6 +54,138 @@ let projects=stored.map(normalize).filter(Boolean);
 let draft=freshProject();
 let dirty=false;
 let currentView="dashboard";
+const locallyGenerated=new Map();
+function clearLocalMedia(){
+ for(const entry of locallyGenerated.values())for(const kind of ["music","video"]){if(entry[kind]?.url)URL.revokeObjectURL(entry[kind].url)}
+ locallyGenerated.clear();
+}
+function musicForArtwork(w){
+ const rate=16000,duration=9,frames=rate*duration;
+ const buffer=new ArrayBuffer(44+frames*2),view=new DataView(buffer);
+ const write=(offset,value)=>{for(let i=0;i<value.length;i++)view.setUint8(offset+i,value.charCodeAt(i))};
+ write(0,"RIFF");view.setUint32(4,36+frames*2,true);write(8,"WAVE");write(12,"fmt ");
+ view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);
+ view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);
+ view.setUint16(34,16,true);write(36,"data");view.setUint32(40,frames*2,true);
+ const seed=[...(w.title||w.caption||"명도재")].reduce((sum,c)=>sum+c.charCodeAt(0),0);
+ const root=[196,220,246.94,261.63][seed%4],scale=[0,2,4,7,9,7,4,2,5,7,9,12,9,7,4,2],step=duration/scale.length;
+ for(let n=0;n<frames;n++){
+  const t=n/rate,idx=Math.min(scale.length-1,Math.floor(t/step)),local=(t%step)/step;
+  const freq=root*Math.pow(2,scale[idx]/12);
+  const envelop=Math.pow(Math.sin(Math.PI*Math.min(.995,local)),.6);
+  const melody=.36*Math.sin(2*Math.PI*freq*t)*envelop+.09*Math.sin(2*Math.PI*freq*2*t)*envelop;
+  const chord=.11*Math.sin(2*Math.PI*(root/2)*t)+.07*Math.sin(2*Math.PI*(root*1.25)*t)+.07*Math.sin(2*Math.PI*(root*1.5)*t);
+  const fade=Math.min(1,t/.4,(duration-t)/.65);
+  const value=Math.max(-1,Math.min(1,(melody+chord)*Math.max(0,fade)));
+  view.setInt16(44+n*2,Math.round(value*32767),true);
+ }
+ return new Blob([buffer],{type:"audio/wav"});
+}
+function storeLocal(w,kind,blob,extension){
+ const entry=locallyGenerated.get(w.id)||{};
+ if(entry[kind]?.url)URL.revokeObjectURL(entry[kind].url);
+ entry[kind]={blob,url:URL.createObjectURL(blob),extension};
+ locallyGenerated.set(w.id,entry);
+}
+function supportedVideoMime(){
+ if(typeof MediaRecorder==="undefined"||!HTMLCanvasElement.prototype.captureStream)return "";
+ const types=["video/webm;codecs=vp8,opus","video/webm;codecs=vp8","video/webm","video/mp4;codecs=avc1.42E01E","video/mp4"];
+ return types.find(t=>MediaRecorder.isTypeSupported(t))||"";
+}
+async function recordArtworkFilm(w,audioBlob,onProgress){
+ const mime=supportedVideoMime();
+ if(!mime)throw Error("이 브라우저에서 영상 제작을 지원하지 않습니다. Chrome 또는 Edge에서 다시 시도하거나 Python MP4 제작 기능을 이용하세요.");
+ const picture=new Image();
+ await new Promise((res,rej)=>{picture.onload=res;picture.onerror=()=>rej(Error("등록한 작품 이미지를 열 수 없습니다."));picture.src=w.dataUrl});
+ const canvas=document.createElement("canvas");canvas.width=1280;canvas.height=720;
+ const ctx=canvas.getContext("2d");if(!ctx)throw Error("영상 캔버스를 초기화하지 못했습니다.");
+ const duration=7,framesPerSecond=24;
+ const frames=canvas.captureStream(framesPerSecond);
+ let context=null,source=null,audioTrack=null;
+ try{
+  const Audio=window.AudioContext||window.webkitAudioContext;
+  if(Audio&&audioBlob){
+    try{
+      context=new Audio();
+      const buffer=await context.decodeAudioData(await audioBlob.arrayBuffer());
+      const dest=context.createMediaStreamDestination();
+      source=context.createBufferSource();source.buffer=buffer;source.connect(dest);
+      audioTrack=dest.stream.getAudioTracks()[0]||null;
+      await context.resume();
+    }catch(e){if(context){await context.close().catch(()=>{});context=null;source=null}audioTrack=null}
+  }
+  const stream=new MediaStream([...frames.getVideoTracks(),...(audioTrack?[audioTrack]:[])]);
+  let recorder;
+  try{recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:1800000})}
+  catch(err){throw Error("영상 녹화 기능을 시작할 수 없습니다: "+err.message)}
+  const pieces=[];
+  const result=new Promise((resolve,reject)=>{
+    recorder.ondataavailable=e=>{if(e.data?.size)pieces.push(e.data)};
+    recorder.onerror=e=>reject(Error("영상 제작에 실패했습니다: "+(e.error?.message||"기록 오류")));
+    recorder.onstop=()=>pieces.length?resolve(new Blob(pieces,{type:recorder.mimeType||mime})):reject(Error("빈 영상이 생성되어 저장하지 않았습니다."));
+  });
+  let animation=0,timer=0,stopped=false;
+  const clean=()=>{cancelAnimationFrame(animation);clearTimeout(timer);frames.getTracks().forEach(track=>track.stop());if(audioTrack)audioTrack.stop();if(context)context.close().catch(()=>{})};
+  const artist=($("artist").value||"명도재 전시"),title=w.title||"무제";
+  const paint=start=>{
+    const frame=now=>{
+      const time=Math.min(duration,(now-start)/1000);
+      ctx.fillStyle="#17251f";ctx.fillRect(0,0,1280,720);
+      ctx.fillStyle="#f1ecdf";ctx.fillRect(35,35,835,650);
+      const scale=Math.min(800/picture.width,615/picture.height)*(1+.028*time/duration);
+      const dw=picture.width*scale,dh=picture.height*scale;
+      ctx.drawImage(picture,452.5-dw/2,360-dh/2,dw,dh);
+      ctx.fillStyle="#d9bc88";ctx.font="28px Georgia, serif";ctx.fillText("MYEONGDOJAE",906,90);
+      ctx.strokeStyle="#8e997d";ctx.beginPath();ctx.moveTo(905,128);ctx.lineTo(1222,128);ctx.stroke();
+      ctx.fillStyle="#ecf0e7";ctx.font="26px sans-serif";ctx.fillText(String(artist).slice(0,15),907,194,310);
+      ctx.font="bold 35px sans-serif";ctx.fillText(String(title).slice(0,16),907,263,310);
+      ctx.fillStyle="#d2d7cf";ctx.font="19px sans-serif";
+      ctx.fillText(String([w.year,w.material].filter(Boolean).join(" · ")).slice(0,28),907,319,310);
+      ctx.font="17px sans-serif";
+      const description=String(w.caption||"작품과 음악이 만나는 순간").replace(/\s+/g," ");
+      for(let line=0;line<4;line++)ctx.fillText(description.slice(line*18,(line+1)*18),907,415+31*line,304);
+      ctx.fillStyle="#cbb58c";ctx.font="18px sans-serif";ctx.fillText("ARTWORK EXHIBITION FILM",907,644,310);
+      ctx.fillStyle="#cbb58c";ctx.fillRect(907,671,Math.floor(307*time/duration),3);
+      if(time<duration&&!stopped)animation=requestAnimationFrame(frame);
+    };
+    animation=requestAnimationFrame(frame);
+  };
+  try{
+    ctx.fillStyle="#17251f";ctx.fillRect(0,0,1280,720);
+    recorder.start(1000);
+    if(source)source.start();
+    paint(performance.now());
+    await new Promise(res=>{timer=setTimeout(res,duration*1000)});
+    stopped=true;recorder.stop();
+    const blob=await result;
+    return {blob,extension:mime.includes("mp4")?"mp4":"webm"};
+  }finally{stopped=true;clean()}
+ }catch(err){frames.getTracks().forEach(track=>track.stop());if(context)await context.close().catch(()=>{});throw err}
+}
+function updateMediaControls(el,w){
+ const output=el.querySelector("[data-media-output]"),status=el.querySelector("[data-media-status]");
+ output.replaceChildren();
+ const media=locallyGenerated.get(w.id)||{};
+ const musicButton=el.querySelector('[data-act="make-music"]'),videoButton=el.querySelector('[data-act="make-video"]');
+ musicButton.disabled=!w.dataUrl;
+ videoButton.disabled=!w.dataUrl||!supportedVideoMime();
+ if(!w.dataUrl){status.textContent="먼저 작품 사진을 등록하면 음악·영상 만들기 버튼이 활성화됩니다.";return}
+ const flags=[];
+ if(media.music){
+   flags.push("음악 생성 완료");
+   const audio=document.createElement("audio");audio.controls=true;audio.src=media.music.url;audio.preload="none";
+   const a=document.createElement("a");a.href=media.music.url;a.download=(w.title||"myeongdo-work").replace(/[\\/:*?"<>|]/g,"-")+".wav";a.textContent="↓ 음악 WAV 저장";
+   output.append(audio,a);
+ }
+ if(media.video){
+   flags.push("영상 생성 완료");
+   const video=document.createElement("video");video.controls=true;video.preload="metadata";video.playsInline=true;video.src=media.video.url;
+   const a=document.createElement("a");a.href=media.video.url;a.download=(w.title||"myeongdo-work").replace(/[\\/:*?"<>|]/g,"-")+"."+media.video.extension;a.textContent="↓ 영상 "+media.video.extension.toUpperCase()+" 저장";
+   output.append(video,a);
+ }
+ status.textContent=flags.length?flags.join(" · ")+" · 파일 저장 후 공개 URL을 연결하세요.":(!videoButton.disabled?"작품 등록 완료 · 음악·영상 생성 준비됨":"음악 제작 가능 · 영상은 Chrome/Edge 또는 Python 프로그램 이용");
+}
+
 const notify=(message,bad=false)=>{const n=$("notice");n.textContent=message;n.dataset.kind=bad?"error":"success"};
 const setDirty=()=>{dirty=true};
 function applyForm(p){
@@ -130,7 +262,8 @@ function renderWorks(){
   '<div class="work-info-col"><p class="work-video-status" data-video-status role="status"></p><div class="field-grid"><label>작품 제목<input data-field="title" maxlength="140" placeholder="작품 제목"></label><label>제작연도<input data-field="year" maxlength="50" placeholder="2026"></label><label>재료·기법<input data-field="material" maxlength="140" placeholder="수채화, 캔버스에 유채"></label><label>크기<input data-field="size" maxlength="100" placeholder="72.7 × 60.6 cm"></label></div>'+
   '<label>작품 설명<textarea data-field="caption" rows="3" maxlength="2600" placeholder="작품에 담긴 이야기"></textarea></label>'+
   '<label>작품별 미술평론<textarea data-field="critique" rows="3" maxlength="3500" placeholder="조형 요소, 색채와 상징에 대한 평론"></textarea></label>'+
-  '<div class="field-grid"><label>음악 감상 링크 (HTTPS)<input data-field="musicUrl" type="url" placeholder="https://..."></label><label>영상 감상 링크 (HTTPS)<input data-field="videoUrl" type="url" placeholder="https://..."></label></div></div></div>';
+  '<div class="field-grid"><label>음악 감상 링크 (HTTPS)<input data-field="musicUrl" type="url" placeholder="https://..."></label><label>영상 감상 링크 (HTTPS)<input data-field="videoUrl" type="url" placeholder="https://..."></label></div>'+
+  '<div class="work-create-media"><div class="media-buttons"><button type="button" class="primary" data-act="make-music">♫ 음악 만들기</button><button type="button" class="primary" data-act="make-video">▶ 영상 만들기</button></div><p class="work-create-status" data-media-status role="status"></p><div class="generated-media" data-media-output></div><p class="helper">브라우저에서 생성한 기악 WAV와 7초 작품 영상을 내려받을 수 있습니다. 완성 파일을 웹에 올린 뒤 위의 감상 링크에 주소를 입력하세요. MP4 고화질 제작은 아래 Python 기능을 이용합니다.</p></div></div></div>';
   wrap.append(el);
   const badge=el.querySelector("[data-video-status]");
   badge.textContent=videoState(w);
@@ -142,6 +275,31 @@ function renderWorks(){
     inp.value=w[key]||"";
     inp.addEventListener("input",()=>{w[key]=inp.value;setDirty();if(key==="videoUrl"){badge.textContent=videoState(w);renderVideoStats()}});
   }
+  updateMediaControls(el,w);
+  el.querySelector('[data-act="make-music"]').addEventListener("click",()=>{
+    try{
+      const file=musicForArtwork(w);
+      storeLocal(w,"music",file,"wav");
+      updateMediaControls(el,w);
+      notify("작품 "+(i+1)+"의 기악곡을 만들었습니다. WAV 파일로 저장할 수 있습니다.");
+    }catch(err){notify("음악 생성 오류: "+err.message,true)}
+  });
+  el.querySelector('[data-act="make-video"]').addEventListener("click",async()=>{
+    const button=el.querySelector('[data-act="make-video"]');
+    button.disabled=true;button.textContent="영상 제작 중…";
+    el.querySelector("[data-media-status]").textContent="약 7초 분량의 작품 감상 영상을 녹화하고 있습니다. 제작이 끝날 때까지 편집을 유지하세요.";
+    try{
+      const music=locallyGenerated.get(w.id)?.music?.blob||musicForArtwork(w);
+      const result=await recordArtworkFilm(w,music);
+      storeLocal(w,"video",result.blob,result.extension);
+      w.videoStatus="브라우저 작품 영상 생성 완료";
+      updateMediaControls(el,w);
+      notify("작품 "+(i+1)+" 영상이 완성되었습니다. 내려받기 후 웹에 올려 감상 URL을 연결하세요.");
+    }catch(err){
+      updateMediaControls(el,w);
+      notify("영상 제작 오류: "+err.message,true);
+    }finally{button.textContent="▶ 영상 다시 만들기";button.disabled=!w.dataUrl||!supportedVideoMime()}
+  });
   el.querySelector("[data-art-file]").addEventListener("change",async e=>{
     const file=e.target.files?.[0];if(!file)return;
     try{w.dataUrl=await fileAsImage(file);w.filename=file.name;renderWorks();setDirty();notify("작품 "+(i+1)+" 이미지를 등록했습니다.")}
