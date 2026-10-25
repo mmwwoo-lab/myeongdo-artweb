@@ -471,7 +471,7 @@ function renderWorks(){
   '<label>작품 설명<textarea data-field="caption" rows="3" maxlength="2600" placeholder="작품에 담긴 이야기"></textarea></label>'+
   '<label>작품별 미술평론<textarea data-field="critique" rows="3" maxlength="3500" placeholder="조형 요소, 색채와 상징에 대한 평론"></textarea></label>'+
   '<div class="field-grid"><label>음악 감상 링크 (HTTPS)<input data-field="musicUrl" type="url" placeholder="https://..."></label><label>영상 감상 링크 (HTTPS)<input data-field="videoUrl" type="url" placeholder="https://..."></label></div>'+
-  '</details><div class="work-create-media"><p class="cinematic-caption">🎬 영화적 촬영 연출 · 20초 · 천천히 좌우 팬·상하 틸트·줌 · 흐린 배경 · 클래식 피아노</p><details class="music-style-brief"><summary>적용 음악 스타일 · 20초 클래식 피아노 경음악</summary><p data-music-prompt></p><button type="button" data-act="copy-prompt" class="subtle">Suno 스타일 프롬프트 복사</button><p class="helper">현재 브라우저는 클래식 피아노풍 선율과 아르페지오를 직접 합성합니다. 실제 피아노 녹음이나 Suno AI 작곡과는 다릅니다.</p></details><div class="media-buttons"><button type="button" class="primary execute-artwork" data-act="make-video">▶ 작품 실행 · 음악+영상 제작·등록</button><button type="button" class="subtle" data-act="make-music">음악만 듣기</button></div><p class="work-create-status" data-media-status role="status"></p><div class="generated-media" data-media-output></div><p class="helper">20초 클래식 피아노 경음악과 부드러운 팬·틸트·줌 촬영 기법으로 만든 20초 작품 영상을 내려받을 수 있습니다. 영상 완성 후 이 브라우저에 자동 등록됩니다. 전시관 미리보기에서 음악과 함께 감상하고, 전시 홈페이지 HTML로 함께 저장할 수 있습니다.</p></div></div></div>';
+  '</details><div class="work-create-media"><p class="cinematic-caption">🎬 작품별 음악 랜덤 생성 · 피아노·바이올린·클래식 앙상블 · 20초 감상 영상</p><details class="music-style-brief"><summary>작품별 선택 음악 스타일 · Suno 프롬프트</summary><p data-music-prompt></p><button type="button" data-act="copy-prompt" class="subtle">Suno 스타일 프롬프트 복사</button><p class="helper">피아노 독주·바이올린 독주·클래식 앙상블 가운데 랜덤으로 선택합니다. 작품 제목·이미지에 따라 곡도 달라집니다. 전문 악기 녹음이나 Suno AI 결과가 아닌 브라우저 합성 연주입니다.</p></details><div class="media-buttons"><button type="button" class="primary execute-artwork" data-act="make-video">▶ 작품 실행 · 음악+영상 제작·등록</button><button type="button" class="subtle" data-act="make-music">♫ 음악 만들기 · 랜덤 재생성</button></div><p class="work-create-status" data-media-status role="status"></p><div class="generated-media" data-media-output></div><p class="helper">작품마다 랜덤 악기 구성과 서로 다른 선율을 생성합니다. 20초 팬·틸트·줌 영상을 만들면 생성된 음악을 함께 녹음합니다. 영상 완성 후 이 브라우저에 자동 등록됩니다. 전시관 미리보기에서 음악과 함께 감상하고, 전시 홈페이지 HTML로 함께 저장할 수 있습니다.</p></div></div></div>';
   wrap.append(el);
   const badge=el.querySelector("[data-video-status]");
   badge.textContent=videoState(w);
@@ -495,7 +495,7 @@ function renderWorks(){
       const file=musicForArtwork(w);
       storeLocal(w,"music",file,"wav");
       updateMediaControls(el,w);
-      setDirty();notify("작품 "+(i+1)+"에 어울리는 "+(musicStyleFor(w)?.label||"기악 음악")+"을 생성했습니다. 다시 누르면 다른 악기와 선율로 바뀝니다.");
+      setDirty();notify("작품 "+(i+1)+"에 "+(musicStyleFor(w)?.label||"기악 음악")+"을 생성했습니다. 다시 누르면 다른 악기·선율로 바뀝니다."+(w.localVideoReady?" 기존 영상은 이전 음악입니다. 바꾸려면 영상 만들기를 다시 실행해 주세요.":""));
     }catch(err){notify("음악 생성 오류: "+err.message,true)}
   });
   el.querySelector('[data-act="make-video"]').addEventListener("click",async()=>{
