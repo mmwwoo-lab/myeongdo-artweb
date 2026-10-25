@@ -573,6 +573,26 @@ async function collectLocalFilms(embedded=false){
  }
  return result;
 }
+// HTML in iframe[srcdoc] otherwise resolves #links against /admin/#....
+// Attach navigation from the parent, keeping the iframe sandbox script-free.
+function connectPreviewNavigation(){
+ const iframe=$("site-preview");
+ iframe.addEventListener("load",()=>{
+  let doc;
+  try{doc=iframe.contentDocument}catch{return}
+  if(!doc)return;
+  doc.addEventListener("click",event=>{
+   const link=event.target?.closest?.('a[href^="#"]');
+   if(!link)return;
+   const hash=link.getAttribute("href");
+   if(!/^#[a-zA-Z][a-zA-Z0-9_-]*$/.test(hash))return;
+   const target=doc.getElementById(hash.slice(1));
+   if(!target)return;
+   event.preventDefault();
+   target.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+ });
+}
 async function preview(){
  const p=capture();if(!validProject(p)){notify("전시 제목과 작가 이름을 입력한 뒤 미리보기 하세요.",true);return}
  try{
@@ -819,6 +839,7 @@ $("exhibition-form").addEventListener("submit",e=>{e.preventDefault();save()});
 $("preview-project").addEventListener("click",preview);
 $("download-html").addEventListener("click",downloadHtml);
 $("export-project").addEventListener("click",exportProject);
+connectPreviewNavigation();
 $("hide-preview").addEventListener("click",()=>{$("preview-panel").hidden=true});
 $("import-json").addEventListener("change",importProject);
 $("video-manifest-import").addEventListener("change",importVideoManifest);
