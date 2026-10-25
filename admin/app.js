@@ -414,7 +414,7 @@ function show(view){
  document.body.dataset.studioView=currentView;
  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("visible",s.id==="view-"+currentView));
  document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===currentView&&!el.dataset.jump));
- $("page-heading").textContent=currentView==="create"?"미술작품 전시 홈페이지 만들기":currentView==="projects"?"내 미술 전시 프로젝트":currentView==="guide"?"미술작품 전시 사용 안내":"명도재 이명우의 창작실";
+ $("page-heading").textContent=currentView==="create"?"명도재 이명우 홈페이지 작업실":currentView==="projects"?"내 미술 전시 프로젝트":currentView==="guide"?"미술작품 전시 사용 안내":"명도재 이명우의 창작실";
  history.replaceState(null,"","#"+currentView);
  if(currentView==="projects"||currentView==="dashboard")renderProjects();
  window.scrollTo({top:0,behavior:"smooth"});
