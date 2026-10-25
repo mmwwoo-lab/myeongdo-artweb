@@ -418,7 +418,8 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
   outline:3px solid #9e7bdb;
   outline-offset:3px;
 }
-.studio-layout :is(input[type="file"]::file-selector-button, input[type="file"]::-webkit-file-upload-button){
+.studio-layout input[type="file"]::file-selector-button,
+.studio-layout input[type="file"]::-webkit-file-upload-button{
   background:var(--studio-button-bg)!important;
   border:1px solid var(--studio-button-border)!important;
   color:var(--studio-button-ink)!important;
