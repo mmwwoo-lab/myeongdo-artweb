@@ -363,6 +363,7 @@ function capture(){
 }
 function show(view){
  currentView=["dashboard","create","projects","guide"].includes(view)?view:"dashboard";
+ document.body.dataset.studioView=currentView;
  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("visible",s.id==="view-"+currentView));
  document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===currentView&&!el.dataset.jump));
  $("page-heading").textContent=currentView==="create"?"미술작품 전시 홈페이지 만들기":currentView==="projects"?"내 미술 전시 프로젝트":currentView==="guide"?"미술작품 전시 사용 안내":"명도재 이명우의 창작실";
