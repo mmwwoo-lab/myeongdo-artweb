@@ -7,7 +7,7 @@ const MAX=20;
 const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const safeLink=value=>{try{const u=new URL(String(value||""));return u.protocol==="https:"?u.href:""}catch{return""}};
 const safeImage=value=>typeof value==="string"&&/^data:image\/(?:jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(value)?value:"";
-const freshWork=()=>({id:"work-"+Math.random().toString(36).slice(2,11),title:"",year:"",material:"",size:"",caption:"",critique:"",musicUrl:"",videoUrl:"",videoFile:"",videoStatus:"",localVideoReady:false,dataUrl:"",filename:""});
+const freshWork=()=>({id:"work-"+Math.random().toString(36).slice(2,11),title:"",year:"",material:"",size:"",caption:"",critique:"",musicUrl:"",videoUrl:"",videoFile:"",videoStatus:"",musicStyle:"",musicSeed:0,localVideoReady:false,dataUrl:"",filename:""});
 const freshProject=()=>({id:"",title:"",artist:"",genre:"한국화",status:"기획",subtitle:"",summary:"",biography:"",artistNote:"",contact:"",officialUrl:"",review:"",cover:"",portrait:"",rightsConfirmed:false,exhibitionVideoUrl:"",publicUrl:"",publicPath:"",artworks:[freshWork()],updatedAt:""});
 const fields={"title":"title","artist":"artist","genre":"genre","status":"status","subtitle":"subtitle","summary":"summary","biography":"biography","artist-note":"artistNote","contact":"contact","official-url":"officialUrl","review":"review","exhibition-video-url":"exhibitionVideoUrl"};
 const text=(node,value)=>{node.textContent=value;};
@@ -121,80 +121,127 @@ function clearLocalMedia(){
  for(const entry of locallyGenerated.values())for(const kind of ["music","video"]){if(entry[kind]?.url)URL.revokeObjectURL(entry[kind].url)}
  locallyGenerated.clear();
 }
-const MUSIC_STYLE_PROMPT="Solo classical piano instrumental, gentle lyrical piano light music, andante tempo, expressive rubato, warm acoustic grand piano, delicate right-hand melody, flowing left-hand arpeggios, soft broken chords, romantic classical phrasing, natural piano resonance, intimate recital hall ambience, gradual crescendo, graceful ritardando, bittersweet nostalgia, peaceful hopeful coda, no vocals, no drums, no strings, no brass.";
 const MUSIC_DURATION=20;
+const MUSIC_STYLES=[
+ {id:"piano",label:"피아노 독주",prompt:"Solo classical piano instrumental, gentle lyrical piano light music, andante tempo, expressive rubato, warm acoustic grand piano, delicate right-hand melody, flowing left-hand arpeggios, soft broken chords, romantic classical phrasing, natural piano resonance, intimate recital hall ambience, gradual crescendo, graceful ritardando, bittersweet nostalgia, peaceful hopeful coda, no vocals, no drums, no strings, no brass."},
+ {id:"violin",label:"바이올린 독주",prompt:"Expressive solo violin instrumental, lyrical romantic classical theme, legato bowing, warm sustained string tone, natural vibrato, intimate chamber hall ambience, delicate dynamics and phrasing, graceful melodic movement, reflective and tender character, soft long-note ending, no vocals, no drums."},
+ {id:"classical",label:"클래식 앙상블",prompt:"Romantic chamber classical instrumental, gentle piano arpeggios with lyrical first violin and a warm small string ensemble, expressive orchestral phrasing, rich harmonic movement, cinematic yet intimate classical ambience, gradual swells, natural hall resonance, elegant final cadence, no vocals, no drums."}
+];
+const musicStyleFor=w=>MUSIC_STYLES.find(style=>style.id===w.musicStyle)||null;
+function selectMusicStyle(w){
+ // Every press selects a random instrumental family, avoiding an immediate repeat.
+ const previous=MUSIC_STYLES.findIndex(style=>style.id===w.musicStyle);
+ const candidate=previous<0?Math.floor(Math.random()*MUSIC_STYLES.length):Math.floor(Math.random()*(MUSIC_STYLES.length-1));
+ const index=previous<0?candidate:candidate+(candidate>=previous?1:0);
+ const style=MUSIC_STYLES[index];
+ w.musicStyle=style.id;
+ w.musicSeed=Math.floor(Math.random()*0x100000000)>>>0;
+ return style;
+}
+function artworkMusicHash(w){
+ // Artwork metadata and small samples of uploaded image bytes personalize each score.
+ // Do not scan an entire large data URL; sampled bytes are sufficient for variation.
+ const bytes=String(w.dataUrl||"");
+ const sample=bytes.length?[bytes.slice(30,230),bytes.slice(Math.max(0,Math.floor(bytes.length/2)-100),Math.floor(bytes.length/2)+100),bytes.slice(-200)].join(""):"";
+ const input=[w.id,w.title,w.caption,w.material,w.year,w.filename,sample,w.musicSeed].join("|");
+ let hash=2166136261;
+ for(let i=0;i<input.length;i++){hash^=input.charCodeAt(i);hash=Math.imul(hash,16777619)}
+ return hash>>>0;
+}
 function musicForArtwork(w){
- // Original offline 20-second solo piano light-classical piece.
- // Acoustic piano-like struck harmonic partials; lyrical RH melody,
- // broken-chord LH accompaniment, gentle pedal sustain and hall reflections.
- // This does not call Suno or imitate a professionally sampled grand piano.
- const rate=16000,duration=MUSIC_DURATION,frames=rate*duration;
+ // Original browser-generated MIDI-style synthesis, not sampled studio instruments
+ // or a third-party AI composer. Piano, bowed violin and chamber ensemble have
+ // distinct attack/release, overtone, vibrato and accompaniment structures.
+ const style=selectMusicStyle(w);
+ const seed=artworkMusicHash(w);
+ const rate=16000,frames=MUSIC_DURATION*rate,twoPi=2*Math.PI;
  const buffer=new ArrayBuffer(44+frames*2),view=new DataView(buffer);
  const write=(offset,value)=>{for(let i=0;i<value.length;i++)view.setUint8(offset+i,value.charCodeAt(i))};
  write(0,"RIFF");view.setUint32(4,36+frames*2,true);write(8,"WAVE");write(12,"fmt ");
  view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);
  view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);
  view.setUint16(34,16,true);write(36,"data");view.setUint32(40,frames*2,true);
- const twoPi=2*Math.PI;
- const seed=[...(w.title||w.caption||"명도재")].reduce((sum,c)=>sum+c.charCodeAt(0),0);
- const shift=[0,0,2,-2][seed%4]; // understated individual variation by artwork
- const midiToHz=midi=>440*Math.pow(2,(midi-69)/12);
+ const hashFloat=(shift)=>((seed>>>shift)&255)/255;
+ const isMinor=((seed>>>7)&1)===1;
+ const degrees=isMinor?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11];
+ const tonic=[48,50,52,53,55,57][seed%6];
+ const midi=(degree)=>tonic+degrees[((degree%7)+7)%7]+12*Math.floor(degree/7);
+ const hz=(note)=>440*Math.pow(2,(note-69)/12);
+ const progression=isMinor?[0,5,3,4]:[0,3,4,0];
  const notes=[];
- const add=(midi,start,length,volume,brightness=1)=>notes.push({
-   frequency:midiToHz(midi+shift),start,length,volume,brightness,
-   decay:midi>=70?1.38:midi>=60?1.12:.84
- });
- const bars=[
-   {at:0,end:4.90,arpeggio:[45,52,57,60,64],melody:[[76,.23,.86],[74,1.22,.71],[72,2.01,.86],[71,2.91,.67],[69,3.68,1.04]]}, // Am
-   {at:4.90,end:9.92,arpeggio:[41,48,53,57,60],melody:[[72,.25,.87],[76,1.20,.79],[77,2.12,.96],[76,3.21,.76],[72,4.12,.76]]}, // Fmaj7
-   {at:9.92,end:14.94,arpeggio:[43,50,55,60,64],melody:[[74,.24,.85],[76,1.22,.76],[79,2.17,.95],[76,3.16,.79],[74,4.10,.78]]}, // G/C
-   {at:14.94,end:20,arpeggio:[45,52,57,60,64],melody:[[76,.20,.83],[72,1.23,.78],[71,2.12,.75],[69,3.03,2.05]]} // Am, hopeful coda
+ const add=(degree,time,length,volume,instrument)=>{
+   if(time<0||time>=MUSIC_DURATION)return;
+   notes.push({frequency:hz(midi(degree)),start:time,length:Math.min(length,MUSIC_DURATION-time),
+               volume,instrument});
+ };
+ const variations=[
+  [9,8,7,6,5],[7,9,8,6,7],[9,11,9,8,7],[7,8,9,7,5],
+  [6,8,9,11,9],[11,9,7,6,7]
  ];
- for(let barIndex=0;barIndex<bars.length;barIndex++){
-   const bar=bars[barIndex],barEnd=bar.end;
-   add(bar.arpeggio[0],bar.at+.03,2.32,.19,.65);
-   add(bar.arpeggio[2],bar.at+.14,1.55,.12,.72);
-   let i=0;
-   for(let time=bar.at+.17;time<barEnd-.55;time+=.64){
-     const midi=bar.arpeggio[[1,3,4,3,2,3,4,3][i%8]];
-     const humanized=time+.035*Math.sin(i*2.2+barIndex);
-     add(midi,humanized,.80,barIndex===2?.145:.125,.84);
-     i++;
+ const phrase=variations[(seed>>>12)%variations.length];
+ const tempo=[.82,.94,1.03,1.12][(seed>>>20)%4];
+ for(let bar=0;bar<4;bar++){
+   const time=bar*5,root=progression[bar];
+   const pulse=.58/tempo;
+   if(style.id==="piano"){
+     add(root-7,time+.02,3.6,.19,"piano");
+     for(let n=0;n<9;n++)add(root+[0,2,4,2,1,2,4,2,0][n],time+.17+n*pulse*.93,.75,.14,"piano");
+   }else if(style.id==="violin"){
+     // Bowed melody with quieter low-register bowed chord tones.
+     add(root-7,time+.06,4.60,.10,"strings");
+     add(root+2,time+.15,4.40,.07,"strings");
+     add(root+4,time+.24,4.22,.06,"strings");
+   }else{
+     // Distinct chamber arrangement: piano arpeggios under expressive strings.
+     add(root-7,time+.05,4.60,.12,"strings");
+     add(root+2,time+.15,4.35,.10,"strings");
+     add(root+4,time+.20,4.15,.08,"strings");
+     for(let n=0;n<8;n++)add(root+[0,2,4,2,1,2,4,2][n],time+.13+n*pulse,.78,.085,"piano");
    }
-   for(const [midi,offset,length] of bar.melody){
-     add(midi,bar.at+offset+.038*Math.sin(offset*2.4+barIndex),length,.34,1);
+   for(let i=0;i<5;i++){
+     const rise=((seed>>>(i+bar+3))&1)?1:0;
+     const target=phrase[(i+bar)%phrase.length]+(bar===2?1:0)+(i===4?0:rise);
+     const begin=time+.22+i*.94/tempo+.025*Math.sin(i*2.3+bar);
+     const length=i===4?1.05:.78/tempo;
+     add(target,begin,length,style.id==="piano"?.32:style.id==="violin"?.25:.22,
+       style.id==="piano"?"piano":"violin");
    }
  }
- const room=new Float32Array(frames);
- const delayA=Math.round(rate*.109),delayB=Math.round(rate*.223);
+ const audio=new Float32Array(frames);
+ for(const note of notes){
+   const first=Math.max(0,Math.floor(rate*note.start));
+   const last=Math.min(frames,Math.ceil(rate*(note.start+note.length+(note.instrument==="piano"?.8:.45))));
+   for(let n=first;n<last;n++){
+     const age=n/rate-note.start;
+     if(age<0)continue;
+     const release=age>note.length?Math.exp(-(age-note.length)*(note.instrument==="piano"?4.0:6.0)):1;
+     let wave,env;
+     if(note.instrument==="piano"){
+       env=Math.min(1,age/.009)*Math.exp(-age*1.25)*release;
+       const phase=twoPi*note.frequency*age;
+       wave=.67*Math.sin(phase)+.21*Math.sin(phase*2.002)+.09*Math.sin(phase*3.009)+.025*Math.sin(phase*4.012);
+     }else{
+       const bowed=note.instrument==="violin";
+       env=Math.min(1,age/(bowed?.14:.35))*(bowed?.87+.13*Math.sin(age*twoPi*.37):.9)*release;
+       const mod=bowed?.0042:.0021;
+       const phase=twoPi*note.frequency*(age+mod*Math.sin(twoPi*(bowed?5.4:4.2)*age)/(bowed?5.4:4.2));
+       wave=(bowed?.53:.60)*Math.sin(phase)+.27*Math.sin(2*phase)+.13*Math.sin(3*phase)+.07*Math.sin(4*phase);
+     }
+     audio[n]+=note.volume*env*wave;
+   }
+ }
+ const delayA=Math.round(rate*.117),delayB=Math.round(rate*.239);
  let peak=0;
  for(let n=0;n<frames;n++){
    const t=n/rate;
-   let dry=0;
-   for(const note of notes){
-     const age=t-note.start;
-     if(age<0||age>note.length+1.15)continue;
-     // Hammer attack, resonant decay, and a short key-release tail.
-     const attack=Math.min(1,age/.011);
-     const release=age>note.length?Math.exp(-(age-note.length)*3.8):1;
-     const body=Math.exp(-age*note.decay)*attack*release;
-     const angle=twoPi*note.frequency*age;
-     const piano=(.66*Math.sin(angle)+
-       .235*Math.sin(angle*2.0016)+
-       .090*Math.sin(angle*3.006)+
-       .028*Math.sin(angle*4.011))*note.brightness;
-     dry+=note.volume*body*piano;
-   }
-   const swell=.83+.17*Math.max(0,Math.min(1,(t-7)/10));
-   const ending=t>17.9?Math.max(0,(duration-t)/2.1):1;
-   const hall=(n>=delayA?room[n-delayA]*.11:0)+(n>=delayB?room[n-delayB]*.065:0);
-   const sample=(dry*swell+hall)*ending;
-   room[n]=sample;
-   peak=Math.max(peak,Math.abs(sample));
+   const hall=(n>=delayA?audio[n-delayA]*.105:0)+(n>=delayB?audio[n-delayB]*.062:0);
+   const fadeIn=Math.min(1,t/.35),fadeOut=Math.max(0,Math.min(1,(MUSIC_DURATION-t)/1.9));
+   audio[n]=(audio[n]+hall)*fadeIn*fadeOut;
+   peak=Math.max(peak,Math.abs(audio[n]));
  }
- const volumeScale=peak>0?.84/peak:1;
+ const scale=peak>0?.83/peak:1;
  for(let n=0;n<frames;n++){
-   const value=Math.max(-.96,Math.min(.96,room[n]*volumeScale));
+   const value=Math.max(-.96,Math.min(.96,audio[n]*scale));
    view.setInt16(44+n*2,Math.round(value*32767),true);
  }
  return new Blob([buffer],{type:"audio/wav"});
@@ -339,7 +386,8 @@ function updateMediaControls(el,w){
    const a=document.createElement("a");a.href=media.video.url;a.download=(w.title||"myeongdo-work").replace(/[\\/:*?"<>|]/g,"-")+"."+media.video.extension;a.textContent="↓ 영상 "+media.video.extension.toUpperCase()+" 저장";
    output.append(video,a);
  }
- status.textContent=flags.length?flags.join(" · ")+(w.localVideoReady?" · 전시관에 자동 등록됨":" · 영상 제작 후 자동 등록할 수 있습니다."):(!videoButton.disabled?"작품 사진 등록 완료 · 버튼 한 번으로 음악이 들어간 영상 완성":"음악만 가능 · 영상은 Chrome/Edge 또는 Python 기능 이용");
+ status.textContent=(musicStyleFor(w)?"🎼 "+musicStyleFor(w).label+" · ":"")+(flags.length?flags.join(" · ")+(w.localVideoReady?" · 전시관에 자동 등록됨":" · 영상 제작 후 자동 등록할 수 있습니다."):(!videoButton.disabled?"작품 사진 등록 완료 · 랜덤 악기로 음악·영상 만들기":"음악만 가능 · 영상은 Chrome/Edge 또는 Python 기능 이용"));
+ const prompt=el.querySelector("[data-music-prompt]");if(prompt)prompt.textContent=musicStyleFor(w)?.prompt||"음악 생성 전입니다. 피아노 독주·바이올린 독주·클래식 앙상블 중에서 작품별로 무작위 선택됩니다.";
 }
 
 const notify=(message,bad=false)=>{const n=$("notice");n.textContent=message;n.dataset.kind=bad?"error":"success"};
@@ -435,10 +483,10 @@ function renderWorks(){
     inp.value=w[key]||"";
     inp.addEventListener("input",()=>{w[key]=inp.value;setDirty();if(key==="videoUrl"){badge.textContent=videoState(w);renderVideoStats()}});
   }
-  const promptField=el.querySelector("[data-music-prompt]");if(promptField)promptField.textContent=MUSIC_STYLE_PROMPT;
+  const promptField=el.querySelector("[data-music-prompt]");if(promptField)promptField.textContent=musicStyleFor(w)?.prompt||"음악 만들기를 누르면 피아노·바이올린·클래식 앙상블 중 하나를 랜덤으로 선택합니다. 스타일별 Suno 프롬프트도 제공됩니다.";
   const promptButton=el.querySelector('[data-act="copy-prompt"]');
   if(promptButton)promptButton.addEventListener("click",async()=>{
-    try{await navigator.clipboard.writeText(MUSIC_STYLE_PROMPT);notify("20초 클래식 피아노 경음악 프롬프트를 복사했습니다. Suno 스타일 입력란에 붙여넣으세요.")}
+    try{await navigator.clipboard.writeText(musicStyleFor(w)?.prompt||MUSIC_STYLES[0].prompt);notify("현재 음악 스타일 프롬프트를 복사했습니다. Suno 스타일 입력란에 붙여넣으세요.")}
     catch{notify("브라우저 복사가 제한되었습니다. 화면의 프롬프트를 선택하여 복사하세요.",true)}
   });
   updateMediaControls(el,w);
@@ -447,7 +495,7 @@ function renderWorks(){
       const file=musicForArtwork(w);
       storeLocal(w,"music",file,"wav");
       updateMediaControls(el,w);
-      notify("작품 "+(i+1)+"의 클래식 피아노 경음악을 만들었습니다. WAV 파일로 저장할 수 있습니다.");
+      setDirty();notify("작품 "+(i+1)+"에 어울리는 "+(musicStyleFor(w)?.label||"기악 음악")+"을 생성했습니다. 다시 누르면 다른 악기와 선율로 바뀝니다.");
     }catch(err){notify("음악 생성 오류: "+err.message,true)}
   });
   el.querySelector('[data-act="make-video"]').addEventListener("click",async()=>{
@@ -461,11 +509,11 @@ function renderWorks(){
       storeLocal(w,"video",result.blob,result.extension);
       const persisted=await persistFilm(w.id,result.blob);
       w.localVideoReady=persisted;
-      w.videoStatus=persisted?"음악이 포함된 영상 제작·등록 완료":"영상 생성 완료 · 브라우저 저장 실패";
+      w.videoStatus=persisted?(musicStyleFor(w)?.label||"음악")+" 영상 제작·등록 완료":"영상 생성 완료 · 브라우저 저장 실패";
       setDirty();
       updateMediaControls(el,w);
       renderVideoStats();
-      if(persisted){save();notify("작품 "+(i+1)+" 음악 포함 영상이 전시 프로젝트에 등록됐습니다. 전시관 바로 보기에서 확인하세요.")}
+      if(persisted){save();notify("작품 "+(i+1)+"에 "+(musicStyleFor(w)?.label||"음악")+"을 넣은 영상이 자동 등록됐습니다. 전시관 바로 보기에서 확인하세요.")}
       else notify("영상은 만들어졌지만 브라우저 저장소에 등록하지 못했습니다. 영상 파일을 먼저 내려받아 보관하세요.",true);
     }catch(err){
       updateMediaControls(el,w);
