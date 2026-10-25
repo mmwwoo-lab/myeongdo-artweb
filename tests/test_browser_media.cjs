@@ -27,6 +27,16 @@ async function main() {
  await page.locator(".art-upload-preview img").first().waitFor({state:"visible",timeout:10000});
  await page.locator('[data-field="title"]').first().fill("테스트 수채화");
  const music=page.locator('[data-act="make-music"]').first(),video=page.locator('[data-act="make-video"]').first();
+ const mediaColors=await page.evaluate(()=>{
+   const button=(type)=>{const el=document.querySelector('[data-act="make-'+type+'"]');const css=getComputedStyle(el);return {background:css.backgroundColor,color:css.color}};
+   const ordinary=getComputedStyle(document.querySelector("#add-artwork")).backgroundColor;
+   return {music:button("music"),video:button("video"),ordinary};
+ });
+ for(const [name,style] of Object.entries({music:mediaColors.music,video:mediaColors.video})){
+   assert.equal(style.background,"rgb(224, 245, 199)",name+" button must be pastel lime");
+   assert.equal(style.color,"rgb(16, 16, 16)",name+" button text must be near-black");
+ }
+ assert.equal(mediaColors.ordinary,"rgb(232, 221, 252)","Other buttons must remain pastel lavender");
  assert.equal(await music.isDisabled(),false,"Music button must be enabled once artwork registered");
  await music.click();
  const wav=page.locator('.generated-media a[download$=".wav"]').first();
