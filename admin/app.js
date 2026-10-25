@@ -417,7 +417,7 @@ const download=(filename,body,mime)=>{
  setTimeout(()=>URL.revokeObjectURL(url),1500);
 };
 const slug=str=>String(str||"").normalize("NFKD").replace(/[^a-zA-Z0-9가-힣_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,45)||"exhibition";
-function site(p){
+function site(p,localFilms={}){
  const title=esc(p.title||"미술작품 전시"), artist=esc(p.artist||"작가"), tagline=esc(p.subtitle||"미술작품과 음악이 만나는 디지털 전시");
  const works=p.artworks.filter(w=>w.dataUrl);
  const portrait=safeImage(p.portrait)?'<img class="portrait" src="'+p.portrait+'" alt="'+artist+' 작가 프로필">':"";
@@ -427,9 +427,10 @@ function site(p){
  const fullVideo=safeLink(p.exhibitionVideoUrl);
  const fullVideoHtml=fullVideo?'<section class="section" id="film"><span class="kicker">EXHIBITION FILM</span><h2>전체 전시 영상</h2>'+( /\.(mp4|webm)(?:[?#]|$)/i.test(fullVideo)?'<video controls playsinline preload="metadata" style="width:100%;max-height:75vh" src="'+esc(fullVideo)+'"></video>':'<a class="outside" href="'+esc(fullVideo)+'" target="_blank" rel="noopener noreferrer">전체 전시 영상 감상 ↗</a>')+'</section>':"";
  const each=works.map((w,i)=>{
-  const audio=safeLink(w.musicUrl),video=safeLink(w.videoUrl);
+  const audio=safeLink(w.musicUrl),video=safeLink(w.videoUrl),builtFilm=localFilms[w.id]||"";
   const audioControl=audio&&/\.(mp3|wav|ogg|m4a)(?:[?#]|$)/i.test(audio)?'<audio controls preload="none" src="'+esc(audio)+'"></audio>':"";
-  const player=video&&/\.(mp4|webm)(?:[?#]|$)/i.test(video)?'<video controls playsinline preload="metadata" src="'+esc(video)+'" aria-label="'+esc(w.title||"작품")+' 영상"></video>':"";
+  const filmSource=builtFilm||(video&&/\.(mp4|webm)(?:[?#]|$)/i.test(video)?video:"");
+  const player=filmSource?'<video controls playsinline preload="metadata" src="'+esc(filmSource)+'" aria-label="'+esc(w.title||"작품")+' 음악이 함께 나오는 영상"></video>':"";
   const videoLabel=w.videoFile?'<p class="video-made">Python 영상 제작 완료'+(video?" · 영상 URL 등록됨":" · 영상 파일 업로드 필요")+'</p>':"";
   return '<article class="work" id="work-'+(i+1)+'"><a class="work-image" href="'+w.dataUrl+'" target="_blank" rel="noopener noreferrer" aria-label="작품 이미지 확대"><img loading="lazy" src="'+w.dataUrl+'" alt="'+esc(w.title||"작품 "+(i+1))+'"></a><div class="work-info"><span class="kicker">ARTWORK '+String(i+1).padStart(2,"0")+'</span><h3>'+esc(w.title||"작품 "+(i+1))+'</h3><p class="meta">'+esc([w.year,w.material,w.size].filter(Boolean).join(" · "))+'</p><p class="prose">'+esc(w.caption)+'</p>'+(w.critique?'<div class="critique"><b>작품 평론</b><p class="prose">'+esc(w.critique)+'</p></div>':"")+'<div class="media">'+(audio?'<a href="'+esc(audio)+'" target="_blank" rel="noopener noreferrer">♫ 음악 감상 ↗</a>':"")+(video?'<a href="'+esc(video)+'" target="_blank" rel="noopener noreferrer">▶ 영상 감상 ↗</a>':"")+audioControl+player+videoLabel+'</div></div></article>';
  }).join("");
@@ -445,16 +446,48 @@ function site(p){
  '<section id="contact" class="section"><span class="kicker">INFORMATION</span><h2>전시 안내 · 문의</h2><p class="prose">'+textBlock(p.contact,"문의 안내를 준비 중입니다.")+'</p></section></main>'+
  '<footer>© 2026 MYEONGDOJAE · 명도재 이명우</footer></body></html>';
 }
-function preview(){
- const p=capture();if(!validProject(p)){notify("전시 제목과 작가 이름을 입력한 뒤 미리보기 하세요.",true);return}
- const frame=$("site-preview");frame.srcdoc=site(p);$("preview-panel").hidden=false;$("preview-panel").scrollIntoView({behavior:"smooth",block:"start"});
- notify("미리보기를 생성했습니다. 실제 공개 주소는 발급되지 않습니다.");
+async function collectLocalFilms(embedded=false){
+ const result={};
+ let totalBytes=0;
+ for(const work of draft.artworks){
+  if(!work.localVideoReady)continue;
+  const blob=locallyGenerated.get(work.id)?.video?.blob||await recoverFilm(work.id);
+  if(!blob)continue;
+  if(embedded){
+   totalBytes+=blob.size;
+   if(totalBytes>36*1024*1024)throw Error("전시 동영상 총용량이 36MB를 넘었습니다. 영상을 줄이거나 별도로 업로드해 URL을 입력해 주세요.");
+   result[work.id]=await new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(Error("동영상 파일을 읽을 수 없습니다."));
+    reader.onload=()=>resolve(String(reader.result));
+    reader.readAsDataURL(blob);
+   });
+  }else{
+   const saved=locallyGenerated.get(work.id)?.video?.url;
+   if(saved)result[work.id]=saved;
+   else {storeLocal(work,"video",blob,blob.type.includes("mp4")?"mp4":"webm");result[work.id]=locallyGenerated.get(work.id).video.url}
+  }
+ }
+ return result;
 }
-function downloadHtml(){
+async function preview(){
+ const p=capture();if(!validProject(p)){notify("전시 제목과 작가 이름을 입력한 뒤 미리보기 하세요.",true);return}
+ try{
+  const videos=await collectLocalFilms();
+  const frame=$("site-preview");frame.srcdoc=site(p,videos);$("preview-panel").hidden=false;$("preview-panel").scrollIntoView({behavior:"smooth",block:"start"});
+  notify("전시관 미리보기가 완성됐습니다. 작품의 재생 버튼을 누르면 음악이 포함된 영상을 감상할 수 있습니다.");
+ }catch(err){notify("미리보기 오류: "+err.message,true)}
+}
+async function downloadHtml(){
  const p=capture();if(!validProject(p)){notify("전시 제목과 작가 이름을 입력해 주세요.",true);return}
  if(!p.rightsConfirmed){notify("작품 및 미디어 공개 사용 권한을 확인한 뒤 HTML을 내려받아 주세요.",true);return}
- download("myeongdo-"+slug(p.artist)+"-"+slug(p.title)+".html",site(p),"text/html;charset=utf-8");
- notify("전시 홈페이지 HTML 파일을 내려받았습니다. 웹에 공개하려면 별도로 호스팅해야 합니다.")
+ try{
+  const films=await collectLocalFilms(true);
+  const missing=draft.artworks.filter(w=>w.localVideoReady&&!films[w.id]);
+  if(missing.length)throw Error("등록된 영상 "+missing.length+"개의 원본을 찾지 못했습니다. 영상 재생 상태를 확인해 주세요.");
+  download("myeongdo-"+slug(p.artist)+"-"+slug(p.title)+".html",site(p,films),"text/html;charset=utf-8");
+  notify("완성된 작품 영상이 포함된 전시 홈페이지를 내려받았습니다. 온라인 공개는 HTML 파일의 별도 업로드가 필요합니다.");
+ }catch(err){notify("홈페이지 완성 오류: "+err.message,true)}
 }
 function exportProject(){
  const p=capture();download("myeongdo-exhibition-"+slug(p.title)+".json",JSON.stringify({format:"MYEONGDOJAE-EXHIBITION",version:1,projects:[p]},null,2),"application/json;charset=utf-8");notify("전시 프로젝트 백업 파일을 내려받았습니다.")
@@ -547,6 +580,29 @@ $("jump-to-form").addEventListener("click",()=>{$("exhibition-form").scrollIntoV
 $("projects-new").addEventListener("click",()=>{applyForm(freshProject());show("create")});
 $("new-project").addEventListener("click",()=>{if(dirty&&!confirm("저장하지 않은 변경을 버리고 새 전시를 시작할까요?"))return;applyForm(freshProject());show("create")});
 $("add-artwork").addEventListener("click",()=>{if(draft.artworks.length>=MAX)return;draft.artworks.push(freshWork());renderWorks();setDirty()});
+$("batch-artwork-upload").addEventListener("change",async e=>{
+ const items=[...(e.target.files||[])];if(!items.length)return;
+ const empty=draft.artworks.filter(w=>!w.dataUrl&&!w.title&&!w.caption&&!w.musicUrl&&!w.videoUrl);
+ const available=MAX-(draft.artworks.length-empty.length);
+ const take=items.slice(0,available+empty.length);
+ let added=0,failed=0;
+ for(const file of take){
+  try{
+   const dataUrl=await fileAsImage(file);
+   const work=empty.shift()||freshWork();
+   if(!draft.artworks.includes(work))draft.artworks.push(work);
+   work.title=file.name.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").trim()||"무제";
+   work.dataUrl=dataUrl;work.filename=file.name;added++;
+  }catch{failed++}
+ }
+ renderWorks();setDirty();e.target.value="";
+ notify("사진 "+added+"점 등록 완료"+(failed?" · 처리하지 못한 파일 "+failed+"개":"")+". 작품 실행 버튼을 누르면 음악 영상이 만들어집니다.",failed>0);
+});
+$("quick-preview").addEventListener("click",()=>preview());
+$("quick-finish").addEventListener("click",async()=>{
+ const btn=$("quick-finish");btn.disabled=true;
+ try{await downloadHtml()}finally{btn.disabled=false}
+});
 $("exhibition-form").addEventListener("submit",e=>{e.preventDefault();save()});
 $("preview-project").addEventListener("click",preview);
 $("download-html").addEventListener("click",downloadHtml);
