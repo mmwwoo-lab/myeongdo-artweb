@@ -54,6 +54,11 @@ async function main(){
    assert(artistNamePlacement.samePanel,"Artist name must be inside the portrait panel");
    assert(artistNamePlacement.order,"Artist name input must follow the portrait preview");
    assert(artistNamePlacement.labelled&&artistNamePlacement.visible,"Artist name must remain labelled and visible");
+   const fieldOrder=await page.locator("#view-create .form-section").first().evaluate(section=>
+     Array.from(section.querySelectorAll("#title,#portrait-upload,#artist,#genre,#status")).map(x=>x.id));
+   assert.deepEqual(fieldOrder,["title","portrait-upload","artist","genre","status"],
+      "Basic information fields must proceed title → photo → artist name → genre/status");
+
 
    await page.locator('.side-menu [data-jump="artist-portrait"]').click();
    assert.equal(await page.locator("#portrait-upload").isVisible(),true,"Portrait navigation must reveal visible picker");
