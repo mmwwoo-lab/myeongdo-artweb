@@ -7,7 +7,7 @@
 <meta name="description" content="MYEONGDOJAE 미술작품 전시 홈페이지 제작기. 작가 약력, 작품 이미지, 작품별 설명과 음악·영상을 등록해 개인 전시관을 제작합니다.">
 <meta property="og:title" content="명도재 이명우의 창작실 | 미술작품 전시 홈페이지 제작방">
 <title>명도재 이명우의 창작실 | 미술작품 전시 홈페이지 제작방</title>
-<link rel="stylesheet" href="./style.css?v=12.7.0">
+<link rel="stylesheet" href="./style.css?v=12.9.0">
 <script src="./app.js?v=12.8.0" defer></script>
 <link rel="stylesheet" href="../design-system.css?v=20261026-projects1">
 </head>
@@ -18,6 +18,7 @@
   <nav class="side-menu" aria-label="제작 메뉴">
     <button type="button" data-view="dashboard">대시보드</button>
     <button type="button" data-view="create">새 전시 만들기</button>
+    <button type="button" data-view="create" data-jump="artist-portrait">작가 인물사진 등록</button>
     <button type="button" data-view="create" data-jump="artist-optional">작가 소개 등록</button>
     <button type="button" data-view="create" data-jump="artwork-list">작품 등록</button>
     <button type="button" data-view="create" data-jump="music-controls">음악 만들기</button>
@@ -40,7 +41,7 @@
         <div class="sonu-panel-head"><span class="eyebrow">WORKFLOW</span><h3>전체 제작 작업</h3><span class="sonu-tip">6단계</span></div>
         <div class="sonu-steps">
           <button type="button" data-view="create" data-jump="title"><span class="sonu-step-no">1</span><b>전시 기본정보</b><small>제목 · 분야 · 전시 소개</small></button>
-          <button type="button" data-view="create" data-jump="artist-optional"><span class="sonu-step-no">2</span><b>작가 등록</b><small>약력 · 프로필 · 작가 노트</small></button>
+          <button type="button" data-view="create" data-jump="artist-portrait"><span class="sonu-step-no">2</span><b>작가 등록</b><small>인물사진 · 약력 · 작가 노트</small></button>
           <button type="button" data-view="create" data-jump="artwork-list"><span class="sonu-step-no">3</span><b>작품 등록</b><small>이미지 · 제목 · 해설</small></button>
           <button type="button" data-view="create" data-jump="music-controls"><span class="sonu-step-no">4</span><b>음악 만들기</b><small>작품별 기악곡 생성</small></button>
           <button type="button" data-view="create" data-jump="video-controls"><span class="sonu-step-no">5</span><b>영상 만들기</b><small>작품별 영상 제작</small></button>
@@ -92,9 +93,9 @@
     <div class="quick-hero">
       <span class="eyebrow">MYEONGDOJAE · ONE-CLICK EXHIBITION</span>
       <h2>작가 홈페이지 제작</h2>
-      <p>① 전시 제목·작가 입력 → ② 작품 사진 등록 → ③ <b>작품 실행</b>으로 음악이 포함된 영상 제작·자동 등록 → ④ 전시 홈페이지 완성</p>
+      <p>① 전시 제목·작가 입력 → ② 작가 인물사진·작품 등록 → ③ <b>작품 실행</b>으로 음악이 포함된 영상 제작·자동 등록 → ④ 전시 홈페이지 완성</p>
     </div>
-    <div class="quick-steps"><span>1. 전시명·작가</span><span>2. 작품 사진 등록</span><span>3. 20초 촬영기법 영상 만들기</span><span>4. 전시관 완성</span></div>
+    <div class="quick-steps"><span>1. 전시명·작가</span><span>2. 작가 사진·작품 등록</span><span>3. 20초 촬영기법 영상 만들기</span><span>4. 전시관 완성</span></div>
     <details class="quick-help"><summary>도움말 · 작품 전시 홈페이지 만들기</summary><p>사진만 올려도 시작할 수 있습니다. 작품 정보와 작가 약력, 미술평론, Python 고화질 MP4 제작은 선택 기능입니다. 제작한 동영상은 이 브라우저에 저장되며, 전시 홈페이지를 다운로드하면 생성된 영상을 문서에 포함할 수 있습니다. 온라인 공개는 내려받은 파일을 별도 호스팅에 올려야 합니다.</p></details>
     <form id="exhibition-form" novalidate>
       <input id="project-id" type="hidden">
@@ -110,8 +111,20 @@
         <label>전시 표지 이미지 <span class="hint">선택 · JPG/PNG/WebP</span><input id="cover-upload" type="file" accept="image/jpeg,image/png,image/webp"><div class="image-preview" id="cover-preview">표지 이미지 미등록 · 기본 배경 적용</div></label>
       </div>
 
-      <details class="form-section optional-details" id="artist-optional"><summary>선택 사항 · 작가 약력·작가 노트 입력</summary><div class="form-section-header"><span>02 · ARTIST</span><h2>작가 프로필과 자료</h2><p>작가 약력, 전시 이력, 작가 노트를 입력합니다.</p></div>
-        <label>작가 프로필 사진 <span class="hint">선택</span><input id="portrait-upload" type="file" accept="image/jpeg,image/png,image/webp"><div class="image-preview portrait-preview" id="portrait-preview">프로필 이미지 미등록</div></label>
+      <section class="form-section artist-portrait-section" id="artist-portrait" aria-labelledby="artist-portrait-heading">
+        <div class="form-section-header"><span>02 · ARTIST PORTRAIT</span><h2 id="artist-portrait-heading">작가 인물사진 등록</h2><p>작가 본인의 인물사진을 올리세요. 완성된 개인 작가 홈페이지의 「작가 소개」에 사진이 표시됩니다.</p></div>
+        <div class="artist-photo-layout">
+          <div class="artist-photo-upload">
+            <label for="portrait-upload">작가 인물사진 선택 <span class="hint">JPG · PNG · WebP (25MB 이하)</span></label>
+            <input id="portrait-upload" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="portrait-help">
+            <p id="portrait-help" class="helper">사진을 선택하면 오른쪽에서 확인할 수 있습니다. 다른 사진을 선택하면 교체되며, 등록한 사진은 「프로젝트 저장」으로 보관합니다.</p>
+            <p class="helper">완성된 홈페이지에 사진이 공개되므로 본인이 공개할 수 있는 사진을 등록해 주세요.</p>
+          </div>
+          <div class="image-preview portrait-preview" id="portrait-preview" role="status" aria-live="polite">아직 작가 인물사진이 없습니다 · 사진을 선택해 주세요.</div>
+        </div>
+      </section>
+
+      <details class="form-section optional-details" id="artist-optional"><summary>선택 사항 · 작가 소개·약력·작가 노트 입력</summary><div class="form-section-header"><span>ARTIST PROFILE</span><h2>작가 소개와 이력</h2><p>작가 약력, 전시 이력, 작가 노트를 입력합니다. 인물사진은 위의 「작가 인물사진 등록」에서 등록할 수 있습니다.</p></div>
         <label>작가 소개 · 약력<textarea id="biography" rows="5" maxlength="5500" placeholder="작가 소개, 학력, 전시 경력, 수상 및 주요 활동"></textarea></label>
         <label>작가 노트<textarea id="artist-note" rows="4" maxlength="5500" placeholder="작품을 통해 전하고 싶은 철학과 생각"></textarea></label>
         <label>전시 문의 · 연락처<textarea id="contact" rows="2" maxlength="1300" placeholder="공개를 허락받은 전시 문의 정보만 입력하세요."></textarea></label>
