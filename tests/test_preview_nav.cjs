@@ -32,6 +32,16 @@ async function main(){
      const background=await page.locator(sel).first().evaluate(el=>getComputedStyle(el).backgroundColor);
      assert.equal(background,"rgb(255, 255, 255)",sel+" must use a pure white background");
    }
+   const portraitPlacement=await page.locator("#portrait-upload").evaluate(input=>({
+     parentSection:input.closest(".form-section")?.querySelector(".form-section-header h2")?.textContent,
+     insideCollapsedSection:!!input.closest("details"),
+     visible:!!input.getClientRects().length
+   }));
+   assert.equal(portraitPlacement.parentSection,"전시 기본정보","Artist portrait uploader must be inside basic exhibition information");
+   assert.equal(portraitPlacement.insideCollapsedSection,false,"Portrait upload must not be hidden inside optional artist details");
+   assert.equal(portraitPlacement.visible,true,"Portrait picker must be visible by default");
+   await page.locator('.side-menu [data-jump="artist-portrait"]').click();
+   assert.equal(await page.locator("#portrait-upload").isVisible(),true,"Portrait navigation must reveal visible picker");
    await page.locator('.side-menu [data-jump="artist-optional"]').click();
    assert.equal(await page.locator("#artist-optional").getAttribute("open"),"","Artist navigation must open artist details");
    await page.locator('.side-menu [data-jump="artwork-list"]').click();
@@ -69,9 +79,32 @@ async function main(){
    await page.locator('.side-menu [data-view="create"]:not([data-jump])').click();
    await page.fill("#title","메뉴 연결 시범 전시");
    await page.fill("#artist","작가 시연");
+   // Upload an actual artist portrait, then verify both the editor preview and
+   // embedded photograph in the generated independent gallery preview.
+   const portraitPng=await page.evaluate(()=>{
+      const canvas=document.createElement("canvas");
+      canvas.width=200;canvas.height=260;
+      const ctx=canvas.getContext("2d");
+      ctx.fillStyle="#d3b6ee";ctx.fillRect(0,0,200,260);
+      ctx.fillStyle="#5b4675";ctx.beginPath();ctx.arc(100,90,40,0,Math.PI*2);ctx.fill();
+      ctx.fillRect(57,145,86,88);
+      return canvas.toDataURL("image/png").split(",")[1];
+   });
+   await page.locator("#portrait-upload").setInputFiles({
+      name:"artist-profile.png",mimeType:"image/png",buffer:Buffer.from(portraitPng,"base64")
+   });
+   const portrait=page.locator("#portrait-preview img");
+   await portrait.waitFor({state:"visible",timeout:10000});
+   assert((await portrait.getAttribute("src")).startsWith("data:image/jpeg;base64,"),
+      "Uploaded artist photograph must be previewed as a processed image");
+
    await page.locator("#quick-preview").click();
    const preview=page.frameLocator("#site-preview");
    await preview.locator("#artist").waitFor({state:"attached",timeout:10000});
+   const displayedPortrait=preview.locator("#artist img.portrait");
+   await displayedPortrait.waitFor({state:"visible",timeout:10000});
+   assert((await displayedPortrait.getAttribute("src")).startsWith("data:image/jpeg;base64,"),"Exported artist homepage must contain the registered portrait");
+
    const adminUrl=page.url();
    const initialFrame=await page.locator("#site-preview").evaluate(f=>f.contentWindow.location.href);
    assert.equal(initialFrame,"about:srcdoc","Exhibition preview must be srcdoc");
