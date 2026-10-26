@@ -7,7 +7,7 @@
 <meta name="description" content="MYEONGDOJAE 미술작품 전시 홈페이지 제작기. 작가 약력, 작품 이미지, 작품별 설명과 음악·영상을 등록해 개인 전시관을 제작합니다.">
 <meta property="og:title" content="명도재 이명우의 창작실 | 미술작품 전시 홈페이지 제작방">
 <title>명도재 이명우의 창작실 | 미술작품 전시 홈페이지 제작방</title>
-<link rel="stylesheet" href="./style.css?v=12.9.0">
+<link rel="stylesheet" href="./style.css?v=12.10.0">
 <script src="./app.js?v=12.8.0" defer></script>
 <link rel="stylesheet" href="../design-system.css?v=20261026-projects1">
 </head>
@@ -99,30 +99,29 @@
     <details class="quick-help"><summary>도움말 · 작품 전시 홈페이지 만들기</summary><p>사진만 올려도 시작할 수 있습니다. 작품 정보와 작가 약력, 미술평론, Python 고화질 MP4 제작은 선택 기능입니다. 제작한 동영상은 이 브라우저에 저장되며, 전시 홈페이지를 다운로드하면 생성된 영상을 문서에 포함할 수 있습니다. 온라인 공개는 내려받은 파일을 별도 호스팅에 올려야 합니다.</p></details>
     <form id="exhibition-form" novalidate>
       <input id="project-id" type="hidden">
-      <div class="form-section"><div class="form-section-header"><span>01 · EXHIBITION</span><h2>전시 기본정보</h2><p>완성된 홈페이지 첫 화면에 표시할 내용을 입력합니다.</p></div>
+      <div class="form-section"><div class="form-section-header"><span>01 · EXHIBITION</span><h2>전시 기본정보</h2><p>전시 제목과 작가 이름, 작가 인물사진 등 개인 홈페이지에 표시할 정보를 입력합니다.</p></div>
         <div class="field-grid">
           <label>전시 제목 <em>*필수</em><input id="title" maxlength="120" required placeholder="예: 자연을 바라보며, 나를 돌아보다"></label>
           <label>작가 이름 <em>*필수</em><input id="artist" maxlength="100" required placeholder="예: 홍길동"></label>
           <label>작품 분야<select id="genre"><option>한국화</option><option>서양화</option><option>수채화</option><option>판화</option><option>조각</option><option>사진예술</option><option>공예</option><option>복합매체</option><option>기타 미술</option></select></label>
           <label>진행 상태<select id="status"><option value="기획">기획</option><option value="제작 중">제작 중</option><option value="검수">검수</option><option value="검수 완료">검수 완료</option></select></label>
         </div>
+        <div class="artist-portrait-section" id="artist-portrait" aria-labelledby="artist-portrait-heading">
+          <div class="artist-portrait-heading"><h3 id="artist-portrait-heading">작가 인물사진 등록</h3><p>작가 이름과 함께 인물사진을 등록하세요. 완성된 개인 작가 홈페이지의 「작가 소개」에 사진이 표시됩니다.</p></div>
+          <div class="artist-photo-layout">
+            <div class="artist-photo-upload">
+              <label for="portrait-upload">작가 인물사진 선택 <span class="hint">JPG · PNG · WebP (25MB 이하)</span></label>
+              <input id="portrait-upload" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="portrait-help">
+              <p id="portrait-help" class="helper">사진을 선택하면 미리보기가 나타납니다. 재선택하면 교체되며 「프로젝트 저장」으로 보관할 수 있습니다.</p>
+              <p class="helper">개인 홈페이지에 공개해도 되는 작가 인물사진을 등록해 주세요.</p>
+            </div>
+            <div class="image-preview portrait-preview" id="portrait-preview" role="status" aria-live="polite">아직 작가 인물사진이 없습니다 · 사진을 선택해 주세요.</div>
+          </div>
+        </div>
         <label>전시 부제·한 줄 소개<input id="subtitle" maxlength="180" placeholder="색과 여백, 그리고 음악의 만남"></label>
         <label>전시 소개<textarea id="summary" rows="4" maxlength="3500" placeholder="이번 전시의 주제, 배경과 특징을 소개하세요."></textarea></label>
         <label>전시 표지 이미지 <span class="hint">선택 · JPG/PNG/WebP</span><input id="cover-upload" type="file" accept="image/jpeg,image/png,image/webp"><div class="image-preview" id="cover-preview">표지 이미지 미등록 · 기본 배경 적용</div></label>
       </div>
-
-      <section class="form-section artist-portrait-section" id="artist-portrait" aria-labelledby="artist-portrait-heading">
-        <div class="form-section-header"><span>02 · ARTIST PORTRAIT</span><h2 id="artist-portrait-heading">작가 인물사진 등록</h2><p>작가 본인의 인물사진을 올리세요. 완성된 개인 작가 홈페이지의 「작가 소개」에 사진이 표시됩니다.</p></div>
-        <div class="artist-photo-layout">
-          <div class="artist-photo-upload">
-            <label for="portrait-upload">작가 인물사진 선택 <span class="hint">JPG · PNG · WebP (25MB 이하)</span></label>
-            <input id="portrait-upload" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="portrait-help">
-            <p id="portrait-help" class="helper">사진을 선택하면 오른쪽에서 확인할 수 있습니다. 다른 사진을 선택하면 교체되며, 등록한 사진은 「프로젝트 저장」으로 보관합니다.</p>
-            <p class="helper">완성된 홈페이지에 사진이 공개되므로 본인이 공개할 수 있는 사진을 등록해 주세요.</p>
-          </div>
-          <div class="image-preview portrait-preview" id="portrait-preview" role="status" aria-live="polite">아직 작가 인물사진이 없습니다 · 사진을 선택해 주세요.</div>
-        </div>
-      </section>
 
       <details class="form-section optional-details" id="artist-optional"><summary>선택 사항 · 작가 소개·약력·작가 노트 입력</summary><div class="form-section-header"><span>ARTIST PROFILE</span><h2>작가 소개와 이력</h2><p>작가 약력, 전시 이력, 작가 노트를 입력합니다. 인물사진은 위의 「작가 인물사진 등록」에서 등록할 수 있습니다.</p></div>
         <label>작가 소개 · 약력<textarea id="biography" rows="5" maxlength="5500" placeholder="작가 소개, 학력, 전시 경력, 수상 및 주요 활동"></textarea></label>
