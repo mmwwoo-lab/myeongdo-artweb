@@ -576,3 +576,27 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
   #view-create .artist-photo-layout{grid-template-columns:1fr;gap:14px}
   #view-create .artist-photo-layout #portrait-preview{min-height:185px}
 }
+
+/* Artist's name sits immediately below the portrait upload/preview area. */
+#view-create .artist-portrait-section .artist-name-after-photo{
+  display:block;
+  max-width:480px;
+  margin:17px 0 0;
+  font-size:14px;
+  font-weight:750;
+  color:#412d63!important;
+}
+#view-create .artist-portrait-section .artist-name-after-photo input{
+  display:block;
+  width:100%;
+  margin-top:7px;
+  padding:11px 13px;
+  color:#27364e!important;
+  background:#fff!important;
+  border:1px solid #c8b5e7!important;
+  border-radius:9px!important;
+}
+#view-create .artist-portrait-section .artist-name-after-photo input:focus-visible{
+  outline:3px solid #b49bd8!important;
+  outline-offset:2px;
+}
