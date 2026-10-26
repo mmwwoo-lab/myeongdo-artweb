@@ -572,7 +572,7 @@ const slug=str=>String(str||"").normalize("NFKD").replace(/[^a-zA-Z0-9가-힣_-]
 function site(p,localFilms={}){
  const title=esc(p.title||"미술작품 전시"), artist=esc(p.artist||"작가"), tagline=esc(p.subtitle||"미술작품과 음악이 만나는 디지털 전시");
  const works=p.artworks.filter(w=>w.dataUrl);
- const portrait=safeImage(p.portrait)?'<img class="portrait" src="'+p.portrait+'" alt="'+artist+' 작가 프로필">':"";
+ const portrait=safeImage(p.portrait)?'<figure class="artist-portrait-group"><img class="portrait" src="'+p.portrait+'" alt="'+artist+' 작가 프로필"><figcaption class="artist-photo-name">'+artist+'</figcaption></figure>':"";
  const cover=safeImage(p.cover)?'<img class="cover-image" src="'+p.cover+'" alt="'+title+' 전시 표지">':"";
  const link=safeLink(p.officialUrl)?'<a class="outside" href="'+esc(safeLink(p.officialUrl))+'" target="_blank" rel="noopener noreferrer">작가 공식 사이트 ↗</a>':"";
  const textBlock=(t,def="내용을 준비 중입니다.")=>esc(t||def);
@@ -606,6 +606,11 @@ body{background:#fff!important;color:#26384e}
 .media a:hover,.outside:hover{background:#dfd1f4}
 .media a[href*=".mp4"],.media a[href*=".webm"]{background:#eaf3ff;color:#315273;border-color:#cbdcf0}
 .zoom-hint{background:#f1ecf9eF;color:#41335e}
+.artist-portrait-group{display:flex;flex-direction:column;align-items:center;flex:0 0 190px;width:190px;margin:0}
+.artist-portrait-group .portrait{display:block;width:190px;max-width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:#f5f1fb}
+.artist-photo-name{display:block;width:100%;padding:12px 4px 0;text-align:center;font:700 20px/1.5 system-ui,'Malgun Gothic',sans-serif;color:#3e2c63;word-break:keep-all;overflow-wrap:anywhere}
+@media(max-width:720px){.artist-portrait-group{width:145px;margin:0 0 20px}.artist-portrait-group .portrait{width:145px}.artist-photo-name{font-size:18px}}
+
 footer{background:#f8f9fd;color:#536780;border-top:1px solid #dfe5ef}
 `;
  return '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="description" content="'+esc((p.summary||p.subtitle||"미술작품 전시").slice(0,160))+'"><title>'+title+' | MYEONGDOJAE</title><style>'+stylesheet+'</style></head><body>'+
