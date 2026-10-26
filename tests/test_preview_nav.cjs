@@ -40,6 +40,21 @@ async function main(){
    assert.equal(portraitPlacement.parentSection,"전시 기본정보","Artist portrait uploader must be inside basic exhibition information");
    assert.equal(portraitPlacement.insideCollapsedSection,false,"Portrait upload must not be hidden inside optional artist details");
    assert.equal(portraitPlacement.visible,true,"Portrait picker must be visible by default");
+   const artistNamePlacement=await page.locator("#artist").evaluate(input=>{
+     const portrait=document.querySelector("#artist-portrait");
+     const image=document.querySelector("#portrait-preview");
+     const label=input.closest("label");
+     return {
+       samePanel:portrait.contains(input),
+       order:image.compareDocumentPosition(input)&Node.DOCUMENT_POSITION_FOLLOWING,
+       labelled:label?.textContent.includes("작가 이름"),
+       visible:!!input.getClientRects().length
+     };
+   });
+   assert(artistNamePlacement.samePanel,"Artist name must be inside the portrait panel");
+   assert(artistNamePlacement.order,"Artist name input must follow the portrait preview");
+   assert(artistNamePlacement.labelled&&artistNamePlacement.visible,"Artist name must remain labelled and visible");
+
    await page.locator('.side-menu [data-jump="artist-portrait"]').click();
    assert.equal(await page.locator("#portrait-upload").isVisible(),true,"Portrait navigation must reveal visible picker");
    await page.locator('.side-menu [data-jump="artist-optional"]').click();
