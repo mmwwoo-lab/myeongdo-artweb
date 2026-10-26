@@ -124,6 +124,18 @@ async function main(){
    const displayedPortrait=preview.locator("#artist img.portrait");
    await displayedPortrait.waitFor({state:"visible",timeout:10000});
    assert((await displayedPortrait.getAttribute("src")).startsWith("data:image/jpeg;base64,"),"Exported artist homepage must contain the registered portrait");
+   const portraitCaption=preview.locator("#artist figure.artist-portrait-group figcaption.artist-photo-name");
+   assert.equal(await portraitCaption.textContent(),"작가 시연","Artist name must appear directly under the uploaded portrait");
+   const captionPlacement=await portraitCaption.evaluate(caption=>{
+     const fig=caption.closest("figure");
+     const img=fig?.querySelector("img.portrait");
+     const photo=img?.getBoundingClientRect();
+     const text=caption.getBoundingClientRect();
+     return {isSibling:caption.previousElementSibling===img,below:!!photo&&text.top>=photo.bottom,visible:text.width>0&&text.height>0};
+   });
+   assert(captionPlacement.isSibling&&captionPlacement.below&&captionPlacement.visible,
+      "Artist name must be visibly positioned below the portrait in the exported exhibition website");
+
 
    const adminUrl=page.url();
    const initialFrame=await page.locator("#site-preview").evaluate(f=>f.contentWindow.location.href);
