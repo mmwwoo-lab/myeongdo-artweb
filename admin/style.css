@@ -487,3 +487,92 @@ body[data-studio-view="create"] :is(button,a,input,textarea,select):focus-visibl
 .studio-layout .side-menu button[data-jump="video-controls"]:before{
   color:#4b3674!important;
 }
+
+
+/* Artist portrait uploader lives inside 01 · Exhibition Basic Information. */
+#view-create .artist-portrait-section{
+  scroll-margin-top:28px;
+  margin:20px 0 23px;
+  padding:20px 22px;
+  background:#fbf9ff!important;
+  border:1px solid #dacbed!important;
+  border-radius:12px;
+  color:#283954;
+}
+#view-create .artist-portrait-heading h3{
+  color:#412d63!important;
+  font-size:20px;
+  font-weight:750;
+  line-height:1.35;
+  margin:0 0 5px;
+}
+#view-create .artist-portrait-heading p{
+  color:#56677c!important;
+  font-size:13px;
+  margin:0 0 16px;
+}
+#view-create .artist-photo-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(170px,235px);
+  gap:21px;
+  align-items:start;
+}
+#view-create .artist-photo-upload{
+  min-width:0;
+}
+#view-create .artist-photo-upload label{
+  color:#493569!important;
+  display:block;
+  font-weight:750;
+  margin:0 0 9px;
+}
+#view-create .artist-photo-upload input[type="file"]{
+  display:block;
+  width:100%;
+  padding:12px;
+  margin:0 0 13px;
+  color:#493569!important;
+  border:1px dashed #bca6df!important;
+  background:#f2ebff!important;
+  border-radius:9px;
+  cursor:pointer;
+}
+#view-create .artist-photo-upload input[type="file"]::file-selector-button{
+  background:#e6dcf9!important;
+  border:1px solid #c8b5ea!important;
+  color:#4b3674!important;
+  border-radius:7px;
+  padding:9px 12px;
+  margin-right:10px;
+  font-weight:700;
+}
+#view-create .artist-photo-upload .helper{
+  color:#596b81!important;
+  font-size:12px;
+  margin:0 0 8px;
+}
+#view-create .artist-photo-layout #portrait-preview{
+  min-height:225px;
+  padding:12px;
+  margin:0;
+  color:#6a577f!important;
+  background:#fff!important;
+  border:1px dashed #c6b6df!important;
+  border-radius:10px;
+}
+#view-create .artist-photo-layout #portrait-preview img{
+  width:auto;
+  max-width:100%;
+  max-height:240px;
+  object-fit:contain;
+  border-radius:7px;
+}
+#view-create .artist-photo-layout #portrait-preview button{
+  margin:8px 0 0;
+  justify-self:center;
+}
+@media(max-width:660px){
+  #view-create .artist-portrait-section{padding:16px 14px}
+  #view-create .artist-photo-layout{grid-template-columns:1fr;gap:14px}
+  #view-create .artist-photo-layout #portrait-preview{min-height:185px}
+}
