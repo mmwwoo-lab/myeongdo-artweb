@@ -2,11 +2,7 @@
    각 작품의 이미지와 색채를 다른 SVG로 그리며, 외부 이미지 호스팅에 의존하지 않습니다. */
 (function(){
 "use strict";
-const pal=[
-["#183f49","#8c438b","#f3b54a","#ef6659","#7bb89c"],["#253945","#675584","#ead09b","#c27b55","#6caaa4"],["#142c50","#6448a2","#f6cd66","#e98fbd","#278f93"],["#214452","#7a608a","#eab781","#f28d6f","#7ca9a0"],["#285c56","#5a5793","#f7be49","#ed7f9d","#9ccd79"],["#164659","#41738f","#d7af76","#e885a2","#8bc6ad"],
-["#324e51","#7e4c87","#efaa62","#de6b42","#d8c48a"],["#1b3452","#9a5282","#f5c24b","#e87850","#6ea6a4"],["#4b4a59","#b66c83","#f1cf8c","#67a19c","#aab78d"],["#243c50","#982e51","#f5c36e","#d84758","#528b83"],["#183b55","#4a5baa","#f2ce6a","#e0505f","#f9f3df"],["#19435e","#4b8c94","#eebd68","#c96d7b","#d3e8c6"],
-["#224b55","#8754a1","#e9aa77","#f07f9c","#8eb9ac"],["#2c4d4d","#717a9c","#dcbc70","#f0a774","#86b5a0"],["#213b53","#70539a","#f2b879","#e993a4","#82aab7"],["#315c69","#679ba5","#ebd1aa","#c68ca3","#a5c6c3"],["#303f50","#785580","#eab963","#a16b52","#d3c2a8"]
-];
+const pal=[["#092d6b","#8c19a6","#ffe122","#fa3b65","#00cdb6"],["#113e6c","#7644bd","#ffdf49","#ff7744","#14b6ba"],["#14228b","#a92fde","#ffcf1a","#ff4f9c","#22d7ed"],["#123d79","#bf2f92","#ffc52e","#ff614d","#13d8ac"],["#063f7c","#8521d4","#ffdd18","#ff3d93","#23cb5a"],["#093678","#1567cc","#ffcb24","#ff5791","#19c7a5"],["#153c75","#a220c3","#ffc122","#ff552d","#00c5af"],["#102e91","#e027aa","#ffdf1e","#ff6723","#10cfdd"],["#333b82","#c82e9c","#ffd143","#16c9bd","#f07e41"],["#233480","#cf194f","#ffe123","#f63464","#19c4b5"],["#103998","#334ee3","#ffe221","#f72a62","#f9f9f1"],["#073d8b","#1292b8","#ffd642","#eb3c99","#54eab2"],["#103a75","#a02fde","#ffbc32","#fa3292","#10d5b0"],["#194c7a","#6659de","#ffe031","#ff862e","#0ed3bd"],["#153289","#9731d6","#ffdb28","#fc58a3","#28c3ed"],["#064a8b","#17b8c9","#ffdf7c","#f15ab7","#6af1cd"],["#202f76","#be3698","#ffc62b","#e95b2f","#3bdfae"]];
 const cases={
 "lee-seongdu":["hands","gift","star","mail","flowers","birds"],
 "jeon-jinsik":["pocket","mirage","mother","lily","flag","river"],
@@ -46,12 +42,42 @@ function motif(k,p){
  }
  return z;
 }
+
+/* 촘촘하고 불규칙한 색유리 조각: 작품마다 고정된 패턴으로 재현한다. */
+function richGlass(seed,p){
+ let state=(1234567+seed*80173)>>>0;
+ const rand=()=>{state=(1664525*state+1013904223)>>>0;return state/4294967296};
+ let s='<g opacity=".82">';
+ const step=39;
+ for(let row=-1;row<19;row++)for(let col=-1;col<32;col++){
+   let x=col*step,y=row*step;
+   let jx=3+rand()*11,jy=3+rand()*11;
+   let w=step+rand()*9,h=step+rand()*8;
+   let corner=5+rand()*14;
+   let color=p[Math.floor(rand()*p.length)];
+   let alpha=(.21+rand()*.37).toFixed(2);
+   let d="M"+(x+jx)+" "+y+"L"+(x+w)+" "+(y+rand()*8)+"L"+(x+w-corner/3)+" "+(y+h)+"L"+(x+rand()*9)+" "+(y+h-corner/4)+"Z";
+   s+='<path d="'+d+'" fill="'+color+'" fill-opacity="'+alpha+'" stroke="#161a3b" stroke-opacity=".68" stroke-width="2.5"/>';
+   if(rand()>.82)s+='<path d="M'+(x+7)+' '+(y+6)+'L'+(x+w*.68)+' '+(y+6)+'" stroke="#fff7d1" stroke-opacity=".48" stroke-width="2.3"/>';
+ }
+ return s+'</g>';
+}
+function glassShimmers(seed){
+ let v=(77823+seed*91357)>>>0;
+ const rnd=()=>{v=(1103515245*v+12345)>>>0;return v/4294967296};
+ let out='<g fill="none" stroke="#fffbe5" stroke-linecap="round">';
+ for(let i=0;i<44;i++){
+  let x=(25+rnd()*1150).toFixed(1), y=(25+rnd()*630).toFixed(1), r=2+rnd()*12;
+  out+='<path d="M'+(x-r)+' '+y+'h'+(2*r)+'M'+x+' '+(y-r)+'v'+(2*r)+'" stroke-width="'+(i%3===0?2.8:1.2)+'" opacity="'+(.30+rnd()*.58).toFixed(2)+'"/>';
+ }
+ return out+'</g>';
+}
 function build(slug,index,title){
  const offset=(cases[slug]||[]);const n=Math.max(0,Math.min(offset.length-1,Number(index)||0));const theme=offset[n];const serial=Object.keys(cases).slice(0,Object.keys(cases).indexOf(slug)).reduce((v,s)=>v+cases[s].length,0)+n;const p=pal[serial]||pal[0];
  const base='<defs><linearGradient id="sky" x2="1" y2="1"><stop stop-color="'+p[0]+'"/><stop offset=".48" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[2]+'"/></linearGradient><linearGradient id="train" x2="1" y2=".2"><stop stop-color="'+p[4]+'"/><stop offset=".55" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[0]+'"/></linearGradient><pattern id="mosa" width="79" height="69" patternUnits="userSpaceOnUse"><path d="M0 0H48L79 25V69H36L0 43Z" fill="'+p[2]+'" opacity=".16"/><path d="M0 0 48 0 36 39 0 43Z" fill="'+p[3]+'" opacity=".25"/><path d="M48 0 79 25 36 39Z" fill="'+p[4]+'" opacity=".3"/><path d="M36 39 79 25 79 69H36Z" fill="'+p[1]+'" opacity=".25"/><path d="M0 0H48L79 25V69H36L0 43Z M48 0 36 39 79 25 M36 39V69" stroke="#f4c77b" stroke-width="2" fill="none" opacity=".64"/></pattern><pattern id="facets" width="43" height="41" patternUnits="userSpaceOnUse"><path d="M0 0 43 0 24 19 43 41H0L24 19Z" fill="none" stroke="#eccc78" stroke-width="1.3" opacity=".48"/></pattern><radialGradient id="glow"><stop stop-color="#fff6b7" stop-opacity=".3"/><stop offset="1" stop-color="#fff6b7" stop-opacity="0"/></radialGradient></defs>';
- const bg=R(0,0,1200,680,'url(#sky)')+C(200,170,340,'url(#glow)')+P("M0 125Q270 25 435 125T800 100T1200 115","none",p[2],16)+P("M0 370Q340 210 650 360T1200 270V680H0Z",p[0])+P("M0 520Q410 380 715 490T1200 425V680H0Z",p[4])+R(0,0,1200,680,"url(#mosa)");
+ const bg=R(0,0,1200,680,'url(#sky)')+C(200,170,340,'url(#glow)')+richGlass(serial,p)+P("M0 125Q270 25 435 125T800 100T1200 115","none",p[2],19)+P("M0 370Q340 210 650 360T1200 270V680H0Z",p[0])+P("M0 520Q410 380 715 490T1200 425V680H0Z",p[4])+R(0,0,1200,680,"url(#mosa)");
  const signature='<path d="M22 19H1178V661H22Z" fill="none" stroke="#ffe8ae" stroke-width="7" opacity=".87"/>';
- return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+String(title).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'을 주제로 한 모자이크 디지털 시화">'+base+bg+'<g>'+motif(theme,p)+'</g>'+R(0,0,1200,680,'url(#facets)')+signature+'</svg>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+String(title).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'을 주제로 한 모자이크 디지털 시화">'+base+bg+'<g>'+motif(theme,p)+'</g>'+R(0,0,1200,680,'url(#facets)')+glassShimmers(serial)+signature+'</svg>';
 }
 function render(root,slug,index,title){if(!root)return;root.innerHTML="";const img=document.createElement("img");img.alt=(title||"작품")+" — 작품별 색채 모자이크 디지털 시화";img.loading="eager";img.decoding="async";img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(build(slug,index,title));root.appendChild(img)}
 window.MyeongdoMosaic={render:render,build:build};
