@@ -2,10 +2,10 @@
    각 작품의 이미지와 색채를 다른 SVG로 그리며, 외부 이미지 호스팅에 의존하지 않습니다. */
 (function(){
 "use strict";
-const pal=[["#092d6b","#8c19a6","#ffe122","#fa3b65","#00cdb6"],["#113e6c","#7644bd","#ffdf49","#ff7744","#14b6ba"],["#14228b","#a92fde","#ffcf1a","#ff4f9c","#22d7ed"],["#123d79","#bf2f92","#ffc52e","#ff614d","#13d8ac"],["#063f7c","#8521d4","#ffdd18","#ff3d93","#23cb5a"],["#093678","#1567cc","#ffcb24","#ff5791","#19c7a5"],["#153c75","#a220c3","#ffc122","#ff552d","#00c5af"],["#102e91","#e027aa","#ffdf1e","#ff6723","#10cfdd"],["#333b82","#c82e9c","#ffd143","#16c9bd","#f07e41"],["#233480","#cf194f","#ffe123","#f63464","#19c4b5"],["#103998","#334ee3","#ffe221","#f72a62","#f9f9f1"],["#073d8b","#1292b8","#ffd642","#eb3c99","#54eab2"],["#103a75","#a02fde","#ffbc32","#fa3292","#10d5b0"],["#194c7a","#6659de","#ffe031","#ff862e","#0ed3bd"],["#153289","#9731d6","#ffdb28","#fc58a3","#28c3ed"],["#064a8b","#17b8c9","#ffdf7c","#f15ab7","#6af1cd"],["#202f76","#be3698","#ffc62b","#e95b2f","#3bdfae"]];
+const pal=[["#092d6b","#8c19a6","#ffe122","#fa3b65","#00cdb6"],["#113e6c","#7644bd","#ffdf49","#ff7744","#14b6ba"],["#14228b","#a92fde","#ffcf1a","#ff4f9c","#22d7ed"],["#123d79","#bf2f92","#ffc52e","#ff614d","#13d8ac"],["#063f7c","#8521d4","#ffdd18","#ff3d93","#23cb5a"],["#093678","#1567cc","#ffcb24","#ff5791","#19c7a5"],["#153c75","#a220c3","#ffc122","#ff552d","#00c5af"],["#102e91","#e027aa","#ffdf1e","#ff6723","#10cfdd"],["#333b82","#c82e9c","#ffd143","#16c9bd","#f07e41"],["#233480","#cf194f","#ffe123","#f63464","#19c4b5"],["#103998","#334ee3","#ffe221","#f72a62","#f9f9f1"],["#073d8b","#1292b8","#ffd642","#eb3c99","#54eab2"],["#232e68","#c05b37","#ffd263","#e27387","#5bbca4"],["#171a59","#543ea6","#ffe29b","#e4a4e7","#75cee0"],["#17447f","#b9498c","#f8e5a0","#f37e98","#81c98a"],["#103a75","#a02fde","#ffbc32","#fa3292","#10d5b0"],["#194c7a","#6659de","#ffe031","#ff862e","#0ed3bd"],["#153289","#9731d6","#ffdb28","#fc58a3","#28c3ed"],["#064a8b","#17b8c9","#ffdf7c","#f15ab7","#6af1cd"],["#202f76","#be3698","#ffc62b","#e95b2f","#3bdfae"]];
 const cases={
 "lee-seongdu":["hands","gift","star","mail","flowers","birds"],
-"jeon-jinsik":["pocket","mirage","mother","lily","flag","river"],
+"jeon-jinsik":["pocket","mirage","mother","lily","flag","river","father","moon","fleabane"],
 "gwak-uiyeong":["daughter","tree","couple","mist","bowl"]
 };
 const el=(tag,attrs,children)=>{const a=Object.keys(attrs||{}).map(k=>" "+k+'="'+String(attrs[k]).replace(/"/g,"&quot;")+'"').join("");return "<"+tag+a+">"+(children||"")+"</"+tag+">"};
@@ -34,6 +34,9 @@ function motif(k,p){
  case"lily":z+=hills(p);for(let i=0;i<8;i++){let x=140+i*136,y=350+(i%3)*65;z+=P("M"+x+" 665Q"+(x-34)+" "+(y+135)+" "+x+" "+y,"none","#22614f",9);for(let j=0;j<9;j++){let theta=j*2*Math.PI/9;let xx=x+Math.cos(theta)*55, yy=y+Math.sin(theta)*35;z+=P("M"+x+" "+y+"Q"+(x+Math.cos(theta)*30)+" "+(y+Math.sin(theta)*16)+" "+xx+" "+yy,"none","#df405d",10)}z+=C(x,y,11,light)}break;
  case"flag":z+=hills(p)+P("M340 140V630","none",light,17)+P("M348 150Q610 98 893 153L870 450Q590 387 347 457Z","#f7f3e2","#aab2a8",10)+P("M610 270a100 100 0 1 0 1 0", "none");z+=P("M565 284a76 76 0 1 1 152 0q-76 76 -152 0Z","#db4b5d")+P("M565 284q76 -76 152 0a76 76 0 0 1 -152 0Z","#3865a5");for(let x of [435,735])for(let y of [225,360])z+=R(x,y,68,14,dark,3)+R(x,y+23,68,14,dark,3);break;
  case"river":z+=hills(p)+P("M410 670Q270 550 565 460T840 340T1050 140L1200 160L1200 680Z","#a0cfc4","#efdbba",8);for(let i=0;i<9;i++)z+=P("M"+(420+i*75)+" "+(545+i*10)+"q80 -42 130 -10","none",i%2?light:"#4f9fa3",9);z+=C(1020,120,68,a);break;
+ case"father":z+=hills(p)+P("M135 520L240 340L395 522M145 355L395 355M165 355L355 525M370 355L165 525","none","#573a3c",24)+P("M135 520L240 340L395 522M145 355L395 355M165 355L355 525M370 355L165 525","none","#e3b66b",7)+human(570,275,1.06,p[1])+P("M445 330Q530 255 620 327L675 485L550 515Z",b,"#f8d57d",9)+P("M0 595Q400 460 900 585T1200 535","none",a,11);break;
+ case"moon":z+=hills(p)+C(880,147,115,"#ffe9aa")+C(880,147,108,"#fff6d2")+P("M190 650Q160 480 350 425T580 320","none",v,12)+E(900,570,240,72,"#5a9eaf")+E(900,565,140,29,"#f5e0a1")+P("M520 560L610 490L730 530L650 600Z",p[1],"#f5d687",7)+P("M605 500L625 325","none",a,13)+C(632,319,23,a);break;
+ case"fleabane":z+=hills(p);for(let i=0;i<20;i++){let x=70+i*57,y=350+(i%4)*63;z+=P("M"+x+" "+(y+160)+"Q"+(x-18)+" "+(y+70)+" "+x+" "+y,"none","#316c5a",8)+blossom(x,y,19+(i%3)*7,i%3===0?"#fcece2":i%3===1?"#f8dba5":"#e7b9df")}z+=P("M650 640Q660 445 770 360L850 540Z","#e5a77c","#6d587d",8)+C(1030,165,86,a);break;
  case"daughter":z+=hills(p)+P("M592 630Q560 470 600 240","none",dark,16)+blossom(610,230,150,"#ee83a3")+blossom(385,435,65,light)+blossom(885,420,78,"#f5ba63")+P("M800 245q80 -90 140 -5q-70 85 -140 5Z",p[1])+P("M800 250q-75 95 -141 -1q75 -74 141 1Z",b)+P("M800 247l-14 75","none",dark,5);break;
  case"tree":z+=hills(p)+P("M590 650L582 345L535 215M588 368L680 260M582 411L465 304","none","#544b44",28);for(let i=0;i<18;i++){let theta=i*2*Math.PI/18;z+=C(576+Math.cos(theta)*140,270+Math.sin(theta)*108,44,i%3===0?a:i%3===1?v:b)}z+=C(587,277,90,"#82a78b");break;
  case"couple":z+=P("M0 510Q600 350 1200 470V680H0Z",p[4])+C(1020,158,90,a)+human(480,325,1.03,p[1])+human(680,335,.98,b)+P("M458 645L350 676H568L510 550Z","#382f54")+P("M662 650L610 680H780L708 547Z","#403351");break;
@@ -107,6 +110,9 @@ function frameScene(k,p){
  }else{
   for(let i=0;i<8;i++){let x=30+i*160;z+=P("M"+x+" 585Q"+(x+30)+" 480 "+(x+12)+" 396","none","#203f4b",6);z+=blossom(x+12,397,18+i%3*5,[a,b,"#f9e5a9"][i%3])}
  }
+ if(k==='father'){for(let i=0;i<5;i++)z+=house(50+i*220,412,.56,i%2?'#f3dba6':'#97b6b8',i%2?indigo:b);z+=P("M0 610Q280 480 550 564T1200 573","none",a,13);}
+ if(k==='moon'){for(let i=0;i<12;i++)z+=star(75+i*94,100+(i%4)*48,10+i%3*4,i%2?a:"#fff6bc");z+=P("M0 595Q550 450 1200 583","none","#9ad3da",14);}
+ if(k==='fleabane'){for(let i=0;i<18;i++)z+=blossom(52+i*64,465+(i%4)*27,22+i%3*5,i%2?"#fff9e9":"#dba8e7");}
  if(water.includes(k)){
   for(let i=0;i<18;i++){let x=23+i*69,y=568+(i%3)*22;z+=P("M"+x+" "+y+"q26 -12 50 0","none",i%3?a:"#f5de9a",4)}
  }
@@ -161,6 +167,18 @@ function jewelDetails(k,p){
   for(let i=0;i<8;i++)z+=house(60+i*155,387+(i%2)*23,.55,"#f2d9aa",i%2?b:deep);
   for(let i=0;i<16;i++){let x=55+i*71;z+=P("M"+x+" "+(520+i%3*30)+"q45 -19 75 0","none",i%2?a:white,7)}
   z+=star(990,150,40,a);break;
+ case "father":
+  for(let i=0;i<7;i++)z+=leaf(80+i*163,540,.8,i*37,i%2?a:b);
+  z+=lantern(1000,170,1.4,a)+lantern(1120,220,.9,b);
+  z+=P("M140 575L410 575","none",white,11);break;
+ case "moon":
+  for(let i=0;i<22;i++)z+=star(46+i*52,195+(i%5)*54,8+i%4*3,i%2?white:b);
+  for(let i=0;i<7;i++)z+=P("M"+(620+i*73)+" "+(570+i%2*24)+"q42 -16 79 0","none",white,6);
+  z+=lantern(240,200,.8,a);break;
+ case "fleabane":
+  for(let i=0;i<18;i++)z+=blossom(35+i*68,365+(i%4)*52,17+i%3*7,["#fff9ea","#ffe29e","#f4afd1"][i%3]);
+  for(let i=0;i<8;i++)z+=leaf(105+i*145,564,.54,i*32,v);
+  z+=star(1065,155,48,white);break;
  case "daughter":
   for(let i=0;i<16;i++)z+=blossom(90+i*69,440+(i%4)*42,25+(i%3)*12,["#fb5b9f","#fff1cd","#ffbb3a","#bb6afb"][i%4]);
   z+=star(1040,155,50,white);
