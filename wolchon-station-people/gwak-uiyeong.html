@@ -110,5 +110,9 @@ const stopAudio=clearSpeech;
 el('read').onclick=()=>toggleAudio('poem');
 el('readcomment').onclick=()=>toggleAudio('comment');
 el('stop').onclick=clearSpeech;
+document.querySelector('.mosaic-to-top').addEventListener('click',()=>{
+ clearSpeech();
+ document.querySelectorAll('audio').forEach(a=>{try{a.pause();a.currentTime=0}catch(e){}});
+});
 window.addEventListener('pagehide',clearSpeech);
 el('prev').onclick=()=>{stopAudio();idx=(idx-1+poet.works.length)%poet.works.length;draw()};el('next').onclick=()=>{stopAudio();idx=(idx+1)%poet.works.length;draw()};el('small').onclick=()=>{size=Math.max(12,size-1);draw()};el('large').onclick=()=>{size=Math.min(26,size+1);draw()};draw();window.addEventListener('DOMContentLoaded',()=>{if(window.MyeongdoMosaic){window.MyeongdoMosaic.render(el('poem-mosaic-art'),poet.slug,idx,poet.works[idx]);el('poem-mosaic-label').textContent='「'+poet.works[idx]+'」 · 디지털 모자이크 시화';}});</script></body></html>
