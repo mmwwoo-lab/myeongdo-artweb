@@ -2,11 +2,11 @@
    각 작품의 이미지와 색채를 다른 SVG로 그리며, 외부 이미지 호스팅에 의존하지 않습니다. */
 (function(){
 "use strict";
-const pal=[["#092d6b","#8c19a6","#ffe122","#fa3b65","#00cdb6"],["#113e6c","#7644bd","#ffdf49","#ff7744","#14b6ba"],["#14228b","#a92fde","#ffcf1a","#ff4f9c","#22d7ed"],["#123d79","#bf2f92","#ffc52e","#ff614d","#13d8ac"],["#063f7c","#8521d4","#ffdd18","#ff3d93","#23cb5a"],["#093678","#1567cc","#ffcb24","#ff5791","#19c7a5"],["#153c75","#a220c3","#ffc122","#ff552d","#00c5af"],["#102e91","#e027aa","#ffdf1e","#ff6723","#10cfdd"],["#333b82","#c82e9c","#ffd143","#16c9bd","#f07e41"],["#233480","#cf194f","#ffe123","#f63464","#19c4b5"],["#103998","#334ee3","#ffe221","#f72a62","#f9f9f1"],["#073d8b","#1292b8","#ffd642","#eb3c99","#54eab2"],["#232e68","#c05b37","#ffd263","#e27387","#5bbca4"],["#171a59","#543ea6","#ffe29b","#e4a4e7","#75cee0"],["#17447f","#b9498c","#f8e5a0","#f37e98","#81c98a"],["#103a75","#a02fde","#ffbc32","#fa3292","#10d5b0"],["#194c7a","#6659de","#ffe031","#ff862e","#0ed3bd"],["#153289","#9731d6","#ffdb28","#fc58a3","#28c3ed"],["#064a8b","#17b8c9","#ffdf7c","#f15ab7","#6af1cd"],["#202f76","#be3698","#ffc62b","#e95b2f","#3bdfae"]];
+const pal=[["#092d6b","#8c19a6","#ffe122","#fa3b65","#00cdb6"],["#113e6c","#7644bd","#ffdf49","#ff7744","#14b6ba"],["#14228b","#a92fde","#ffcf1a","#ff4f9c","#22d7ed"],["#123d79","#bf2f92","#ffc52e","#ff614d","#13d8ac"],["#063f7c","#8521d4","#ffdd18","#ff3d93","#23cb5a"],["#093678","#1567cc","#ffcb24","#ff5791","#19c7a5"],["#153c75","#a220c3","#ffc122","#ff552d","#00c5af"],["#102e91","#e027aa","#ffdf1e","#ff6723","#10cfdd"],["#333b82","#c82e9c","#ffd143","#16c9bd","#f07e41"],["#233480","#cf194f","#ffe123","#f63464","#19c4b5"],["#103998","#334ee3","#ffe221","#f72a62","#f9f9f1"],["#073d8b","#1292b8","#ffd642","#eb3c99","#54eab2"],["#232e68","#c05b37","#ffd263","#e27387","#5bbca4"],["#171a59","#543ea6","#ffe29b","#e4a4e7","#75cee0"],["#17447f","#b9498c","#f8e5a0","#f37e98","#81c98a"],["#103a75","#a02fde","#ffbc32","#fa3292","#10d5b0"],["#194c7a","#6659de","#ffe031","#ff862e","#0ed3bd"],["#153289","#9731d6","#ffdb28","#fc58a3","#28c3ed"],["#064a8b","#17b8c9","#ffdf7c","#f15ab7","#6af1cd"],["#202f76","#be3698","#ffc62b","#e95b2f","#3bdfae"],["#0a1d58","#50318d","#ffcf6a","#a6a1f5","#1ba8c6"]];
 const cases={
 "lee-seongdu":["hands","gift","star","mail","flowers","birds"],
 "jeon-jinsik":["pocket","mirage","mother","lily","flag","river","father","moon","fleabane"],
-"gwak-uiyeong":["daughter","tree","couple","mist","bowl"]
+"gwak-uiyeong":["daughter","tree","couple","mist","bowl","sonstar"]
 };
 const el=(tag,attrs,children)=>{const a=Object.keys(attrs||{}).map(k=>" "+k+'="'+String(attrs[k]).replace(/"/g,"&quot;")+'"').join("");return "<"+tag+a+">"+(children||"")+"</"+tag+">"};
 const C=(x,y,r,f,stroke)=>'<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+f+'"'+(stroke?' stroke="'+stroke+'" stroke-width="6"':'')+'/>';
@@ -42,6 +42,15 @@ function motif(k,p){
  case"couple":z+=P("M0 510Q600 350 1200 470V680H0Z",p[4])+C(1020,158,90,a)+human(480,325,1.03,p[1])+human(680,335,.98,b)+P("M458 645L350 676H568L510 550Z","#382f54")+P("M662 650L610 680H780L708 547Z","#403351");break;
  case"mist":z+=hills(p)+P("M0 505Q260 430 470 500T930 485T1200 510V680H0Z","#6fa4a4");for(let i=0;i<6;i++){let y=220+i*66;z+=P("M-70 "+y+"Q260 "+(y-90)+" 555 "+y+"T1270 "+(y-40),"none",i%2?"#e9e3d5":"#bcd6d1",27)}z+=bird(780,195,55)+bird(905,215,42);break;
  case"bowl":z+=hills(p)+C(990,185,105,a)+E(585,514,300,85,"#5c5157")+P("M290 490Q310 640 585 645Q860 630 879 490Z","#f5f0df","#baa786",12)+E(585,489,290,71,"#e8e5cc")+E(585,492,255,49,"#f2edd8")+P("M520 325q-50 -75 25 -145M610 345q-50 -70 25 -145","none","#dfd6ca",18);break;
+ case"sonstar":
+  z+=hills(p)+P("M0 540Q230 460 470 515T1200 460V680H0Z",p[0]);
+  z+=C(875,164,125,"#ffe5ad")+star(875,164,117,"#fff2d7");
+  for(let i=0;i<17;i++)z+=star(80+(i*109)%1050,85+(i*67)%300,8+i%3*7,i%3===0?"#fff6cd":i%3===1?a:"#7ac5ea");
+  z+=human(404,370,.86,p[1])+human(562,388,.73,p[4]);
+  z+=P("M470 570Q480 522 536 530","none","#f7ca9a",14);
+  z+=P("M0 630Q450 565 1200 625","none","#e3b5ed",9);
+  z+=P("M200 530Q295 430 340 330","none","#d7baec",11);
+  break;
  }
  return z;
 }
@@ -110,6 +119,7 @@ function frameScene(k,p){
  }else{
   for(let i=0;i<8;i++){let x=30+i*160;z+=P("M"+x+" 585Q"+(x+30)+" 480 "+(x+12)+" 396","none","#203f4b",6);z+=blossom(x+12,397,18+i%3*5,[a,b,"#f9e5a9"][i%3])}
  }
+ if(k==='sonstar'){for(let i=0;i<7;i++)z+=star(125+i*145,105+(i%3)*51,15+i%3*6,i%2?"#fff1cd":"#e0a9fd");z+=P("M0 590Q345 505 780 590T1200 555","none","#f3daaf",8);}
  if(k==='father'){for(let i=0;i<5;i++)z+=house(50+i*220,412,.56,i%2?'#f3dba6':'#97b6b8',i%2?indigo:b);z+=P("M0 610Q280 480 550 564T1200 573","none",a,13);}
  if(k==='moon'){for(let i=0;i<12;i++)z+=star(75+i*94,100+(i%4)*48,10+i%3*4,i%2?a:"#fff6bc");z+=P("M0 595Q550 450 1200 583","none","#9ad3da",14);}
  if(k==='fleabane'){for(let i=0;i<18;i++)z+=blossom(52+i*64,465+(i%4)*27,22+i%3*5,i%2?"#fff9e9":"#dba8e7");}
@@ -198,6 +208,12 @@ function jewelDetails(k,p){
   for(let i=0;i<7;i++)z+=house(85+i*164,405,.56,"#f9dcb2",i%2?indigo:deep);
   z+=lantern(215,185,1.4,b)+lantern(985,210,1.5,a);
   for(let i=0;i<8;i++)z+=P("M"+(215+i*105)+" 580q40 -20 73 0","none",white,8);break;
+ case "sonstar":
+  for(let i=0;i<17;i++)z+=star(60+(i*91)%1080,100+(i*83)%400,7+i%3*5,i%3?a:white);
+  for(let i=0;i<11;i++)z+=P("M"+(80+i*113)+" "+(560+i%3*25)+"q48 -31 96 0","none",i%2?white:"#a9d4ef",4);
+  for(let i=0;i<8;i++)z+=leaf(90+i*142,585,.46,i*33,i%2?b:v);
+  z+=lantern(960,290,1.4,a);
+  break;
  }
  return z;
 }
