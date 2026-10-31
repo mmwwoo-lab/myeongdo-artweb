@@ -72,12 +72,123 @@ function glassShimmers(seed){
  }
  return out+'</g>';
 }
+
+/* 세부 풍경 보강: 원근감 있는 공간, 손에 잡히는 생활 사물, 꽃·나뭇잎·도시·빛의 리듬을 묘사한다. */
+function house(x,y,s,wall,roof){
+ return '<g transform="translate('+x+' '+y+') scale('+s+')">'+
+ P("M-75 0L0 -62L75 0Z",roof,"#241f42",7)+R(-66,0,132,103,wall,4)+R(-10,34,30,69,"#423153",4)+
+ R(-49,21,27,27,"#ffe3a4",3)+R(27,21,27,27,"#ffe3a4",3)+
+ P("M-35 21V48M41 21V48","none","#493463",4)+
+ P("M-73 102H73","none","#342b47",8)+"</g>"
+}
+function lantern(x,y,s,color){
+ return '<g transform="translate('+x+' '+y+') scale('+s+')">'+
+ P("M0 -30V-14","none","#ffd96a",4)+
+ P("M-18 -13Q0 -33 18 -13L22 19Q0 36 -22 19Z",color,"#372844",5)+
+ P("M-18 4H20","none","#ffe2a5",3)+
+ C(0,0,5,"#fff1ac")+"</g>"
+}
+function leaf(x,y,s,angle,color){
+ return '<g transform="translate('+x+' '+y+') rotate('+angle+') scale('+s+')">'+
+ P("M0 0Q-45 -62 0 -97Q50 -58 0 0Z",color,"#3c294d",4)+P("M0 0L0 -88M0 -30L-20 -45M0 -52L23 -65","none","#ffe4a4",3)+"</g>"
+}
+function frameScene(k,p){
+ let z="",a=p[2],b=p[3],v=p[4],deep=p[0],indigo=p[1];
+ // 공통: 멀리 겹치는 산, 금빛 길, 조각유리로 만든 원경 마을
+ for(let i=0;i<9;i++){
+   let x=35+i*155,y=410+(i%3)*18;
+   z+=P("M"+(x-100)+" "+(y+23)+"L"+x+" "+(y-55)+"L"+(x+95)+" "+(y+23)+"Z",i%2?indigo:deep,"#132744",5);
+ }
+ z+=P("M0 560Q245 475 480 555T960 525T1200 565","none","#f8d46a",8);
+ const city=["hands","gift","star","mail","pocket","mirage","flag"];
+ const water=["river","mist","bowl","couple"];
+ if(city.includes(k)){
+  for(let i=0;i<7;i++)z+=house(85+i*172,415+(i%2)*21,.48,i%2?a:"#cce0ca",i%2?b:indigo);
+ }else{
+  for(let i=0;i<8;i++){let x=30+i*160;z+=P("M"+x+" 585Q"+(x+30)+" 480 "+(x+12)+" 396","none","#203f4b",6);z+=blossom(x+12,397,18+i%3*5,[a,b,"#f9e5a9"][i%3])}
+ }
+ if(water.includes(k)){
+  for(let i=0;i<18;i++){let x=23+i*69,y=568+(i%3)*22;z+=P("M"+x+" "+y+"q26 -12 50 0","none",i%3?a:"#f5de9a",4)}
+ }
+ if(["flowers","lily","daughter","birds","tree"].includes(k)){
+  for(let i=0;i<12;i++){let x=20+i*110,y=525+(i%4)*31;z+=blossom(x,y,20+(i%3)*7,[a,b,"#fff1d8","#e83a8e"][i%4])}
+ }
+ return z;
+}
+function jewelDetails(k,p){
+ let z="",a=p[2],b=p[3],v=p[4],deep=p[0],indigo=p[1],white="#fff3c6";
+ switch(k){
+ case "hands":
+  z+=P("M0 575Q245 440 465 535T1200 550","none","#f6c446",9);
+  for(let i=0;i<8;i++)z+=leaf(70+i*130,455+(i%3)*35,.55,(i*37)%120,i%2?a:b);
+  z+=lantern(170,190,1.6,b)+lantern(360,146,1,a);break;
+ case "gift":
+  for(let i=0;i<7;i++){let x=110+i*115;z+=R(x,487,90,22,i%2?a:b,3)+P("M"+x+" 487l10 -20h90l-10 20","none",white,4)}
+  z+=P("M120 580Q450 475 1050 550","none",a,10)+lantern(960,183,1.9,b);break;
+ case "star":
+  z+=P("M20 455L1130 435","none","#ffd95e",14);
+  for(let i=0;i<9;i++)z+=star(90+i*112,180+(i%3)*36,12+i%4*5,i%2?a:white);
+  for(let i=0;i<5;i++)z+=human(230+i*145,445+i%2*15,.37,i%2?b:v);
+  z+=P("M0 490L1200 525","none","#f2c469",12);break;
+ case "mail":
+  for(let i=0;i<7;i++){let x=60+i*140;z+=P("M"+x+" "+(160+i%3*45)+"l45 -20l23 38l-45 20Z",i%2?white:b,"#2a344d",5)}
+  z+=P("M140 585Q610 510 1150 603","none",a,11)+star(1030,125,28,white);break;
+ case "flowers":
+  for(let i=0;i<11;i++)z+=blossom(75+i*107,300+(i%4)*58,32+i%3*9,["#f7379d","#fff0e3","#fd7829","#b965f3"][i%4]);
+  z+=lantern(955,210,1.3,a)+lantern(1090,248,.9,b);break;
+ case "birds":
+  for(let i=0;i<15;i++)z+=bird(110+i*66,180+(i%4)*28,14+i%5*4);
+  for(let i=0;i<6;i++)z+=leaf(130+i*200,515,.9,i*33,b);
+  z+=C(1010,130,65,a);break;
+ case "pocket":
+  for(let i=0;i<10;i++)z+=leaf(130+i*101,235+(i%4)*76,.7,28+i*32,i%2?a:b);
+  z+=P("M265 615Q565 475 920 560","none",white,10);break;
+ case "mirage":
+  for(let i=0;i<9;i++)z+=P("M"+(70+i*115)+" "+(205+i%3*42)+"q70 -34 100 35t110 6","none",i%2?a:v,6);
+  for(let i=0;i<6;i++)z+=leaf(110+i*174,525,.7,i*31,b);break;
+ case "mother":
+  for(let i=0;i<6;i++)z+=house(60+i*220,420,.6,"#f3cc8d",i%2?b:deep);
+  z+=P("M130 590Q500 515 1040 609","none",white,10);
+  for(let i=0;i<4;i++)z+=C(660+i*22,415-i*14,13,a);break;
+ case "lily":
+  for(let i=0;i<10;i++)z+=blossom(100+i*115,300+(i%3)*30,35+(i%3)*8,["#e7287e","#ffdd95","#ff4c65"][i%3]);
+  for(let i=0;i<6;i++)z+=leaf(120+i*175,570,.85,42+i*29,v);break;
+ case "flag":
+  for(let i=0;i<8;i++)z+=human(82+i*150,492+(i%3)*14,.38,i%2?b:deep);
+  for(let i=0;i<12;i++)z+=star(55+i*99,188+(i%4)*45,11+(i%3)*5,i%2?a:white);
+  z+=P("M85 510Q600 450 1150 550","none",a,12);break;
+ case "river":
+  for(let i=0;i<8;i++)z+=house(60+i*155,387+(i%2)*23,.55,"#f2d9aa",i%2?b:deep);
+  for(let i=0;i<16;i++){let x=55+i*71;z+=P("M"+x+" "+(520+i%3*30)+"q45 -19 75 0","none",i%2?a:white,7)}
+  z+=star(990,150,40,a);break;
+ case "daughter":
+  for(let i=0;i<16;i++)z+=blossom(90+i*69,440+(i%4)*42,25+(i%3)*12,["#fb5b9f","#fff1cd","#ffbb3a","#bb6afb"][i%4]);
+  z+=star(1040,155,50,white);
+  for(let i=0;i<7;i++)z+=leaf(110+i*175,560,.6,20+i*40,v);break;
+ case "tree":
+  for(let i=0;i<14;i++)z+=leaf(170+i*69,170+(i%4)*53,.9,25+i*39,["#e63d76","#ffc532","#7bd799","#9e67e1"][i%4]);
+  for(let i=0;i<8;i++)z+=star(70+i*145,530+(i%3)*20,11+i%4*3,white);break;
+ case "couple":
+  for(let i=0;i<10;i++)z+=star(80+i*115,165+(i%4)*38,12+i%3*5,white);
+  z+=P("M555 458Q600 428 636 469","none",white,9);
+  for(let i=0;i<8;i++)z+=leaf(45+i*160,595,.65,i*23,b);break;
+ case "mist":
+  for(let i=0;i<13;i++)z+=P("M-80 "+(205+i*29)+"q420 -104 760 0t640 -24","none",i%2?white:v,5);
+  z+=C(980,157,60,white)+bird(830,182,45);
+  for(let i=0;i<5;i++)z+=leaf(120+i*225,580,.55,i*48,b);break;
+ case "bowl":
+  for(let i=0;i<7;i++)z+=house(85+i*164,405,.56,"#f9dcb2",i%2?indigo:deep);
+  z+=lantern(215,185,1.4,b)+lantern(985,210,1.5,a);
+  for(let i=0;i<8;i++)z+=P("M"+(215+i*105)+" 580q40 -20 73 0","none",white,8);break;
+ }
+ return z;
+}
 function build(slug,index,title){
  const offset=(cases[slug]||[]);const n=Math.max(0,Math.min(offset.length-1,Number(index)||0));const theme=offset[n];const serial=Object.keys(cases).slice(0,Object.keys(cases).indexOf(slug)).reduce((v,s)=>v+cases[s].length,0)+n;const p=pal[serial]||pal[0];
  const base='<defs><linearGradient id="sky" x2="1" y2="1"><stop stop-color="'+p[0]+'"/><stop offset=".48" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[2]+'"/></linearGradient><linearGradient id="train" x2="1" y2=".2"><stop stop-color="'+p[4]+'"/><stop offset=".55" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[0]+'"/></linearGradient><pattern id="mosa" width="79" height="69" patternUnits="userSpaceOnUse"><path d="M0 0H48L79 25V69H36L0 43Z" fill="'+p[2]+'" opacity=".16"/><path d="M0 0 48 0 36 39 0 43Z" fill="'+p[3]+'" opacity=".25"/><path d="M48 0 79 25 36 39Z" fill="'+p[4]+'" opacity=".3"/><path d="M36 39 79 25 79 69H36Z" fill="'+p[1]+'" opacity=".25"/><path d="M0 0H48L79 25V69H36L0 43Z M48 0 36 39 79 25 M36 39V69" stroke="#f4c77b" stroke-width="2" fill="none" opacity=".64"/></pattern><pattern id="facets" width="43" height="41" patternUnits="userSpaceOnUse"><path d="M0 0 43 0 24 19 43 41H0L24 19Z" fill="none" stroke="#eccc78" stroke-width="1.3" opacity=".48"/></pattern><radialGradient id="glow"><stop stop-color="#fff6b7" stop-opacity=".3"/><stop offset="1" stop-color="#fff6b7" stop-opacity="0"/></radialGradient></defs>';
  const bg=R(0,0,1200,680,'url(#sky)')+C(200,170,340,'url(#glow)')+richGlass(serial,p)+P("M0 125Q270 25 435 125T800 100T1200 115","none",p[2],19)+P("M0 370Q340 210 650 360T1200 270V680H0Z",p[0])+P("M0 520Q410 380 715 490T1200 425V680H0Z",p[4])+R(0,0,1200,680,"url(#mosa)");
  const signature='<path d="M22 19H1178V661H22Z" fill="none" stroke="#ffe8ae" stroke-width="7" opacity=".87"/>';
- return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+String(title).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'을 주제로 한 모자이크 디지털 시화">'+base+bg+'<g>'+motif(theme,p)+'</g>'+R(0,0,1200,680,'url(#facets)')+glassShimmers(serial)+signature+'</svg>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+String(title).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'을 주제로 한 모자이크 디지털 시화">'+base+bg+'<g>'+frameScene(theme,p)+'</g><g>'+motif(theme,p)+'</g><g>'+jewelDetails(theme,p)+'</g>'+R(0,0,1200,680,'url(#facets)')+glassShimmers(serial)+signature+'</svg>';
 }
 function render(root,slug,index,title){if(!root)return;root.innerHTML="";const img=document.createElement("img");img.alt=(title||"작품")+" — 작품별 색채 모자이크 디지털 시화";img.loading="eager";img.decoding="async";img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(build(slug,index,title));root.appendChild(img)}
 window.MyeongdoMosaic={render:render,build:build};
