@@ -47,7 +47,7 @@ def art(title,poem):
   line(f'M{x} 670Q{x-22} 532 {x} 440','#145e65',7)
   for i in range(8):
    a=i*math.pi/4
-   circ(x+math.cos(a)*32,y+math.sin(a)*32 if (y:=432) else 432,19,color,3)
+   circ(x+math.cos(a)*32,432+math.sin(a)*32,19,color,3)
   circ(x,432,14,yellow,3)
  def figure(x,y,scale=1):
   o.append(f'<g transform="translate({x} {y}) scale({scale})">')
