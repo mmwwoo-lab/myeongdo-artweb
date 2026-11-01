@@ -51,11 +51,60 @@ function scene(spec){
  if(kind==='lily'||kind==='daisy'||kind==='peony'||kind==='flowerfield')for(let i=0;i<8;i++)o+=S.flower(75+i*150,465+(i%3)*37,39+(i%3)*12,kind==='lily'?'#ee4867':kind==='daisy'?'#fff8e7':'#f5a2ac');
  return o;
 }
+
+/* 세밀한 색유리 분할: 풍경과 인물의 표면 전체에 12~22px 색유리 조각을 입힘.
+   시 제목을 시드로 사용해 작품마다 패턴이 다르고, 새로고침해도 동일하게 재현됨. */
+function microGlass(seed){
+ let s=(seed^0x9e3779b9)>>>0;
+ const rand=()=>{s=(Math.imul(1664525,s)+1013904223)>>>0;return s/4294967296};
+ const colors=['#fed49a','#e77b54','#493b9f','#2675bc','#f1ac72','#e4d4ff','#9ba4e6','#ffecbf'];
+ let out='<g style="mix-blend-mode:soft-light" pointer-events="none">';
+ for(let row=0;row<45;row++){
+  for(let col=0;col<76;col++){
+   const x=col*16-8,y=row*16-8;
+   const x1=x+rand()*4,y1=y+rand()*4;
+   const x2=x+14+rand()*4,y2=y+rand()*5;
+   const x3=x+14+rand()*4,y3=y+14+rand()*5;
+   const x4=x+rand()*4,y4=y+14+rand()*5;
+   const midx=(x1+x3)/2,midy=(y1+y3)/2;
+   const c=colors[Math.floor(rand()*colors.length)];
+   const opacity=(.15+rand()*.22).toFixed(2);
+   out+='<path d="M'+x1+' '+y1+'L'+x2+' '+y2+'L'+midx+' '+midy+'Z" fill="'+c+'" fill-opacity="'+opacity+'" stroke="#110f28" stroke-opacity=".55" stroke-width="1.65"/>';
+   out+='<path d="M'+x2+' '+y2+'L'+x3+' '+y3+'L'+x4+' '+y4+'L'+midx+' '+midy+'Z" fill="'+colors[Math.floor(rand()*colors.length)]+'" fill-opacity=".21" stroke="#130f29" stroke-opacity=".60" stroke-width="1.7"/>';
+   out+='<path d="M'+x4+' '+y4+'L'+x1+' '+y1+'L'+midx+' '+midy+'Z" fill="'+c+'" fill-opacity=".14" stroke="#120f27" stroke-opacity=".53" stroke-width="1.5"/>';
+   if(rand()>.89)out+='<path d="M'+(x1+2)+' '+(y1+2)+'l'+(5+rand()*6)+' 1" stroke="#fff9d0" stroke-opacity=".65" stroke-width="1.1"/>';
+  }
+ }
+ return out+'</g>';
+}
+/* 작품마다 서로 다른 핵심 장면을 보강하는 세부 오브제 */
+function poeticDetails(kind){
+ let o='';
+ const petal=(x,y,c)=>'<path d="M'+x+' '+y+'q-14 -17 1 -28q22 12 -1 28Z" fill="'+c+'" stroke="#2e2440" stroke-width="3"/>';
+ const light=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="21" fill="#ffde93" stroke="#392441" stroke-width="6"/><circle cx="'+x+'" cy="'+y+'" r="56" fill="#fdbd69" fill-opacity=".13"/>';
+ if(kind==='autumn'){for(let i=0;i<25;i++)o+=petal(58+i*43,594+(i%4)*18,i%3?'#fbb45c':'#c63b49');for(let i=0;i<8;i++)o+=light(265+i*98,377+(i%3)*32);o+='<path d="M570 500q50 -90 80 0t80 0" fill="none" stroke="#f9d898" stroke-width="6"/>';}
+ if(kind==='crayon'){o+='<path d="M820 490l75 -190 29 17 -71 189Z" fill="#e8404c" stroke="#2b2140" stroke-width="8"/><path d="M895 300l15 -36 14 53Z" fill="#f5cd91" stroke="#292440" stroke-width="6"/><path d="M300 520q150 -100 320 0" fill="none" stroke="#d9c28b" stroke-width="16"/>';}
+ if(kind==='subway'||kind==='station'){o+='<rect x="150" y="415" width="445" height="118" rx="18" fill="#879cbd" stroke="#28314c" stroke-width="11"/>';for(let i=0;i<5;i++)o+='<rect x="'+(179+i*80)+'" y="433" width="55" height="72" fill="#dce7e5" stroke="#34425e" stroke-width="5"/>';o+='<circle cx="261" cy="537" r="27" fill="#27283e"/><circle cx="484" cy="537" r="27" fill="#27283e"/>';}
+ if(kind==='well'){o+='<path d="M430 500q190 -128 354 0" fill="none" stroke="#a4b8c5" stroke-width="16"/><path d="M600 380v155" stroke="#9a674e" stroke-width="11"/><path d="M562 525q39 41 76 0" fill="none" stroke="#ffdc7b" stroke-width="6"/>';}
+ if(kind==='father'){o+='<path d="M330 465l170 -145 190 136M375 335l310 130M520 315l-5 260" stroke="#7b4c37" stroke-width="17" fill="none"/><path d="M330 465l170 -145 190 136" stroke="#e5bd83" stroke-width="5" fill="none"/>';}
+ if(kind==='daughter'||kind==='couple'){o+='<path d="M550 545q55 -54 96 10" fill="none" stroke="#f9bd97" stroke-width="16"/>';for(let i=0;i<9;i++)o+=petal(95+i*126,530+(i%3)*29,i%2?'#fbaec1':'#ffe6b3');}
+ if(kind==='tree'){for(let i=0;i<40;i++){const x=360+(i*83)%570,y=180+(i*43)%290;o+=petal(x,y,['#edb858','#d68556','#7eae7b','#f3d997'][i%4])}}
+ if(kind==='mist')for(let i=0;i<9;i++)o+='<path d="M-40 '+(280+i*33)+'Q240 '+(220+i*33)+' 580 '+(295+i*33)+'T1240 '+(260+i*33)+'" stroke="#e2f1e9" stroke-opacity=".24" stroke-width="23" fill="none"/>';
+ if(kind==='river'||kind==='moon')for(let i=0;i<24;i++)o+='<path d="M'+(50+i*48)+' '+(535+(i%4)*27)+'q35 -9 67 2" stroke="#ffe3a5" stroke-width="4" opacity=".7" fill="none"/>';
+ if(kind==='home'){o+='<path d="M160 562q130 -120 255 0" fill="#e0b17c" stroke="#433047" stroke-width="9"/><circle cx="270" cy="515" r="37" fill="#dfaa89"/><circle cx="369" cy="515" r="30" fill="#e6af91"/>';}
+ if(kind==='pocket'){o+='<path d="M495 358l190 0 -32 178 -146 0Z" fill="#705078" stroke="#ffd7a3" stroke-width="10"/>';for(let i=0;i<20;i++)o+=petal(50+(i*59)%1120,390+(i*67)%240,i%3?'#e98a4c':'#f9cb75');}
+ if(kind==='bowl'){o+='<path d="M580 475q-55 -85 17 -123M635 475q-50 -90 20 -131" fill="none" stroke="#f8e6d2" stroke-width="10" opacity=".6"/>';}
+ if(kind==='mail'){for(let i=0;i<6;i++)o+='<path d="M'+(60+i*85)+' '+(190+i*43)+'l75 -24 30 56 -74 20Z" fill="#fff1d4" stroke="#554665" stroke-width="5"/>';}
+ if(kind==='flag'){o+='<path d="M502 242h67m55 0h67m-187 170h65m55 0h67" stroke="#25243a" stroke-width="12"/>';}
+ if(kind==='star'||kind==='sonstar')for(let i=0;i<20;i++)o+=light(35+(i*71)%1120,74+(i*49)%330);
+ return o;
+}
+
 function build(slug,index,title){
  const spec=SCENES[title];if(!spec)return null;
  const seed=Array.from(title).reduce((n,c)=>n*31+c.charCodeAt(0),17)>>>0;
  const sky='<defs><linearGradient id="gs" x2="0" y2="1"><stop stop-color="'+spec[2]+'"/><stop offset="1" stop-color="#6a5290"/></linearGradient><pattern id="fine" width="29" height="25" patternUnits="userSpaceOnUse"><path d="M0 0L29 17L0 25L13 11Z" stroke="#e4d4b6" stroke-opacity=".35" stroke-width="1" fill="none"/></pattern></defs>';
- return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 상세 스테인드글라스 시화')+'">'+sky+'<rect width="1200" height="680" fill="url(#gs)"/>'+glassPieces(seed)+scene(spec)+'<rect width="1200" height="680" fill="url(#fine)" opacity=".38"/><rect x="10" y="10" width="1180" height="660" rx="8" fill="none" stroke="#1b1830" stroke-width="17"/><rect x="22" y="22" width="1156" height="636" rx="4" fill="none" stroke="#ffcb75" stroke-width="4" opacity=".8"/></svg>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 상세 스테인드글라스 시화')+'">'+sky+'<rect width="1200" height="680" fill="url(#gs)"/>'+glassPieces(seed)+scene(spec)+poeticDetails(spec[0])+microGlass(seed)+'<rect width="1200" height="680" fill="url(#fine)" opacity=".38"/><rect x="10" y="10" width="1180" height="660" rx="8" fill="none" stroke="#1b1830" stroke-width="17"/><rect x="22" y="22" width="1156" height="636" rx="4" fill="none" stroke="#ffcb75" stroke-width="4" opacity=".8"/></svg>';
 }
 function install(){
  if(!window.MyeongdoMosaic){return false;}
