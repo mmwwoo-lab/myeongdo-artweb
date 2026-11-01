@@ -11,10 +11,8 @@ function setup(){
  const caption=document.getElementById("poem-mosaic-label");
  if(!art||!verse||!name||!caption)return;
  const wrap=document.createElement("section");
- wrap.setAttribute("aria-label","AI 시화 제작 도구");
+ wrap.setAttribute("aria-label","시화 제작 조작 메뉴");
  wrap.style.cssText="margin:18px auto 20px;padding:18px;max-width:1080px;border:1px solid #d7cdbb;border-radius:14px;background:#fffdf8;color:#23312e;box-shadow:0 4px 24px #17271c0b";
- const title=document.createElement("h3"); title.textContent="🎨 AI 시화 제작";
- title.style.cssText="margin:0 0 8px;font-size:1.12rem";
  const controls=document.createElement("div");controls.style.cssText="display:flex;flex-wrap:wrap;gap:8px;align-items:center";
  const styles=[["pop","팝아트"],["watercolor","수채화"],["emotion","감성화"],["portrait","초상화"]];
  const select=document.createElement("select");select.setAttribute("aria-label","AI 시화 화풍");
@@ -37,7 +35,7 @@ function setup(){
  state.textContent="";
  const planning=document.createElement("div");planning.style.cssText="display:grid;gap:7px;font-size:14px;line-height:1.75";
  const preview=document.createElement("div");preview.style.cssText="margin-top:10px";
- wrap.append(title,controls,state,planning,preview);
+ wrap.append(controls,state,planning,preview);
  // Place after entire figure, not inside the poem art image container.
  const figure=art.closest("figure");
  (figure||caption).after(wrap);
