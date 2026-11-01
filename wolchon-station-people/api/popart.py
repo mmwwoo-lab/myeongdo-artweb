@@ -43,7 +43,42 @@ def mosaic_finish(seed, width=W, height=H, tile=13):
  out.append('</g>')
  return ''.join(out)
 
-def art(title,poem):
+STYLES={'pop_mosaic':'팝아트·모자이크','watercolor':'수채화','crayon':'크레용화','portrait':'인물화'}
+
+def style_finish(style, seed):
+ """시화의 기본 도상을 유지하며 각 화풍에 따라 색면과 표면 효과를 다르게 처리."""
+ rng=random.Random(seed ^ 0xF3A11)
+ out=[]
+ if style=='watercolor':
+  out.append('<g aria-label="수채화 물 번짐과 투명 색층" pointer-events="none">')
+  colors=['#f6dab8','#bedadd','#ecc6d6','#d0cde7','#fae7bf']
+  for i in range(145):
+   x=rng.randrange(W); y=rng.randrange(H); r=rng.randrange(20,135)
+   out.append(f'<ellipse cx="{x}" cy="{y}" rx="{r}" ry="{r*.65:.1f}" fill="{colors[i%5]}" opacity=".065"/>')
+  for i in range(80):
+   x=rng.randrange(W); y=rng.randrange(H)
+   out.append(f'<path d="M{x} {y}q50 -22 105 4" stroke="#f7f3ea" stroke-opacity=".28" stroke-width="3" fill="none"/>')
+  out.append('</g>')
+ elif style=='crayon':
+  out.append('<g aria-label="크레용 종이 결 및 중첩 선묘" pointer-events="none">')
+  colors=['#fce05e','#ff6f77','#b78ee8','#66cfdd','#fff2d0']
+  for i in range(1150):
+   x=rng.randrange(W);y=rng.randrange(H); length=rng.randrange(5,27)
+   out.append(f'<path d="M{x} {y}l{length} {-length//3}" stroke="{colors[i%5]}" stroke-width="{rng.choice([2,3,4])}" stroke-opacity=".42" stroke-linecap="round"/>')
+  out.append('</g>')
+ elif style=='portrait':
+  # 원문에서 특정 인물의 실존 얼굴은 추정하지 않는다. 상징적 인물 초상을 그린다.
+  out.append('<g aria-label="상징적 인물화 초상" transform="translate(690 65)">')
+  out.append('<path d="M35 600Q-12 424 95 359Q173 311 278 357Q383 420 365 600Z" fill="#514b87" stroke="#26203c" stroke-width="13"/>')
+  out.append('<path d="M115 170Q103 68 199 39Q310 42 320 157L300 306Q260 372 190 353Q111 334 115 170Z" fill="#e5aa86" stroke="#30263a" stroke-width="11"/>')
+  out.append('<path d="M95 185Q70 40 199 18Q336 12 340 157L299 120Q222 146 170 104Q144 152 95 185Z" fill="#25243d" stroke="#242039" stroke-width="9"/>')
+  out.append('<path d="M148 206q27 -16 57 0M240 205q29 -15 54 2M215 220l-13 55 22 9M180 309q45 16 83 -4" stroke="#603e42" stroke-width="7" fill="none" stroke-linecap="round"/>')
+  out.append('<path d="M132 362l58 90 47 -86M278 359l-44 93" stroke="#eec8ac" stroke-width="11" fill="none"/>')
+  out.append('</g>')
+ return ''.join(out)
+
+def art(title,poem,style='pop_mosaic'):
+ if style not in STYLES: raise ValueError('Unknown style')
  text=title+' '+poem
  seed=int(hashlib.sha256(text.encode()).hexdigest()[:12],16)
  rng=random.Random(seed)
@@ -124,7 +159,8 @@ def art(title,poem):
   if (x<250 and y<185) or (x>935 and y>515):
    circ(x,y,rng.uniform(1.3,3.7),ink,0)
  for i in range(14):star(25+(i*89)%1100,30+(i%4)*35,6+(i%3)*4)
- o.append(mosaic_finish(seed))
+ if style=='pop_mosaic': o.append(mosaic_finish(seed))
+ else: o.append(style_finish(style,seed))
  o.append(f'<rect x="8" y="8" width="1184" height="659" fill="none" stroke="{ink}" stroke-width="17"/>')
  o.append('</svg>')
  return ''.join(o)
@@ -136,10 +172,12 @@ class handler(BaseHTTPRequestHandler):
    if length<1 or length>35000:
     self.send_error(413,'Invalid request length');return
    payload=json.loads(self.rfile.read(length).decode('utf-8'))
+   style=str(payload.get('style','pop_mosaic'))
    title=str(payload.get('title',''))[:180]
    poem=str(payload.get('poem',''))[:15000]
    if not title or not poem: self.send_error(400,'Missing poem');return
-   body=art(title,poem).encode('utf-8')
+   if style not in STYLES: self.send_error(400,'Unsupported art style');return
+   body=art(title,poem,style).encode('utf-8')
    self.send_response(200)
    self.send_header('Content-Type','image/svg+xml; charset=utf-8')
    self.send_header('Cache-Control','no-store')
