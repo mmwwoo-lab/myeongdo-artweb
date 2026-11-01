@@ -1,4 +1,4 @@
-/* 명도재 월촌역 3시인 문학관: 작품별 정밀 스테인드글라스 시화 디렉터
+/* 명도재 월촌역 3시인 문학관: 작품별 팝아트 시화 디렉터
  * 각 제목에 맞춘 장면 연출표와 독립적 SVG 그림을 사용합니다.
  * 웹 브라우저에서 동작하며 외부 AI 서비스/API 키가 필요하지 않습니다.
  * 새 작품을 추가할 때 SCENES에 소재와 주요 화풍을 등록하세요.
@@ -136,11 +136,114 @@ function poeticDetails(kind){
  return o;
 }
 
+
+/* POP ART 2026: 각 시의 구체적인 장면 + 인쇄 망점 + 강한 색면과 윤곽.
+   기존 시의 전용 사물은 보존하고 유리조각 오버레이는 사용하지 않는다. */
+function popPalette(seed){
+ const sets=[
+ ['#1559db','#ffcd25','#fb4d68','#24d3c2','#10152b'],
+ ['#3625ae','#ff9b29','#e93f8a','#1bd7db','#171539'],
+ ['#0f718c','#ffda35','#fb624a','#e945a5','#152333'],
+ ['#383aaf','#f9bd43','#fe4d69','#75dd8a','#171b46'],
+ ['#1c4db0','#ffa842','#e84170','#8cd5ff','#151532'],
+ ['#7131a5','#f8e248','#f06a34','#39bfd0','#28203d']
+ ];
+ return sets[seed%sets.length];
+}
+function popBackground(seed,p){
+ let r=seed>>>0;const rand=()=>{r=(Math.imul(1664525,r)+1013904223)>>>0;return r/4294967296};
+ let o='<rect width="1200" height="680" fill="'+p[0]+'"/>';
+ o+='<path d="M0 0H780L220 680H0Z" fill="'+p[3]+'" opacity=".22"/>';
+ o+='<path d="M700 0L1200 0V580Z" fill="'+p[1]+'" opacity=".21"/>';
+ o+='<circle cx="1020" cy="130" r="200" fill="'+p[1]+'" opacity=".16" stroke="'+p[4]+'" stroke-width="16"/>';
+ for(let i=0;i<17;i++){
+ let x=Math.round(rand()*1200),y=Math.round(rand()*680),radius=14+rand()*36;
+ o+='<path d="M'+(x-radius)+' '+y+'l'+radius+' -'+radius+' '+radius+' '+radius+' -'+radius+' '+radius+'Z" fill="'+p[1+i%3]+'" opacity=".15" stroke="'+p[4]+'" stroke-opacity=".12" stroke-width="4"/>';
+ }
+ return o;
+}
+function popDetail(title,kind,p){
+ let o='',dark=p[4],gold=p[1],red=p[2],aqua=p[3],blue=p[0];
+ const line=(d,col=dark,w=10)=>'<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>';
+ const circle=(x,y,r,col)=>'<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+col+'" stroke="'+dark+'" stroke-width="7"/>';
+ const spark=(x,y,r,col)=>'<path d="M'+x+' '+(y-r)+'L'+(x+r*.23)+' '+(y-r*.2)+' '+(x+r)+' '+y+' '+(x+r*.23)+' '+(y+r*.2)+' '+x+' '+(y+r)+' '+(x-r*.23)+' '+(y+r*.2)+' '+(x-r)+' '+y+' '+(x-r*.23)+' '+(y-r*.2)+'Z" fill="'+col+'" stroke="'+dark+'" stroke-width="3"/>';
+ const leaves=(count)=>{let z='';for(let i=0;i<count;i++){let x=45+(i*97)%1130,y=470+(i*61)%187;z+='<path d="M'+x+' '+y+'q-33 -27 0 -44q36 13 0 44Z" fill="'+(i%2?gold:red)+'" stroke="'+dark+'" stroke-width="4"/>'}return z};
+ if(kind==='autumn'){
+  o+='<path d="M65 320L280 230L490 325V552H65Z" fill="'+red+'" fill-opacity=".18" stroke="'+dark+'" stroke-width="13"/>';
+  o+=line('M90 344H450M135 370V535M414 370V536',dark,9);
+  for(let i=0;i<5;i++)o+=circle(118+i*65,383,15,gold);
+  o+=leaves(18);
+  o+='<path d="M550 300V625" stroke="'+dark+'" stroke-width="14"/>'+circle(550,321,31,gold);
+  o+='<path d="M250 220q135 -70 325 -10" stroke="'+dark+'" stroke-width="20" fill="none"/>'+circle(510,230,27,red);
+ }
+ if(kind==='well'){
+  o+='<path d="M130 590Q270 440 475 560" fill="none" stroke="'+gold+'" stroke-width="25"/>';
+  for(let i=0;i<10;i++)o+=spark(80+(i*106)%1130,95+(i*43)%220,9+i%4*5,gold);
+  o+='<path d="M300 410Q450 325 620 395" stroke="'+aqua+'" stroke-width="15" fill="none"/>';
+ }
+ if(kind==='crayon'){
+  o+='<path d="M130 430Q445 -65 1010 340" fill="none" stroke="'+red+'" stroke-width="29"/>';
+  o+='<path d="M147 440Q450 -22 990 360" fill="none" stroke="'+gold+'" stroke-width="20"/>';
+  o+='<path d="M163 453Q450 16 970 370" fill="none" stroke="'+aqua+'" stroke-width="12"/>';
+  o+='<path d="M820 490l60 -190 39 12 -58 193Z" fill="'+red+'" stroke="'+dark+'" stroke-width="9"/>';
+ }
+ if(kind==='subway'||kind==='station'){
+  o+='<rect x="200" y="400" width="530" height="160" rx="17" fill="'+aqua+'" stroke="'+dark+'" stroke-width="12"/>';
+  for(let i=0;i<6;i++)o+='<rect x="'+(225+i*80)+'" y="424" width="54" height="80" fill="#fef5c9" stroke="'+dark+'" stroke-width="5"/>';
+  o+=line('M215 559h530',dark,15);
+ }
+ if(kind==='horizon'||title==='무경계(無境界)'){
+  o+='<path d="M0 365Q310 343 620 367T1200 363" fill="none" stroke="'+gold+'" stroke-width="11"/>';
+  o+='<path d="M0 530Q300 447 600 535T1200 500" fill="none" stroke="'+aqua+'" stroke-width="18"/>';
+  for(let i=0;i<15;i++)o+=line('M'+(i*88)+' '+(555+i%3*30)+'q30 -16 63 0','#dff7ed',5);
+ }
+ if(kind==='flowerfield'||kind==='lily'||kind==='peony'||kind==='daisy'){
+  for(let i=0;i<15;i++){let x=65+i*77,y=460+(i%4)*34;o+=circle(x,y,15+i%3*6,i%3?red:gold);o+=line('M'+x+' '+(y+18)+'l'+(i%2?12:-12)+' 110','#137f74',6)}
+ }
+ if(kind==='daughter'||kind==='couple'){
+  o+=spark(1050,160,35,gold)+spark(910,240,17,aqua);
+  o+=line('M490 555q60 -60 110 0',gold,23);
+ }
+ if(kind==='sonstar'){for(let i=0;i<18;i++)o+=spark(48+i*63,100+(i%5)*48,8+(i%4)*5,gold);}
+ if(kind==='tree'||kind==='father'||kind==='mountain'){o+=leaves(18);o+=spark(1040,152,35,gold);}
+ if(kind==='mist'||kind==='river'||kind==='moon'){
+  for(let i=0;i<22;i++)o+=line('M'+(10+i*55)+' '+(535+i%4*26)+'q34 -12 64 0',i%2?gold:aqua,6);
+ }
+ if(kind==='bowl'){
+  o+='<ellipse cx="515" cy="553" rx="210" ry="70" fill="#fff2bf" stroke="'+dark+'" stroke-width="14"/>';
+  o+=line('M565 444q-57 -83 9 -130M640 444q-60 -80 6 -140','#fdf7da',12);
+ }
+ if(kind==='pocket'||kind==='dust')o+=leaves(20);
+ if(kind==='hands'||kind==='home'||kind==='gift'||kind==='mail')o+=spark(1010,105,30,gold);
+ if(kind==='flag')o+=spark(1050,105,30,gold);
+ // 잡지 인쇄 스타일의 비대칭 원근, 빛살. 작품의 핵심 대상을 덮지 않도록 가장자리에 배치.
+ o+='<path d="M5 110L190 170M35 210L142 234M1035 626L1180 580" fill="none" stroke="'+gold+'" stroke-width="11" opacity=".85"/>';
+ return o;
+}
+function popPrint(seed,p){
+ let v=seed>>>0;const rand=()=>{v=(Math.imul(v,1103515245)+12345)>>>0;return v/4294967296};
+ let o='<g pointer-events="none">';
+ // 작은 인쇄 망점을 국소적으로만 사용해 인물과 꽃의 윤곽을 가리지 않음.
+ const zones=[[35,35,250,140],[810,40,260,155],[70,540,250,115],[880,530,270,100]];
+ for(const [X,Y,W,H] of zones){for(let y=Y;y<Y+H;y+=12)for(let x=X;x<X+W;x+=12){const r=1.3+rand()*1.7;o+='<circle cx="'+x+'" cy="'+y+'" r="'+r.toFixed(1)+'" fill="'+p[4]+'" opacity=".26"/>';}}
+ o+='</g>';return o;
+}
+
 function build(slug,index,title){
- const spec=SCENES[title]|| (title==='무경계(無境界)'?['horizon','하늘과 바다, 구름과 물결','#184d87','#9fd5ef']:null);if(!spec)return null;
- const seed=Array.from(title).reduce((n,c)=>n*31+c.charCodeAt(0),17)>>>0;
- const sky='<defs><linearGradient id="gs" x2="0" y2="1"><stop stop-color="'+spec[2]+'"/><stop offset="1" stop-color="#6a5290"/></linearGradient><pattern id="fine" width="29" height="25" patternUnits="userSpaceOnUse"><path d="M0 0L29 17L0 25L13 11Z" stroke="#e4d4b6" stroke-opacity=".35" stroke-width="1" fill="none"/></pattern></defs>';
- return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 상세 스테인드글라스 시화')+'">'+sky+'<rect width="1200" height="680" fill="url(#gs)"/>'+scene(spec)+(glassMotifs[title]?glassMotifs[title](): '')+poeticDetails(spec[0])+microGlass(seed)+'<rect width="1200" height="680" fill="url(#fine)" opacity=".38"/><rect x="10" y="10" width="1180" height="660" rx="8" fill="none" stroke="#1b1830" stroke-width="17"/><rect x="22" y="22" width="1156" height="636" rx="4" fill="none" stroke="#ffcb75" stroke-width="4" opacity=".8"/></svg>';
+ const spec=SCENES[title]||(title==='무경계(無境界)'?['horizon','하늘과 바다, 구름과 물결','#184d87','#9fd5ef']:null);
+ if(!spec)return null;
+ const seed=Array.from(title).reduce((n,c)=>Math.imul(n,31)+c.charCodeAt(0),17)>>>0;
+ const p=popPalette(seed);
+ const defs='<defs><pattern id="popdots" patternUnits="userSpaceOnUse" width="15" height="15"><circle cx="7" cy="7" r="2.6" fill="'+p[4]+'" opacity=".34"/></pattern><clipPath id="popclip"><rect width="1200" height="680" rx="0"/></clipPath></defs>';
+ let main=scene(spec)+(glassMotifs[title]?glassMotifs[title]():'')+poeticDetails(spec[0])+popDetail(title,spec[0],p);
+ // 새 화면은 색유리 오버레이를 사용하지 않는 정통 팝아트 색면 일러스트레이션.
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 팝아트 시화')+'">'
+ +defs+popBackground(seed,p)+'<g id="pop-main" stroke-linejoin="round" stroke-linecap="round">'+main+'</g>'
+ +'<path d="M0 0H1200V680H0Z" fill="url(#popdots)" opacity=".07" pointer-events="none"/>'
+ +popPrint(seed,p)
+ +'<rect x="10" y="10" width="1180" height="660" fill="none" stroke="'+p[4]+'" stroke-width="20"/>'
+ +'<path d="M20 20h1160M20 660h1160" stroke="'+p[1]+'" stroke-width="7"/>'
+ +'</svg>';
 }
 function install(){
  if(!window.MyeongdoMosaic){return false;}
@@ -149,7 +252,7 @@ function install(){
    const markup=build(slug,index,title);
    if(!markup){return original(root,slug,index,title);}
    if(!root)return;
-   const img=document.createElement('img');img.alt=title+' — '+(ANALYSIS[title]?ANALYSIS[title][0]:title)+'; 스테인드글라스 모자이크 시화';
+   const img=document.createElement('img');img.alt=title+' — '+(ANALYSIS[title]?ANALYSIS[title][0]:title)+'; 팝아트 시화';
    img.loading='eager';img.decoding='async';img.src=URL.createObjectURL(new Blob([markup],{type:'image/svg+xml;charset=utf-8'}));img.onload=function(){URL.revokeObjectURL(img.src)};root.replaceChildren(img);
  };
  window.MyeongdoArtDirector={scenes:SCENES,analysis:ANALYSIS,build:build};
