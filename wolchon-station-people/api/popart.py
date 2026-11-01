@@ -23,6 +23,26 @@ WORDS={
  'family':['아버지','엄마','어머니','아내','딸아','아들아'],
  'moon':['달','별','밤하늘']
 }
+def mosaic_finish(seed, width=W, height=H, tile=13):
+ """2단계: 팝아트 전체에 작은 색유리 모자이크 면과 줄눈을 추가한다.
+
+ 조각의 채색은 반투명으로 처리해 1단계의 인물·사물 윤곽을 보존한다.
+ 동일 시 원문은 동일한 조각 패턴을 만든다.
+ """
+ rng=random.Random(seed ^ 0xA53C91)
+ out=['<g aria-label="2단계 미세 모자이크 마감" pointer-events="none">']
+ colors=('#fff5c8','#ffce6a','#52d7f0','#fc81aa','#9e83dc')
+ for y in range(0,height,tile):
+  for x in range(0,width,tile):
+   j=round(tile*(.28+.30*rng.random()),1)
+   col=colors[rng.randrange(len(colors))]
+   opacity=.07+.08*rng.random()
+   # 선이 한 방향으로만 정렬되지 않도록 조각을 2개의 다각형으로 분할
+   out.append(f'<path d="M{x} {y}l{tile} 0 -{j} {tile} -{tile-j} 0Z" fill="{col}" fill-opacity="{opacity:.2f}" stroke="#13132a" stroke-opacity=".35" stroke-width=".95"/>')
+   out.append(f'<path d="M{x+tile} {y}v{tile}h-{j}Z" fill="{colors[(x//tile+y//tile)%len(colors)]}" fill-opacity=".06" stroke="#13132a" stroke-opacity=".35" stroke-width=".9"/>')
+ out.append('</g>')
+ return ''.join(out)
+
 def art(title,poem):
  text=title+' '+poem
  seed=int(hashlib.sha256(text.encode()).hexdigest()[:12],16)
@@ -30,7 +50,7 @@ def art(title,poem):
  scores={k:sum(text.count(v) for v in vs) for k,vs in WORDS.items()}
  category=max(scores,key=lambda k:scores[k]) if max(scores.values()) else 'moon'
  bg,yellow,coral,aqua,ink=PAL[seed%len(PAL)]
- o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title,quote=True)} 팝아트 시화">']
+ o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title,quote=True)} 팝아트 및 미세 모자이크 시화">']
  o+=['<defs><pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="2.4" fill="'+ink+'" opacity=".32"/></pattern></defs>',
     f'<rect width="{W}" height="{H}" fill="{bg}"/>',
     f'<path d="M0 0H780L170 675H0Z" fill="{aqua}" opacity=".36"/>',
@@ -104,6 +124,7 @@ def art(title,poem):
   if (x<250 and y<185) or (x>935 and y>515):
    circ(x,y,rng.uniform(1.3,3.7),ink,0)
  for i in range(14):star(25+(i*89)%1100,30+(i%4)*35,6+(i%3)*4)
+ o.append(mosaic_finish(seed))
  o.append(f'<rect x="8" y="8" width="1184" height="659" fill="none" stroke="{ink}" stroke-width="17"/>')
  o.append('</svg>')
  return ''.join(o)
