@@ -22,12 +22,12 @@ function init(){
  styles.forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;selector.append(option)});
  const status=document.createElement('span');
  status.setAttribute('role','status');status.style.cssText='font-size:13px;color:#555;max-width:450px';
- status.textContent='작품을 선택한 뒤 새 시화를 그릴 수 있습니다.';
+ status.textContent='';
  wrap.append(selector,button,status);caption.after(wrap);
  let activeObjectUrl=null, requestId=0, variation=0, lastArtKey='';
  const renderLabel=()=>styles.find(([id])=>id===selector.value)?.[1]||'시화';
  function revoke(){if(activeObjectUrl){URL.revokeObjectURL(activeObjectUrl);activeObjectUrl=null}}
- function invalidate(){requestId++;lastArtKey='';variation=0;revoke();button.disabled=false;button.textContent='🎨 '+renderLabel()+' 그리기';status.textContent='작품을 선택한 뒤 새 시화를 그릴 수 있습니다.'}
+ function invalidate(){requestId++;lastArtKey='';variation=0;revoke();button.disabled=false;button.textContent='🎨 '+renderLabel()+' 그리기';status.textContent=''}
  selector.addEventListener('change',()=>{requestId++;variation=0;lastArtKey='';button.disabled=false;button.textContent='🎨 '+renderLabel()+' 그리기';status.textContent=renderLabel()+' 화풍으로 그림을 변경합니다.';button.click();});
  tabs.addEventListener('click',invalidate);
  document.getElementById('prev')?.addEventListener('click',invalidate);
