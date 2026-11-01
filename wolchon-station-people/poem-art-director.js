@@ -56,24 +56,14 @@ function scene(spec){
    시 제목을 시드로 사용해 작품마다 패턴이 다르고, 새로고침해도 동일하게 재현됨. */
 function microGlass(seed){
  let s=(seed^0x9e3779b9)>>>0;
- const rand=()=>{s=(Math.imul(1664525,s)+1013904223)>>>0;return s/4294967296};
- const colors=['#fed49a','#e77b54','#493b9f','#2675bc','#f1ac72','#e4d4ff','#9ba4e6','#ffecbf'];
- let out='<g style="mix-blend-mode:soft-light" pointer-events="none">';
- for(let row=0;row<45;row++){
-  for(let col=0;col<76;col++){
-   const x=col*16-8,y=row*16-8;
-   const x1=x+rand()*4,y1=y+rand()*4;
-   const x2=x+14+rand()*4,y2=y+rand()*5;
-   const x3=x+14+rand()*4,y3=y+14+rand()*5;
-   const x4=x+rand()*4,y4=y+14+rand()*5;
-   const midx=(x1+x3)/2,midy=(y1+y3)/2;
-   const c=colors[Math.floor(rand()*colors.length)];
-   const opacity=(.15+rand()*.22).toFixed(2);
-   out+='<path d="M'+x1+' '+y1+'L'+x2+' '+y2+'L'+midx+' '+midy+'Z" fill="'+c+'" fill-opacity="'+opacity+'" stroke="#110f28" stroke-opacity=".55" stroke-width="1.65"/>';
-   out+='<path d="M'+x2+' '+y2+'L'+x3+' '+y3+'L'+x4+' '+y4+'" stroke="#140f28" stroke-opacity=".58" stroke-width="1.35" fill="none"/>';
-   
-   if(rand()>.89)out+='<path d="M'+(x1+2)+' '+(y1+2)+'l'+(5+rand()*6)+' 1" stroke="#fff9d0" stroke-opacity=".65" stroke-width="1.1"/>';
-  }
+ const rnd=()=>{s=(Math.imul(1664525,s)+1013904223)>>>0;return s/4294967296};
+ let out='<g pointer-events="none">';
+ // 18픽셀 단위, 한 면당 두 개의 비정형 유리 조각. 윤곽은 굵게 유지.
+ for(let row=0;row<39;row++)for(let col=0;col<68;col++){
+  let x=col*18-8,y=row*18-8;
+  let dx=11+rnd()*6,dy=11+rnd()*6;
+  out+='<path d="M'+x+' '+y+'l18 0 -'+(18-dx)+' '+dy+' -'+dx+' '+(18-dy)+'Z" fill="#f7bc79" fill-opacity="'+(.025+rnd()*.065).toFixed(2)+'" stroke="#160f29" stroke-opacity=".34" stroke-width="1.2"/>';
+  out+='<path d="M'+(x+18)+' '+y+'l0 18h-18l'+dx+' -'+(18-dy)+'Z" fill="#dee7ff" fill-opacity=".045" stroke="#130d24" stroke-opacity=".4" stroke-width="1.2"/>';
  }
  return out+'</g>';
 }
@@ -104,7 +94,7 @@ function build(slug,index,title){
  const spec=SCENES[title];if(!spec)return null;
  const seed=Array.from(title).reduce((n,c)=>n*31+c.charCodeAt(0),17)>>>0;
  const sky='<defs><linearGradient id="gs" x2="0" y2="1"><stop stop-color="'+spec[2]+'"/><stop offset="1" stop-color="#6a5290"/></linearGradient><pattern id="fine" width="29" height="25" patternUnits="userSpaceOnUse"><path d="M0 0L29 17L0 25L13 11Z" stroke="#e4d4b6" stroke-opacity=".35" stroke-width="1" fill="none"/></pattern></defs>';
- return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 상세 스테인드글라스 시화')+'">'+sky+'<rect width="1200" height="680" fill="url(#gs)"/>'+glassPieces(seed)+scene(spec)+poeticDetails(spec[0])+microGlass(seed)+'<rect width="1200" height="680" fill="url(#fine)" opacity=".38"/><rect x="10" y="10" width="1180" height="660" rx="8" fill="none" stroke="#1b1830" stroke-width="17"/><rect x="22" y="22" width="1156" height="636" rx="4" fill="none" stroke="#ffcb75" stroke-width="4" opacity=".8"/></svg>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 상세 스테인드글라스 시화')+'">'+sky+'<rect width="1200" height="680" fill="url(#gs)"/>'+scene(spec)+poeticDetails(spec[0])+microGlass(seed)+'<rect width="1200" height="680" fill="url(#fine)" opacity=".38"/><rect x="10" y="10" width="1180" height="660" rx="8" fill="none" stroke="#1b1830" stroke-width="17"/><rect x="22" y="22" width="1156" height="636" rx="4" fill="none" stroke="#ffcb75" stroke-width="4" opacity=".8"/></svg>';
 }
 function install(){
  if(!window.MyeongdoMosaic){return false;}
@@ -114,7 +104,7 @@ function install(){
    if(!markup){return original(root,slug,index,title);}
    if(!root)return;
    const img=document.createElement('img');img.alt=title+' — '+SCENES[title][1]+'; 스테인드글라스 모자이크 시화';
-   img.loading='eager';img.decoding='async';img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(markup);root.replaceChildren(img);
+   img.loading='eager';img.decoding='async';img.src=URL.createObjectURL(new Blob([markup],{type:'image/svg+xml;charset=utf-8'}));img.onload=function(){URL.revokeObjectURL(img.src)};root.replaceChildren(img);
  };
  window.MyeongdoArtDirector={scenes:SCENES,build:build};
  return true;
