@@ -70,8 +70,8 @@ function microGlass(seed){
    const c=colors[Math.floor(rand()*colors.length)];
    const opacity=(.15+rand()*.22).toFixed(2);
    out+='<path d="M'+x1+' '+y1+'L'+x2+' '+y2+'L'+midx+' '+midy+'Z" fill="'+c+'" fill-opacity="'+opacity+'" stroke="#110f28" stroke-opacity=".55" stroke-width="1.65"/>';
-   out+='<path d="M'+x2+' '+y2+'L'+x3+' '+y3+'L'+x4+' '+y4+'L'+midx+' '+midy+'Z" fill="'+colors[Math.floor(rand()*colors.length)]+'" fill-opacity=".21" stroke="#130f29" stroke-opacity=".60" stroke-width="1.7"/>';
-   out+='<path d="M'+x4+' '+y4+'L'+x1+' '+y1+'L'+midx+' '+midy+'Z" fill="'+c+'" fill-opacity=".14" stroke="#120f27" stroke-opacity=".53" stroke-width="1.5"/>';
+   out+='<path d="M'+x2+' '+y2+'L'+x3+' '+y3+'L'+x4+' '+y4+'" stroke="#140f28" stroke-opacity=".58" stroke-width="1.35" fill="none"/>';
+   
    if(rand()>.89)out+='<path d="M'+(x1+2)+' '+(y1+2)+'l'+(5+rand()*6)+' 1" stroke="#fff9d0" stroke-opacity=".65" stroke-width="1.1"/>';
   }
  }
