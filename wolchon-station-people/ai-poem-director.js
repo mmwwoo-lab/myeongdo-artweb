@@ -34,7 +34,7 @@ function setup(){
  tokenInput.style.cssText="width:220px;max-width:100%;padding:11px;border:1px solid #abb8ae;border-radius:9px";
  controls.append(select,planBtn,nextBtn,tokenInput,generateBtn,approveBtn,downloadBtn);
  const state=document.createElement("p");state.setAttribute("role","status");state.style.cssText="font-size:14px;line-height:1.6;min-height:20px;color:#3b594d";
- state.textContent="시를 선택해 구도를 설계하세요.";
+ state.textContent="";
  const planning=document.createElement("div");planning.style.cssText="display:grid;gap:7px;font-size:14px;line-height:1.75";
  const preview=document.createElement("div");preview.style.cssText="margin-top:10px";
  wrap.append(title,controls,state,planning,preview);
@@ -56,7 +56,7 @@ function setup(){
  }
  function invalidate(){
   variant=0;planned=null;planning.replaceChildren();clearCandidate();
-  state.textContent="작품 또는 화풍이 변경되었습니다. 새 구도를 설계하세요.";
+  state.textContent="";
  }
  const poemTabs=document.getElementById("tabs");
  poemTabs?.addEventListener("click",invalidate);
