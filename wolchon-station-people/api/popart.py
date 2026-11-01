@@ -77,15 +77,15 @@ def style_finish(style, seed):
   out.append('</g>')
  return ''.join(out)
 
-def art(title,poem,style='pop_mosaic'):
+def art(title,poem,style='pop_mosaic',variant=0):
  if style not in STYLES: raise ValueError('Unknown style')
  text=title+' '+poem
- seed=int(hashlib.sha256(text.encode()).hexdigest()[:12],16)
+ seed=int(hashlib.sha256((text+'|'+str(variant)).encode()).hexdigest()[:12],16)
  rng=random.Random(seed)
  scores={k:sum(text.count(v) for v in vs) for k,vs in WORDS.items()}
  category=max(scores,key=lambda k:scores[k]) if max(scores.values()) else 'moon'
  bg,yellow,coral,aqua,ink=PAL[seed%len(PAL)]
- o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title,quote=True)} 팝아트 및 미세 모자이크 시화">']
+ o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title,quote=True)} 팝아트 및 미세 모자이크 시화"><rect width="{W}" height="{H}" fill="{bg}"/><g transform="{compose_transform(variant)}">']
  o+=['<defs><pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="2.4" fill="'+ink+'" opacity=".32"/></pattern></defs>',
     f'<rect width="{W}" height="{H}" fill="{bg}"/>',
     f'<path d="M0 0H780L170 675H0Z" fill="{aqua}" opacity=".36"/>',
@@ -162,13 +162,28 @@ def art(title,poem,style='pop_mosaic'):
  if style=='pop_mosaic': o.append(mosaic_finish(seed))
  else: o.append(style_finish(style,seed))
  o.append(f'<rect x="8" y="8" width="1184" height="659" fill="none" stroke="{ink}" stroke-width="17"/>')
- o.append('</svg>')
+ o.append('</g></svg>')
  return ''.join(o)
 
 
+# 재그리기 구도: 0 기본 / 1 좌측 확대 / 2 우측 확대 / 3 좌우 반전 / 4 상단 초점 / 5 아래쪽 시점.
+# 동일 시와 화풍도 variant 값에 따라 구도와 색채의 시드가 변화합니다.
+def compose_transform(variant):
+    options=(
+      'translate(0 0)',
+      'translate(-128 -38) scale(1.24)',
+      'translate(-118 -35) scale(1.22)',
+      'translate(1200 0) scale(-1 1)',
+      'translate(-88 -112) scale(1.16)',
+      'translate(-83 36) scale(1.18)',
+      'translate(-156 -77) scale(1.30)',
+      'translate(1200 0) scale(-1 1) translate(-80 -55) scale(1.13)',
+    )
+    return options[variant % len(options)]
+
 # 화풍별 독립된 장면 엔진: 같은 시라도 구도, 팔레트, 도형 배치가 다릅니다.
-def styled_art(title, poem, style):
-    seed=int(hashlib.sha256((title+'\n'+poem).encode('utf-8')).hexdigest()[:14],16)
+def styled_art(title, poem, style, variant=0):
+    seed=int(hashlib.sha256((title+'\n'+poem+'|'+str(variant)).encode('utf-8')).hexdigest()[:14],16)
     rng=random.Random(seed)
     text=title+' '+poem
     symbol_scores={
@@ -182,7 +197,7 @@ def styled_art(title, poem, style):
     themes=sorted(symbol_scores,key=lambda key:symbol_scores[key],reverse=True)
     if symbol_scores[themes[0]]==0: themes=['stars','flowers','water']
     label={'watercolor':'수채화','crayon':'감성화','portrait':'초상화'}[style]
-    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title,quote=True)} {label}">']
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title,quote=True)} {label}"><rect width="{W}" height="{H}" fill="#e7ddd8"/><g transform="{compose_transform(variant)}">']
     def add(t):o.append(t)
     def shape(d, fill, edge='none',width=2,opacity=1):
         add(f'<path d="{d}" fill="{fill}" stroke="{edge}" stroke-width="{width}" opacity="{opacity}"/>')
@@ -293,7 +308,7 @@ def styled_art(title, poem, style):
                 x=rng.randrange(35,540);y=rng.randrange(45,340)
                 circle(x,y,rng.randrange(2,6),'#f6dca2')
         shape('M12 12H1188V663H12Z','none','#bd9b83',8)
-    add('</svg>')
+    add('</g></svg>')
     return ''.join(o)
 
 
@@ -305,11 +320,13 @@ class handler(BaseHTTPRequestHandler):
     self.send_error(413,'Invalid request length');return
    payload=json.loads(self.rfile.read(length).decode('utf-8'))
    style=str(payload.get('style','pop_mosaic'))
+   variant=int(payload.get('variant',0))
+   if variant<0 or variant>1000000: self.send_error(400,'Unsupported composition variant');return
    title=str(payload.get('title',''))[:180]
    poem=str(payload.get('poem',''))[:15000]
    if not title or not poem: self.send_error(400,'Missing poem');return
    if style not in STYLES: self.send_error(400,'Unsupported art style');return
-   body=(art(title,poem,style) if style=='pop_mosaic' else styled_art(title,poem,style)).encode('utf-8')
+   body=(art(title,poem,style,variant) if style=='pop_mosaic' else styled_art(title,poem,style,variant)).encode('utf-8')
    self.send_response(200)
    self.send_header('Content-Type','image/svg+xml; charset=utf-8')
    self.send_header('Cache-Control','no-store')
