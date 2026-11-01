@@ -17,17 +17,17 @@ function init(){
  const note=document.createElement("p");note.style.cssText="padding:8px 14px;margin:7px 0;background:#f8efda;color:#5f4b2e;border:1px solid #e2cfa6;border-radius:7px;font-size:13px;line-height:1.6";
  note.setAttribute("aria-live","polite");
  const fig=art.closest("figure");(fig||label).after(note);
- const imgPath="./assets/approved-jeon-jinsik-autumn.jpg";
+ const imgPath="./assets/approved-jeon-jinsik-autumn-preview.svg";
  let current=0,checked=false,assetAvailable=false;
  function display(){
   const active=document.getElementById("title")?.textContent?.split(" · ").slice(1).join(" · ").trim();
   note.hidden=active!==approvedTitle;
   if(active!==approvedTitle)return;
-  note.textContent=assetAvailable?"명도재 AI 시화 감독 시스템 · 승인된 대표 시화":"명도재 AI 시화 감독 시스템 · 승인 기록 완료 (원본 이미지의 서버 등록 대기)";
+  note.textContent=assetAvailable?"명도재 AI 시화 감독 시스템 · 승인 시화 미리보기 (고해상도 원본 교체 예정)":"명도재 AI 시화 감독 시스템 · 승인 기록 완료 (미리보기 파일 확인 중)";
   if(assetAvailable){
-   const img=document.createElement("img");img.src=imgPath;img.alt="전진식 「가을 타기」 최종 승인 AI 시화";
+   const img=document.createElement("img");img.src=imgPath;img.alt="전진식 「가을 타기」 최종 승인 AI 시화의 저해상도 미리보기";
    img.decoding="async";img.loading="eager";
-   art.replaceChildren(img);label.textContent="「가을 타기」 · 최종 승인 시화";
+   art.replaceChildren(img);label.textContent="「가을 타기」 · 승인 시화 미리보기";
   }
  }
  // The approved image must be a permanent file under assets, never a transient preview link.
