@@ -1,0 +1,11 @@
+{
+  "poet": "전진식",
+  "poem": "가을 타기",
+  "status": "approved_by_user",
+  "approved_on": "2026-11-02",
+  "method": "User replied 승인해줘 after AI art sample",
+  "image_source": "ChatGPT generated image file_000000005a908209bba2872588501982",
+  "image_filename": "a_richly_detailed_painterly_cinematic_oil_paintin.png",
+  "release_status": "approved_not_published",
+  "notes": "사용자가 시화 시범 작품을 승인함. 원본 이미지는 별도 GitHub/Vercel 업로드 후 작품 기본 이미지로 연결해야 함."
+}
