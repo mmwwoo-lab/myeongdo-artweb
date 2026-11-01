@@ -165,6 +165,138 @@ def art(title,poem,style='pop_mosaic'):
  o.append('</svg>')
  return ''.join(o)
 
+
+# 화풍별 독립된 장면 엔진: 같은 시라도 구도, 팔레트, 도형 배치가 다릅니다.
+def styled_art(title, poem, style):
+    seed=int(hashlib.sha256((title+'\n'+poem).encode('utf-8')).hexdigest()[:14],16)
+    rng=random.Random(seed)
+    text=title+' '+poem
+    symbol_scores={
+        'autumn':sum(text.count(w) for w in ('가을','홍시','단풍','낙엽','감나무','라이터')),
+        'water':sum(text.count(w) for w in ('바다','강','물','우물','안개','호수','두레박')),
+        'flowers':sum(text.count(w) for w in ('꽃','모란','상사화','개망초','유채','봄')),
+        'city':sum(text.count(w) for w in ('지하철','월촌역','포장마차','가로등','골목')),
+        'stars':sum(text.count(w) for w in ('별','달','밤','하늘')),
+        'family':sum(text.count(w) for w in ('엄마','아버지','아내','딸','아들','사람'))
+    }
+    themes=sorted(symbol_scores,key=lambda key:symbol_scores[key],reverse=True)
+    if symbol_scores[themes[0]]==0: themes=['stars','flowers','water']
+    label={'watercolor':'수채화','crayon':'감성화','portrait':'초상화'}[style]
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title,quote=True)} {label}">']
+    def add(t):o.append(t)
+    def shape(d, fill, edge='none',width=2,opacity=1):
+        add(f'<path d="{d}" fill="{fill}" stroke="{edge}" stroke-width="{width}" opacity="{opacity}"/>')
+    def circle(x,y,r,fill,edge='none',width=2,opacity=1):
+        add(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{fill}" stroke="{edge}" stroke-width="{width}" opacity="{opacity}"/>')
+    if style=='watercolor':
+        # 넓은 하늘과 호수를 중심으로 한 여백 많은 수평적 원경, 옅은 파스텔
+        sky,land,accent,stroke='#f8f2ec','#aabec3','#d9aa99','#77909a'
+        add('<defs><linearGradient id="wash" x2="0" y2="1"><stop stop-color="#e6e9f3"/><stop offset=".52" stop-color="#f6e0d9"/><stop offset="1" stop-color="#c0d8d7"/></linearGradient><filter id="soft"><feGaussianBlur stdDeviation="13"/></filter></defs>')
+        add(f'<rect width="{W}" height="{H}" fill="url(#wash)"/>')
+        for i in range(55):
+            x=rng.randrange(-80,1200);y=rng.randrange(30,680);rx=rng.randrange(35,160)
+            c=rng.choice(('#c3cadb','#e3b9ad','#a2bcc5','#dacdbe','#b7c5b5'))
+            add(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{rx*.37:.1f}" fill="{c}" opacity=".12" filter="url(#soft)"/>')
+        shape('M0 390Q160 280 340 373T680 357T1200 380V675H0Z','#a4b7bd',opacity=.38)
+        shape('M0 492Q220 443 430 495T880 480T1200 458V675H0Z','#a8cbd2',opacity=.56)
+        circle(850,267,66,'#f7dfb9',opacity=.75)
+        for i in range(34):
+            y=500+i*5;x=(i*101)%1120
+            shape(f'M{x} {y}q42 -12 84 0','none','#fdf4e9',2,.5)
+        if 'autumn' in themes[:2]:
+            shape('M-25 0Q130 120 200 280M70 100Q255 55 390 140','none','#79877b',9,.6)
+            for i in range(65):
+                x=rng.randrange(15,490);y=rng.randrange(12,320);r=rng.randrange(5,18)
+                circle(x,y,r,rng.choice(('#cf9d73','#c9a278','#d8aa86')),opacity=.42)
+        if 'flowers' in themes[:2]:
+            for i in range(20):
+                x=38+i*56;y=540+rng.randrange(0,105)
+                shape(f'M{x} 675Q{x-7} 620 {x} {y}','none','#8ba69a',2,.75)
+                circle(x,y,12,rng.choice(('#d8aab0','#dfc6d2','#f3d8b6')),opacity=.75)
+        if 'city' in themes[:2]:
+            for i in range(12):
+                x=45+i*102;h=rng.randrange(50,110)
+                add(f'<rect x="{x}" y="{465-h}" width="71" height="{h}" fill="#b6b8c2" opacity=".38"/>')
+        if 'stars' in themes[:2]:
+            for i in range(14):circle(rng.randrange(60,1150),rng.randrange(55,300),rng.randrange(2,6),'#fff4e2',opacity=.8)
+        # 수채 물감 종이결
+        for i in range(80):
+            x=rng.randrange(1200);y=rng.randrange(675)
+            shape(f'M{x} {y}q24 -12 56 0','none','#ffffff',1,.24)
+    elif style=='crayon':
+        # 비대칭 사선 구성, 동화책의 상상 세계와 발랄한 색색의 굵은 선
+        add('<rect width="1200" height="675" fill="#fff3d5"/>')
+        shape('M0 0H720L190 675H0Z','#ffe47d')
+        shape('M500 0H1200V675H800Z','#b3e2ee')
+        shape('M0 550Q280 460 520 565T1200 525V675H0Z','#a8cb7d','#4f7c65',7)
+        circle(980,136,85,'#f6aa4c','#ad5c4c',8)
+        for i in range(20):
+            x=rng.randrange(50,1140);y=rng.randrange(80,480)
+            if i%3==0:
+                shape(f'M{x} {y-15}l16 30h-32Z',rng.choice(('#ed6679','#9bcff0','#d1a4e3')),'#64518b',4)
+        if 'autumn' in themes[:2]:
+            shape('M70 630Q90 380 240 105M190 295Q320 110 480 190','none','#906a56',23)
+            for i in range(40):
+                x=rng.randrange(45,590);y=rng.randrange(45,380)
+                circle(x,y,rng.randrange(9,23),rng.choice(('#e48d4f','#f4b94d','#e77768')),'#a87a62',2)
+        if 'water' in themes[:2]:
+            for i in range(9):
+                y=405+i*25
+                shape(f'M0 {y}Q200 {y-75} 400 {y}T800 {y}T1200 {y}','none',rng.choice(('#55bed5','#80a9cc','#4a95bd')),8)
+        if 'flowers' in themes[:2]:
+            for i in range(12):
+                x=60+i*94;y=490+(i%3)*29
+                shape(f'M{x} 675V{y}','none','#668c52',6)
+                for j in range(5):
+                    a=j*math.tau/5;circle(x+math.cos(a)*20,y+math.sin(a)*20,14,'#f685a4','#ac6985',3)
+        if 'city' in themes[:2]:
+            for i in range(9):
+                x=24+i*140;h=110+(i*27)%170
+                add(f'<rect x="{x}" y="{550-h}" width="110" height="{h}" rx="5" fill="{rng.choice(("#91a8d9","#de9c9d","#8ec5c8"))}" stroke="#726585" stroke-width="5"/>')
+        # 크레용 획: 규칙적인 필터가 아니라 겹친 거친 손그림 스트로크
+        strokes=('#ed6480','#6c9ccc','#e6ac4a','#85af88','#b68dce')
+        for i in range(700):
+            x=rng.randrange(W);y=rng.randrange(H);n=rng.randrange(5,32)
+            shape(f'M{x} {y}l{n} {-n//3}','none',strokes[i%5],rng.choice((1.6,2.5,3)),rng.uniform(.15,.38))
+        shape('M14 14H1186V661H14Z','none','#d6a76c',8)
+    else:
+        # 초상화: 배경에 시의 대표 사물을 배치하고 인물을 크게 독립된 중심 구성
+        add('<defs><linearGradient id="night" x2="1" y2="1"><stop stop-color="#222d46"/><stop offset=".63" stop-color="#595174"/><stop offset="1" stop-color="#957178"/></linearGradient><radialGradient id="skin"><stop stop-color="#f2c39b"/><stop offset="1" stop-color="#bd8169"/></radialGradient></defs>')
+        add('<rect width="1200" height="675" fill="url(#night)"/>')
+        circle(930,168,96,'#e8d1a0',opacity=.75)
+        shape('M550 675Q580 400 795 380Q1010 360 1075 675Z','#3b314c','#151727',13)
+        shape('M730 390Q650 284 680 157Q735 48 846 86Q975 108 957 254Q921 387 839 405Z','url(#skin)','#272333',13)
+        shape('M685 223Q636 65 809 48Q971 31 984 215L932 147Q842 167 779 122Q734 183 685 223Z','#29283c','#131522',13)
+        shape('M747 245q34 -16 66 0M870 240q37 -15 62 2','none','#4e363f',8)
+        shape('M831 256l-18 64 21 11M782 349q51 21 90 0','none','#8a554e',7)
+        shape('M753 405l91 120 80 -125','none','#b48c7d',12)
+        # 인물화 배경 상징: 인물과 함께 의미가 드러나도록 배치
+        if 'autumn' in themes[:2]:
+            shape('M0 10Q250 80 450 20M80 0L190 185','none','#5d4039',18)
+            for i in range(22):
+                x=rng.randrange(50,560);y=rng.randrange(18,330)
+                circle(x,y,rng.randrange(8,20),rng.choice(('#c8794f','#dfa75d','#ad5e60')),opacity=.9)
+        if 'water' in themes[:2]:
+            shape('M0 440Q235 370 490 440T650 435V675H0Z','#356d84',opacity=.8)
+            for i in range(15):
+                y=480+i*12;shape(f'M15 {y}q90 -30 195 0T435 {y}','none','#c5d2ca',3,.65)
+        if 'flowers' in themes[:2]:
+            for i in range(11):
+                x=60+(i*51)%470;y=330+(i*61)%230
+                circle(x,y,22,rng.choice(('#dba9b6','#f1d8a9','#eb8d9e')),'#886374',3)
+        if 'city' in themes[:2]:
+            for i in range(8):
+                x=25+i*65;h=135+(i*31)%130
+                add(f'<rect x="{x}" y="{480-h}" width="48" height="{h}" fill="#826681" stroke="#343147" stroke-width="4"/>')
+        if 'stars' in themes[:2]:
+            for i in range(18):
+                x=rng.randrange(35,540);y=rng.randrange(45,340)
+                circle(x,y,rng.randrange(2,6),'#f6dca2')
+        shape('M12 12H1188V663H12Z','none','#bd9b83',8)
+    add('</svg>')
+    return ''.join(o)
+
+
 class handler(BaseHTTPRequestHandler):
  def do_POST(self):
   try:
@@ -177,7 +309,7 @@ class handler(BaseHTTPRequestHandler):
    poem=str(payload.get('poem',''))[:15000]
    if not title or not poem: self.send_error(400,'Missing poem');return
    if style not in STYLES: self.send_error(400,'Unsupported art style');return
-   body=art(title,poem,style).encode('utf-8')
+   body=(art(title,poem,style) if style=='pop_mosaic' else styled_art(title,poem,style)).encode('utf-8')
    self.send_response(200)
    self.send_header('Content-Type','image/svg+xml; charset=utf-8')
    self.send_header('Cache-Control','no-store')
