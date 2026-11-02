@@ -237,40 +237,49 @@ function stainedGlass(seed,p){
  const rand=()=>{v=(Math.imul(1664525,v)+1013904223)>>>0;return v/4294967296};
  const cols=54,rows=32,cw=1200/cols,ch=680/rows;
  const points=[];
- for(let y=0;y<=rows;y++){let line=[];for(let x=0;x<=cols;x++){
+ for(let y=0;y<=rows;y++){const line=[];for(let x=0;x<=cols;x++){
   const px=x*cw+(x===0||x===cols?0:(rand()-.5)*cw*.50);
   const py=y*ch+(y===0||y===rows?0:(rand()-.5)*ch*.52);
   line.push([+px.toFixed(1),+py.toFixed(1)]);
  }points.push(line);}
- const colors=[p[0],p[1],p[2],p[3],"#b4def2","#faeac3","#f095cf","#8cdba7","#8663ba","#ff984c","#70cce6","#dcd1f2"];
- const poly=(a,b,c,i)=>{
+ // 밝은 유리 안료: 잉크처럼 어두운 색을 피하고 루비, 금색, 터키석, 사파이어, 자수정의 색상 대비를 확장.
+ const colors=["#ffed68","#ffca27","#fff5b2","#ff7b4e","#ff447a","#ff91c0","#ff4fa1","#32e5e2","#53c6ff","#6dc7ff","#88f0d2","#bda1ff","#a779f9","#e4f7ff","#b7f26c","#f29ff1",p[1],p[2],p[3]];
+ const poly=(a,b,c)=>{
    const color=colors[Math.floor(rand()*colors.length)];
-   const opacity=(.11+rand()*.20).toFixed(2);
-   const lead=(.30+rand()*.33).toFixed(2);
-   return '<path d="M'+a.join(' ')+'L'+b.join(' ')+'L'+c.join(' ')+'Z" fill="'+color+'" fill-opacity="'+opacity+'" stroke="#0d1731" stroke-opacity="'+lead+'" stroke-width="'+(1.05+rand()*.6).toFixed(2)+'" stroke-linejoin="round"/>';
+   const opacity=(.33+rand()*.27).toFixed(2);
+   const lead=(.57+rand()*.27).toFixed(2);
+   const edge=(.90+rand()*.55).toFixed(2);
+   const d='M'+a.join(' ')+'L'+b.join(' ')+'L'+c.join(' ')+'Z';
+   return '<path d="'+d+'" fill="'+color+'" fill-opacity="'+opacity+'" stroke="#111532" stroke-opacity="'+lead+'" stroke-width="'+edge+'" stroke-linejoin="round"/>';
  };
  let out='<g class="stained-glass-fragments" pointer-events="none">';
  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
    const a=points[y][x],b=points[y][x+1],c=points[y+1][x],d=points[y+1][x+1];
-   if(rand()<.5){out+=poly(a,b,d,0)+poly(a,d,c,1)}
-   else {out+=poly(a,b,c,0)+poly(b,d,c,1)}
+   if(rand()<.5){out+=poly(a,b,d)+poly(a,d,c)}
+   else {out+=poly(a,b,c)+poly(b,d,c)}
  }
- // 빛의 흐름과 유리질 결, 화면당 위치를 달리하는 다층 프리즘.
+ // 유리 조각 사이에서 새어 들어오는 강한 역광과 프리즘 컬러.
+ out+='<path d="M0 0H1200V680H0Z" fill="url(#glassBacklight)" opacity=".52"/>';
  out+='<g fill="none" stroke="#ffffff" stroke-linecap="round">';
- for(let i=0;i<115;i++){
+ for(let i=0;i<240;i++){
    const x=Math.round(rand()*1200),y=Math.round(rand()*680),w=5+rand()*22;
-   out+='<path d="M'+x+' '+y+'l'+w.toFixed(1)+' '+(-w*.37).toFixed(1)+'" stroke-width="'+(1+rand()*2).toFixed(1)+'" opacity="'+(.12+rand()*.42).toFixed(2)+'"/>';
+   out+='<path d="M'+x+' '+y+'l'+w.toFixed(1)+' '+(-w*.37).toFixed(1)+'" stroke-width="'+(1+rand()*2).toFixed(1)+'" opacity="'+(.24+rand()*.57).toFixed(2)+'"/>';
  }
- out+='</g></g>';
+ out+='</g>';
+ // 유리 표면에 산란하는 보석 같은 작고 선명한 반짝임.
+ for(let i=0;i<65;i++){
+   const x=Math.round(rand()*1200),y=Math.round(rand()*680),r=(2+rand()*6).toFixed(1);
+   out+='<path d="M'+x+' '+(y-Number(r))+'v'+(2*Number(r))+'M'+(x-Number(r))+' '+y+'h'+(2*Number(r))+'" fill="none" stroke="#fffde9" stroke-width="1.8" opacity="'+(.36+rand()*.42).toFixed(2)+'"/>';
+ }
+ out+='</g>';
  return out;
 }
-
 function build(slug,index,title){
  const spec=SCENES[title]||(title==='무경계(無境界)'?['horizon','하늘과 바다, 구름과 물결','#184d87','#9fd5ef']:null);
  if(!spec)return null;
  const seed=Array.from(title).reduce((n,c)=>Math.imul(n,31)+c.charCodeAt(0),17)>>>0;
  const p=popPalette(seed);
- const defs='<defs><pattern id="popdots" patternUnits="userSpaceOnUse" width="15" height="15"><circle cx="7" cy="7" r="2.6" fill="'+p[4]+'" opacity=".34"/></pattern><clipPath id="popclip"><rect width="1200" height="680" rx="0"/></clipPath></defs>';
+ const defs='<defs><pattern id="popdots" patternUnits="userSpaceOnUse" width="15" height="15"><circle cx="7" cy="7" r="2.6" fill="'+p[4]+'" opacity=".34"/></pattern><clipPath id="popclip"><rect width="1200" height="680" rx="0"/></clipPath><radialGradient id="glassBacklight" cx="78%" cy="22%" r="94%"><stop offset="0" stop-color="#fffad2" stop-opacity=".79"/><stop offset=".25" stop-color="#ffe5ac" stop-opacity=".38"/><stop offset=".55" stop-color="#ffd5ef" stop-opacity=".20"/><stop offset="1" stop-color="#c5e8ff" stop-opacity="0"/></radialGradient></defs>';
  let main=scene(spec)+(glassMotifs[title]?glassMotifs[title]():'')+poeticDetails(spec[0])+popDetail(title,spec[0],p);
  // 매 작품의 도상·인물·장소를 보존하면서 3천 개 이상의 유리 다각형을 겹친다.
  const glass=stainedGlass(seed,p);
