@@ -229,6 +229,42 @@ function popPrint(seed,p){
  o+='</g>';return o;
 }
 
+
+/* 고밀도 스테인드글라스: 시화별 시드로 불규칙 유리 파편을 생성.
+   원경과 사람·사물의 기초 형상을 먼저 그려 내용이 사라지지 않도록 한다. */
+function stainedGlass(seed,p){
+ let v=(seed^0x6b32f971)>>>0;
+ const rand=()=>{v=(Math.imul(1664525,v)+1013904223)>>>0;return v/4294967296};
+ const cols=54,rows=32,cw=1200/cols,ch=680/rows;
+ const points=[];
+ for(let y=0;y<=rows;y++){let line=[];for(let x=0;x<=cols;x++){
+  const px=x*cw+(x===0||x===cols?0:(rand()-.5)*cw*.50);
+  const py=y*ch+(y===0||y===rows?0:(rand()-.5)*ch*.52);
+  line.push([+px.toFixed(1),+py.toFixed(1)]);
+ }points.push(line);}
+ const colors=[p[0],p[1],p[2],p[3],"#b4def2","#faeac3","#f095cf","#8cdba7","#8663ba","#ff984c","#70cce6","#dcd1f2"];
+ const poly=(a,b,c,i)=>{
+   const color=colors[Math.floor(rand()*colors.length)];
+   const opacity=(.11+rand()*.20).toFixed(2);
+   const lead=(.30+rand()*.33).toFixed(2);
+   return '<path d="M'+a.join(' ')+'L'+b.join(' ')+'L'+c.join(' ')+'Z" fill="'+color+'" fill-opacity="'+opacity+'" stroke="#0d1731" stroke-opacity="'+lead+'" stroke-width="'+(1.05+rand()*.6).toFixed(2)+'" stroke-linejoin="round"/>';
+ };
+ let out='<g class="stained-glass-fragments" pointer-events="none">';
+ for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+   const a=points[y][x],b=points[y][x+1],c=points[y+1][x],d=points[y+1][x+1];
+   if(rand()<.5){out+=poly(a,b,d,0)+poly(a,d,c,1)}
+   else {out+=poly(a,b,c,0)+poly(b,d,c,1)}
+ }
+ // 빛의 흐름과 유리질 결, 화면당 위치를 달리하는 다층 프리즘.
+ out+='<g fill="none" stroke="#ffffff" stroke-linecap="round">';
+ for(let i=0;i<115;i++){
+   const x=Math.round(rand()*1200),y=Math.round(rand()*680),w=5+rand()*22;
+   out+='<path d="M'+x+' '+y+'l'+w.toFixed(1)+' '+(-w*.37).toFixed(1)+'" stroke-width="'+(1+rand()*2).toFixed(1)+'" opacity="'+(.12+rand()*.42).toFixed(2)+'"/>';
+ }
+ out+='</g></g>';
+ return out;
+}
+
 function build(slug,index,title){
  const spec=SCENES[title]||(title==='무경계(無境界)'?['horizon','하늘과 바다, 구름과 물결','#184d87','#9fd5ef']:null);
  if(!spec)return null;
@@ -236,13 +272,13 @@ function build(slug,index,title){
  const p=popPalette(seed);
  const defs='<defs><pattern id="popdots" patternUnits="userSpaceOnUse" width="15" height="15"><circle cx="7" cy="7" r="2.6" fill="'+p[4]+'" opacity=".34"/></pattern><clipPath id="popclip"><rect width="1200" height="680" rx="0"/></clipPath></defs>';
  let main=scene(spec)+(glassMotifs[title]?glassMotifs[title]():'')+poeticDetails(spec[0])+popDetail(title,spec[0],p);
- // 새 화면은 색유리 오버레이를 사용하지 않는 정통 팝아트 색면 일러스트레이션.
- return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 팝아트 시화')+'">'
- +defs+popBackground(seed,p)+'<g id="pop-main" stroke-linejoin="round" stroke-linecap="round">'+main+'</g>'
- +'<path d="M0 0H1200V680H0Z" fill="url(#popdots)" opacity=".07" pointer-events="none"/>'
- +popPrint(seed,p)
- +'<rect x="10" y="10" width="1180" height="660" fill="none" stroke="'+p[4]+'" stroke-width="20"/>'
- +'<path d="M20 20h1160M20 660h1160" stroke="'+p[1]+'" stroke-width="7"/>'
+ // 매 작품의 도상·인물·장소를 보존하면서 3천 개 이상의 유리 다각형을 겹친다.
+ const glass=stainedGlass(seed,p);
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 모자이크 스테인드글라스 시화')+'">'
+ +defs+popBackground(seed,p)+'<g id="poetry-scene" stroke-linejoin="round" stroke-linecap="round">'+main+'</g>'
+ +glass
+ +'<rect x="7" y="7" width="1186" height="666" fill="none" stroke="#12152b" stroke-width="17"/>'
+ +'<rect x="18" y="18" width="1164" height="644" fill="none" stroke="'+p[1]+'" stroke-opacity=".8" stroke-width="5"/>'
  +'</svg>';
 }
 function install(){
@@ -252,7 +288,7 @@ function install(){
    const markup=build(slug,index,title);
    if(!markup){return original(root,slug,index,title);}
    if(!root)return;
-   const img=document.createElement('img');img.alt=title+' — '+(ANALYSIS[title]?ANALYSIS[title][0]:title)+'; 팝아트 시화';
+   const img=document.createElement('img');img.alt=title+' — '+(ANALYSIS[title]?ANALYSIS[title][0]:title)+'; 모자이크·스테인드글라스 시화';
    img.loading='eager';img.decoding='async';img.src=URL.createObjectURL(new Blob([markup],{type:'image/svg+xml;charset=utf-8'}));img.onload=function(){URL.revokeObjectURL(img.src)};root.replaceChildren(img);
  };
  window.MyeongdoArtDirector={scenes:SCENES,analysis:ANALYSIS,build:build};
