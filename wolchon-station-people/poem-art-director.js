@@ -5,9 +5,10 @@
  */
 (function(){
 "use strict";
-const SCENES={"보리 보리 쌀":["hands","유년의 손놀이, 두 손과 붉은 노을, 그리운 어린 시절","#17375f","#e88b58"],"선물":["gift","대명동 옛 골목, 조그만 셋방, 김 꾸러미, 오래된 시간","#344b70","#f2bb75"],"낮별":["station","월촌역 지하철 입구, 커피 잔과 낮하늘의 희미한 별","#275d82","#f1cd86"],"우편함":["mail","옛 우편함과 손편지, 고요한 골목, 쓸쓸한 저녁","#385b75","#e9a75f"],"향기의 행방":["flowerfield","영천 꽃밭, 유채꽃과 작약, 웃음, 봄 소풍","#2b5578","#e9c568"],"산바람에 귀를 대고":["mountain","가창 우록 산길, 박새와 분홍 꽃망울, 맑은 산바람","#32617b","#e7b0a2"],"가을 분실물":["pocket","빈 주머니와 가을바람, 낙엽이 흐르는 거리","#1d365f","#f2a150"],"신기루":["dust","돌개바람과 먼지, 저녁노을, 흩어지는 깃털","#254985","#e5a056"],"엄마 생각":["home","아랫목에 잠든 아이들, 어머니의 따뜻한 손","#374f77","#f0b48b"],"상사화":["lily","꽃과 잎이 만나지 못하는 붉은 상사화 꽃밭","#345f7a","#e96567"],"휘날리는 태극기는":["flag","푸른 하늘에 태극기, 산 능선과 강물","#184478","#e8bf70"],"강":["river","굽이치는 강과 황금빛 수면, 저 멀리 산","#285478","#bfcfa8"],"아버지의 지게":["father","황토길을 걷는 아버지, 어깨 위 지게, 저녁 산마을","#39516a","#eab573"],"보름달":["moon","호수 위에 떠오른 보름달과 고요한 빈 배","#233568","#f1cd85"],"개망초 꽃":["daisy","하얀 개망초 꽃이 가득한 들길, 조용한 아내의 손","#3a6377","#f1d4a8"],"모란이 피던 날":["peony","붉은 모란과 미소 짓는 아내, 푸른 하늘 담긴 항아리","#385a80","#e79eae"],"나는 누구에겐가 안기고 싶다":["subway","쓸쓸한 퇴근길 지하철과 고독한 승객","#1c366a","#f2be84"],"꿈꾸는 크레파스":["crayon","빨간 크레파스, 무지개, 지붕 위 수탉, 흔들리는 그네","#3b4595","#f59c65"],"뿌리":["well","윤동주를 떠올리는 오래된 우물, 별, 바람과 나무뿌리","#1a356c","#f2c985"],"가을 타기":["autumn","포장마차와 외로운 남자, 라이터, 가로등, 보름달, 홍시","#112f77","#ed8c4a"],"하나뿐인 예쁜 딸아":["daughter","따뜻한 부녀의 정, 봄꽃과 나비, 햇살","#345b87","#f4a2b3"],"세월이 가르쳐 준 삶의 품격":["tree","오래된 나무와 넓게 뻗은 가지, 시간의 햇살","#30516c","#d6b778"],"그림자의 동행":["couple","노을길을 나란히 걷는 두 사람과 긴 그림자","#2f4379","#e6aa89"],"물안개":["mist","새벽 호수 위에 번지는 물안개와 산그림자","#2d5878","#a7c8cd"],"막걸리를 마시며":["bowl","막걸리 사발과 손, 조용한 밤 풍경","#384970","#e5cda8"],"별이 된 아들아":["sonstar","별빛 아래 두 사람의 실루엣과 따뜻한 추모","#17275d","#e9c790"]};
+const SCENES={"잔불":["ember","잠 못 이루는 밤과 봄 햇살이 드는 창가, 졸음에 겨운 사람, 소식과 꺼지지 않은 사랑의 잔불","#2a3a78","#f7b26c"],"보리 보리 쌀":["hands","유년의 손놀이, 두 손과 붉은 노을, 그리운 어린 시절","#17375f","#e88b58"],"선물":["gift","대명동 옛 골목, 조그만 셋방, 김 꾸러미, 오래된 시간","#344b70","#f2bb75"],"낮별":["station","월촌역 지하철 입구, 커피 잔과 낮하늘의 희미한 별","#275d82","#f1cd86"],"우편함":["mail","옛 우편함과 손편지, 고요한 골목, 쓸쓸한 저녁","#385b75","#e9a75f"],"향기의 행방":["flowerfield","영천 꽃밭, 유채꽃과 작약, 웃음, 봄 소풍","#2b5578","#e9c568"],"산바람에 귀를 대고":["mountain","가창 우록 산길, 박새와 분홍 꽃망울, 맑은 산바람","#32617b","#e7b0a2"],"가을 분실물":["pocket","빈 주머니와 가을바람, 낙엽이 흐르는 거리","#1d365f","#f2a150"],"신기루":["dust","돌개바람과 먼지, 저녁노을, 흩어지는 깃털","#254985","#e5a056"],"엄마 생각":["home","아랫목에 잠든 아이들, 어머니의 따뜻한 손","#374f77","#f0b48b"],"상사화":["lily","꽃과 잎이 만나지 못하는 붉은 상사화 꽃밭","#345f7a","#e96567"],"휘날리는 태극기는":["flag","푸른 하늘에 태극기, 산 능선과 강물","#184478","#e8bf70"],"강":["river","굽이치는 강과 황금빛 수면, 저 멀리 산","#285478","#bfcfa8"],"아버지의 지게":["father","황토길을 걷는 아버지, 어깨 위 지게, 저녁 산마을","#39516a","#eab573"],"보름달":["moon","호수 위에 떠오른 보름달과 고요한 빈 배","#233568","#f1cd85"],"개망초 꽃":["daisy","하얀 개망초 꽃이 가득한 들길, 조용한 아내의 손","#3a6377","#f1d4a8"],"모란이 피던 날":["peony","붉은 모란과 미소 짓는 아내, 푸른 하늘 담긴 항아리","#385a80","#e79eae"],"나는 누구에겐가 안기고 싶다":["subway","쓸쓸한 퇴근길 지하철과 고독한 승객","#1c366a","#f2be84"],"꿈꾸는 크레파스":["crayon","빨간 크레파스, 무지개, 지붕 위 수탉, 흔들리는 그네","#3b4595","#f59c65"],"뿌리":["well","윤동주를 떠올리는 오래된 우물, 별, 바람과 나무뿌리","#1a356c","#f2c985"],"가을 타기":["autumn","포장마차와 외로운 남자, 라이터, 가로등, 보름달, 홍시","#112f77","#ed8c4a"],"하나뿐인 예쁜 딸아":["daughter","따뜻한 부녀의 정, 봄꽃과 나비, 햇살","#345b87","#f4a2b3"],"세월이 가르쳐 준 삶의 품격":["tree","오래된 나무와 넓게 뻗은 가지, 시간의 햇살","#30516c","#d6b778"],"그림자의 동행":["couple","노을길을 나란히 걷는 두 사람과 긴 그림자","#2f4379","#e6aa89"],"물안개":["mist","새벽 호수 위에 번지는 물안개와 산그림자","#2d5878","#a7c8cd"],"막걸리를 마시며":["bowl","막걸리 사발과 손, 조용한 밤 풍경","#384970","#e5cda8"],"별이 된 아들아":["sonstar","별빛 아래 두 사람의 실루엣과 따뜻한 추모","#17275d","#e9c790"]};
 
 const ANALYSIS={
+"잔불":["짧은 밤·뒤척임·봄 햇살·창가·졸음·소식·잔불","사랑·돌봄·기다림","타인의 짧은 밤을 함께 견디며 일상 속에서 꺼지지 않는 사랑의 온기를 지킨다"],
 "보리 보리 쌀":["손놀이·작은 주먹·치맛자락·처마·붉은 노을","그리움","어린 시절의 즐거움과 되돌아오지 않는 시간"],
 "선물":["대명동 단칸방·김 꾸러미·좁은 셋방·낡은 골목","회상","얇은 선물에 쌓인 삶의 무게"],
 "낮별":["월촌역 7번 출구·커피잔·꽃향기·별빛·지나간 사람","그리움","떠난 사람을 감각으로 기억하는 시간"],
@@ -274,13 +275,33 @@ function stainedGlass(seed,p){
  out+='</g>';
  return out;
 }
+function emberPoemScene(){
+ // 밤의 푸름과 봄 햇살, 창가에서 조는 인물과 작은 불씨.
+ return '<g aria-label="잔불: 잠들지 못한 사람이 앉은 창가, 봄 햇살, 밤과 사랑의 작은 불씨">'
+ +'<rect x="66" y="88" width="530" height="390" rx="13" fill="#8fd6f5" stroke="#20234a" stroke-width="20"/>'
+ +'<path d="M326 98V468M78 285H586" fill="none" stroke="#f8e2a7" stroke-width="17"/>'
+ +'<circle cx="470" cy="180" r="85" fill="#ffedb2" stroke="#eac27e" stroke-width="10"/>'
+ +'<path d="M108 442Q260 358 540 447" fill="none" stroke="#fff5db" stroke-width="23" opacity=".8"/>'
+ +'<path d="M575 565Q700 497 827 561L908 668H565Z" fill="#e0a57f" stroke="#20213d" stroke-width="12"/>'
+ +'<ellipse cx="745" cy="335" rx="75" ry="99" fill="#e8af8a" stroke="#262441" stroke-width="12"/>'
+ +'<path d="M667 317Q666 216 751 229Q837 236 825 314L789 281Q724 295 667 317Z" fill="#282b50" stroke="#20213d" stroke-width="9"/>'
+ +'<path d="M704 353q19 9 32 0m30 0q17 9 32 0" stroke="#664c4d" stroke-width="5" fill="none"/>'
+ +'<path d="M650 433Q738 407 814 454L896 670H558Z" fill="#605ca1" stroke="#24223b" stroke-width="10"/>'
+ +'<path d="M572 571H967V640H572Z" fill="#ab775f" stroke="#25243c" stroke-width="9"/>'
+ +'<path d="M864 566l54 -86 42 88Z" fill="#ffba63" stroke="#39274d" stroke-width="8"/>'
+ +'<path d="M907 488q-39 -33 6 -78q54 48 -6 78Z" fill="#fff5af" stroke="#f07852" stroke-width="7"/>'
+ +'<path d="M980 228l55 -20 35 46 -52 32Z" fill="#fff4d8" stroke="#564b65" stroke-width="7"/>'
+ +'<path d="M1030 90q60 -70 115 0" fill="none" stroke="#d2c6f3" stroke-width="11" opacity=".65"/>'
+ +'</g>';
+}
+
 function build(slug,index,title){
  const spec=SCENES[title]||(title==='무경계(無境界)'?['horizon','하늘과 바다, 구름과 물결','#184d87','#9fd5ef']:null);
  if(!spec)return null;
  const seed=Array.from(title).reduce((n,c)=>Math.imul(n,31)+c.charCodeAt(0),17)>>>0;
  const p=popPalette(seed);
  const defs='<defs><pattern id="popdots" patternUnits="userSpaceOnUse" width="15" height="15"><circle cx="7" cy="7" r="2.6" fill="'+p[4]+'" opacity=".34"/></pattern><clipPath id="popclip"><rect width="1200" height="680" rx="0"/></clipPath><radialGradient id="glassBacklight" cx="78%" cy="22%" r="94%"><stop offset="0" stop-color="#fffad2" stop-opacity=".79"/><stop offset=".25" stop-color="#ffe5ac" stop-opacity=".38"/><stop offset=".55" stop-color="#ffd5ef" stop-opacity=".20"/><stop offset="1" stop-color="#c5e8ff" stop-opacity="0"/></radialGradient></defs>';
- let main=scene(spec)+(glassMotifs[title]?glassMotifs[title]():'')+poeticDetails(spec[0])+popDetail(title,spec[0],p);
+ let main=scene(spec)+(glassMotifs[title]?glassMotifs[title]():'')+poeticDetails(spec[0])+popDetail(title,spec[0],p)+(title==='잔불'?emberPoemScene():'');
  // 매 작품의 도상·인물·장소를 보존하면서 3천 개 이상의 유리 다각형을 겹친다.
  const glass=stainedGlass(seed,p);
  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="'+esc(title+' 모자이크 스테인드글라스 시화')+'">'
